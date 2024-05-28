@@ -1,6 +1,6 @@
 # Beitrag zu Herz der Mutigen: Das Schicksal des Königreichs
 
-Wir freuen uns über Beiträge von der Community und sind dankbar für jede Hilfe, die wir bekommen können. Hier sind einige Richtlinien, die du befolgen solltest, wenn du zum Projekt beitragen möchtest.
+Ich freue mich über Beiträge von der Community und bin dankbar für jede Hilfe, die ich bekommen kann. Hier sind einige Richtlinien, die du befolgen solltest, wenn du zum Projekt beitragen möchtest.
 
 ## Code of Conduct
 
