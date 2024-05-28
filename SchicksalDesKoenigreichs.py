@@ -39,10 +39,10 @@ class LevelSystem:
 
     def level_up(self, spieler):
         self.level += 1
-        spieler.max_lebenspunkte += 10  # Erhöhe die maximalen Lebenspunkte des Spielers um 30 bei jedem Levelaufstieg
+        spieler.max_lebenspunkte += 10  # Erhöhe die maximalen Lebenspunkte des Spielers um 10 bei jedem Levelaufstieg
         spieler.lebenspunkte = spieler.max_lebenspunkte  # Fülle die Lebenspunkte auf das Maximum auf
         print(f"Glückwunsch! Du hast Level {self.level} erreicht! Deine maximalen Lebenspunkte wurden um 10 erhöht und sind jetzt {spieler.max_lebenspunkte}.")
-        # Erhöhe die Attribute der Gegner um 15%
+        # Erhöhe die Attribute der Gegner um 15% jedesmal wenn der spieler 1 Level aufsteigt.
         spieler.gegner_multiplikator *= 1.15  # Skaliere den Multiplikator um 15%
         spieler.spielfeld = erstelle_spielfeld(spieler.gegner_multiplikator)  # Aktualisiere das Spielfeld mit stärkeren Gegnern
 
@@ -75,9 +75,9 @@ class Spieler:
         return random.randint(1, SPIELER_MAX_SCHADEN)
 
     def heilen(self):
-         # Erhöhe die Lebenspunkte des Spielers um 30, aber nicht über das Maximum
-        self.lebenspunkte = min(self.lebenspunkte + 30, self.max_lebenspunkte)
-        print(f"Als Siegesbonus wurden die Lebenspunkte des Spielers um 30 erhöht und sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.")
+         # Erhöhe die Lebenspunkte des Spielers um 20, aber nicht über das Maximum
+        self.lebenspunkte = min(self.lebenspunkte + 20, self.max_lebenspunkte)
+        print(f"Als Siegesbonus wurden die Lebenspunkte des Spielers um 20 erhöht und sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.")
         
     def add_gegenstand(self, gegenstand):
         self.gegenstaende.append(gegenstand)
