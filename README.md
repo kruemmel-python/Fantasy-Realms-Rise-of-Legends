@@ -13,7 +13,7 @@
 ## Features
 
 - Dynamisches Level-System: Sammle Erfahrungspunkte und steige im Level auf, um deine Fähigkeiten zu verbessern.
-- Vielfältige Gegner: Stelle dich einer Reihe von Gegnern, von schwachen Kobolden bis hin zu mächtigen Drachen.
+- Vielfältige Gegner: Stelle dich einer Reihe von Gegnern, von schwachen Kobolden bis hin zu mächtigen Drachen. Sie alle werden stärke mit jeden Levelaufstieg deines Spielcharacters.
 - Inventarsystem: Sammle Gegenstände und Fähigkeiten, die dir auf deiner Reise helfen werden.
 - Spannende Kämpfe: Nutze Strategie und Geschick, um in rundenbasierten Kämpfen zu triumphieren.
 
