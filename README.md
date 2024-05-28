@@ -23,9 +23,9 @@ Wir freuen uns über Beiträge von der Community! Bitte lese `CONTRIBUTING.md` f
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die `LICENSE.md`-Datei für Details.
+Dieses Projekt ist unter Lizenz lizenziert - siehe die `LICENSE.md`-Datei für Details.
 
 ## Danksagungen
 
-- Dank an alle, die an diesem Projekt mitgewirkt haben!
-- Besonderer Dank an die Community für das Feedback und die Unterstützung.
+- besonderer Dank geht an karriere tutor® https://www.karrieretutor.de deren Dozenten (Boris Dreyer und Michael Schmitz), die mich im Laufe meiner Schulung, auf diese Idee gebracht haben.
+
