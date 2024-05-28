@@ -19,7 +19,7 @@
 
 ## Mitwirken
 
-Wir freuen uns über Beiträge von der Community! Bitte lese `CONTRIBUTING.md` für Details zu unserem Code of Conduct und dem Prozess für das Einreichen von Pull Requests.
+Ich freue mich über Beiträge von der Community! Bitte lese `CONTRIBUTING.md` für Details zu meinem Code of Conduct und dem Prozess für das Einreichen von Pull Requests.
 
 ## Lizenz
 
