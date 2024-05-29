@@ -29,3 +29,33 @@ Dieses Projekt ist unter Lizenz lizenziert - siehe die `LICENSE.md`-Datei für D
 
 - besonderer Dank geht an karriere tutor® https://www.karrieretutor.de deren Dozenten (Boris Dreyer und Michael Schmitz), die mich im Laufe meiner Schulung, auf diese Idee gebracht haben.
 
+
+Das Spiel "Schicksal des Königreichs" ist ein textbasiertes Rollenspiel, das in Python programmiert wurde. Hier ist eine ausführliche Beschreibung des Spiels:
+
+**Spielkonzept:**
+- Spieler beginnen ihr Abenteuer mit einer festgelegten Anzahl von Lebenspunkten und können verschiedene Gegenstände und Fähigkeiten sammeln.
+- Das Ziel ist es, durch ein Spielfeld zu navigieren, das mit Gegnern verschiedener Stärke gefüllt ist.
+- Spieler können Erfahrungspunkte sammeln, um im Level aufzusteigen, was ihre Lebenspunkte erhöht und sie stärker macht.
+
+**Hauptmerkmale:**
+- **Gegner:** Es gibt drei Typen von Gegnern – schwach, mittel und stark – mit jeweils unterschiedlichen Lebenspunkten und Schadenswerten.
+- **Level-System:** Spieler können Erfahrungspunkte sammeln und im Level aufsteigen, was ihre maximalen Lebenspunkte erhöht.
+- **Gegenstände:** Spieler können Gegenstände wie Heiltränke finden und verwenden, um ihre Lebenspunkte zu regenerieren.
+- **Fähigkeiten:** Spieler können spezielle Fähigkeiten erlernen, die im Kampf gegen Gegner eingesetzt werden können.
+- **Kämpfe:** Spieler treten in rundenbasierten Kämpfen gegen Gegner an, wobei sie abwechselnd angreifen.
+- **Speichern und Laden:** Spielerdaten können in einer CSV-Datei gespeichert und geladen werden, um den Fortschritt zu behalten.
+
+**Spielablauf:**
+1. Das Spiel beginnt mit einer Einführungsgeschichte, die den Hintergrund und das Ziel des Spiels erläutert.
+2. Spieler geben ihren Namen ein und starten entweder ein neues Spiel oder laden einen bestehenden Spielstand.
+3. Auf dem Spielfeld würfeln die Spieler, um sich fortzubewegen, und treffen auf Gegner, mit denen sie kämpfen müssen.
+4. Nach jedem gewonnenen Kampf haben die Spieler die Möglichkeit, Heiltränke zu finden und ihre Lebenspunkte zu regenerieren.
+5. Das Spiel endet, wenn der Spieler das Ende des Spielfelds erreicht oder keine Lebenspunkte mehr hat.
+
+**Technische Details:**
+- Das Spiel verwendet die `random`-Bibliothek für Zufallsereignisse wie Würfelwürfe und das Finden von Gegenständen.
+- Es gibt Klassen für Gegenstände, Fähigkeiten, das Level-System, Gegner und den Spieler, die die Logik des Spiels definieren.
+- Funktionen ermöglichen das Speichern und Laden von Spielerdaten sowie das Erstellen des Spielfelds und das Durchführen von Kämpfen.
+
+Das Spiel bietet eine interaktive Erfahrung, bei der Entscheidungen und Zufallselemente das Ergebnis beeinflussen. Es ist eine gute Übung für Programmieranfänger, um objektorientierte Programmierung und Dateiverwaltung in Python zu lernen.
+
