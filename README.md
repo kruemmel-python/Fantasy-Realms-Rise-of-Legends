@@ -31,7 +31,7 @@ Dieses Projekt ist unter Lizenz lizenziert - siehe die `LICENSE.md`-Datei für D
 
 ## Danksagungen
 
-- besonderer Dank geht an karriere tutor® https://www.karrieretutor.de deren Dozenten (Boris Dreyer und Michael Schmitz), die mich im Laufe meiner Schulung, auf diese Idee gebracht haben.
+- besonderer Dank geht an karriere tutor® https://www.karrieretutor.de deren Dozenten (Boris Dreyer und Sebastian Pignatelli), die mich im Laufe meiner Schulung, auf diese Idee gebracht haben.
 
 
 Das Spiel "Schicksal des Königreichs" ist ein textbasiertes Rollenspiel, das in Python programmiert wurde. Hier ist eine ausführliche Beschreibung des Spiels:
