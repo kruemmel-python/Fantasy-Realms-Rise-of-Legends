@@ -1,3 +1,7 @@
+Eine ausführliche Beschreibung des Codes ist hier zu finden: `ausfuehrliche-codebeschreibung.md`
+
+
+
 # Herz der Mutigen: Das Schicksal des Königreichs
 
 ## Über das Spiel
