@@ -8,7 +8,7 @@ MAX_SCHADEN = {'schwach': 30, 'mittel': 40, 'stark': 50}
 SPIELFELD_GROESSE = 1000
 GEGNER_TYPEN = ['schwach', 'mittel', 'stark']
 ANZAHL_GEGNER_PRO_TYP = 50
-SPIELER_START_LEBENSPUNKTE = 100
+SPIELER_START_LEBENSPUNKTE = 300
 SPIELER_MAX_SCHADEN = 35
 CSV_DATEI = 'spielerdaten.csv'
 
@@ -39,10 +39,10 @@ class LevelSystem:
 
     def level_up(self, spieler):
         self.level += 1
-        spieler.max_lebenspunkte += 10  # Erhöhe die maximalen Lebenspunkte des Spielers um 10 bei jedem Levelaufstieg
+        spieler.max_lebenspunkte += 10  # Erhöhe die maximalen Lebenspunkte des Spielers um 30 bei jedem Levelaufstieg
         spieler.lebenspunkte = spieler.max_lebenspunkte  # Fülle die Lebenspunkte auf das Maximum auf
         print(f"Glückwunsch! Du hast Level {self.level} erreicht! Deine maximalen Lebenspunkte wurden um 10 erhöht und sind jetzt {spieler.max_lebenspunkte}.")
-        # Erhöhe die Attribute der Gegner um 15% jedesmal wenn der spieler 1 Level aufsteigt.
+        # Erhöhe die Attribute der Gegner um 15%
         spieler.gegner_multiplikator *= 1.15  # Skaliere den Multiplikator um 15%
         spieler.spielfeld = erstelle_spielfeld(spieler.gegner_multiplikator)  # Aktualisiere das Spielfeld mit stärkeren Gegnern
 
@@ -70,15 +70,68 @@ class Spieler:
         self.gegner_multiplikator = 1.0  # Startmultiplikator für die Gegner
         self.spielfeld = erstelle_spielfeld(self.gegner_multiplikator)  # Erstelle das Spielfeld mit Gegnern
 
+    def inventar_anzeigen(self):
+        if not self.gegenstaende:
+            print("Dein Inventar ist leer.")
+        else:
+            print("Du hast folgende Gegenstände in deinem Inventar:")
+            for gegenstand in self.gegenstaende:
+                print(f"{gegenstand.name} - Typ: {gegenstand.typ}, Wert: {gegenstand.wert}")
+
     def angreifen(self):
         # Spieler führt einen Angriff aus und gibt zufälligen Schaden zurück
         return random.randint(1, SPIELER_MAX_SCHADEN)
 
     def heilen(self):
-         # Erhöhe die Lebenspunkte des Spielers um 20, aber nicht über das Maximum
-        self.lebenspunkte = min(self.lebenspunkte + 20, self.max_lebenspunkte)
-        print(f"Als Siegesbonus wurden die Lebenspunkte des Spielers um 20 erhöht und sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.")
+         # Erhöhe die Lebenspunkte des Spielers um 30, aber nicht über das Maximum
+        self.lebenspunkte = min(self.lebenspunkte + 30, self.max_lebenspunkte)
+        print(f"Als Siegesbonus wurden die Lebenspunkte des Spielers um 30 erhöht und sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.")
+    
         
+    def gegenstand_verwenden(self, gegenstand_name):
+        # Suche den Gegenstand im Inventar
+        gegenstand = next((g for g in self.gegenstaende if g.name == gegenstand_name), None)
+        if gegenstand:
+            # Implementiere die Logik, um den Gegenstand zu verwenden
+            # Zum Beispiel könnte ein Heiltrank die Lebenspunkte erhöhen
+            if gegenstand.typ == 'Heiltrank':
+                self.lebenspunkte = min(self.lebenspunkte + gegenstand.wert, self.max_lebenspunkte)
+                print(f"Du hast {gegenstand.name} verwendet. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}")
+                # Entferne den Gegenstand aus dem Inventar, nachdem er verwendet wurde
+                self.gegenstaende.remove(gegenstand)
+            else:
+                print(f"Der Gegenstand {gegenstand.name} kann nicht verwendet werden.")
+        else:
+            print(f"Der Gegenstand {gegenstand_name} ist nicht in deinem Inventar.")
+
+    def heiltrank_nutzen(self):
+        # Überprüfe, ob Heiltränke im Inventar vorhanden sind
+        heiltraenke = [g for g in self.gegenstaende if g.typ == 'Heiltrank']
+        if heiltraenke:
+            antwort = input("Möchtest du einen Heiltrank verwenden? (j/n): ")
+            if antwort.lower() == 'j':
+                heiltrank = heiltraenke[0]
+                self.lebenspunkte = min(self.lebenspunkte + heiltrank.wert, self.max_lebenspunkte)
+                self.gegenstaende.remove(heiltrank)
+                print(f"Heiltrank verwendet. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}.")
+            else:
+                print("Heiltrank nicht verwendet.")
+        else:
+            print("Keine Heiltränke im Inventar.")
+
+        
+    def finde_heiltraenke(self):
+        # Bestimme die Anzahl der gefundenen Heiltränke (0, 1 oder 2)
+        anzahl_gefundene_heiltraenke = random.randint(0, 2)
+        if anzahl_gefundene_heiltraenke > 0:
+            for _ in range(anzahl_gefundene_heiltraenke):
+                heiltrank = Gegenstand('Heiltrank', 'Heiltrank', 20)
+                self.add_gegenstand(heiltrank)
+            print(f"Du hast {anzahl_gefundene_heiltraenke} Heiltrank{'e' if anzahl_gefundene_heiltraenke > 1 else ''} gefunden und deinem Inventar hinzugefügt.")
+        else:
+            print("Keine Heiltränke gefunden.")  
+
+
     def add_gegenstand(self, gegenstand):
         self.gegenstaende.append(gegenstand)
         print(f"{gegenstand.name} wurde dem Inventar hinzugefügt.")
@@ -90,25 +143,31 @@ class Spieler:
     def erfahrung_sammeln(self, punkte):
         self.level_system.erfahrung_sammeln(punkte, self)
 
+
+
+
 # Funktionen zum Speichern und Laden von Spielerdaten
+# Funktion zum Speichern von Spielerdaten in einer CSV-Datei
 def speichere_spielerdaten(spieler):
+    # Erstelle eine Liste mit den Spielerdaten
     daten = [spieler.name, spieler.lebenspunkte, spieler.max_lebenspunkte,
              spieler.level_system.erfahrung, spieler.level_system.level,
              ';'.join([gegenstand.name for gegenstand in spieler.gegenstaende]),
              ';'.join([faehigkeit.name for faehigkeit in spieler.faehigkeiten])]
 
+    # Überprüfe, ob die CSV-Datei bereits existiert
     vorhandene_daten = []
-
     if os.path.exists(CSV_DATEI):
         with open(CSV_DATEI, 'r', newline='') as file:
             reader = csv.reader(file)
             vorhandene_daten = list(reader)
 
+    # Überprüfe, ob eine Kopfzeile benötigt wird
     mit_kopfzeile = False
-
     if len(vorhandene_daten) == 0 or vorhandene_daten[0] != ['Name', 'Lebenspunkte', 'MaxLebenspunkte', 'Erfahrung', 'Level', 'Gegenstaende', 'Faehigkeiten']:
         mit_kopfzeile = True
 
+    # Aktualisiere die Daten, wenn der Spieler bereits existiert
     spieler_gefunden = False
     for i, zeile in enumerate(vorhandene_daten):
         if zeile[0] == spieler.name:
@@ -116,14 +175,17 @@ def speichere_spielerdaten(spieler):
             spieler_gefunden = True
             break
 
+    # Füge die Daten hinzu, wenn der Spieler neu ist
     if not spieler_gefunden:
         vorhandene_daten.append(daten)
 
+    # Schreibe die aktualisierten Daten in die CSV-Datei
     with open(CSV_DATEI, 'w', newline='') as file:
         writer = csv.writer(file)
         if mit_kopfzeile:
             writer.writerow(['Name', 'Lebenspunkte', 'MaxLebenspunkte', 'Erfahrung', 'Level', 'Gegenstaende', 'Faehigkeiten'])
         writer.writerows(vorhandene_daten)
+
 
 def lade_spielerdaten(name):
     if not os.path.exists(CSV_DATEI):
@@ -182,6 +244,7 @@ def kampf(spieler, gegner):
             print(f"{schaden} Schaden verursacht, {gegner.name} wurde besiegt!")
             spieler.erfahrung_sammeln(50)
             spieler.heilen()
+            spieler.finde_heiltraenke()  # Füge Heiltränke hinzu, wenn der Gegner besiegt wurde
             speichere_spielerdaten(spieler)
             return
         else:
@@ -194,6 +257,7 @@ def kampf(spieler, gegner):
             break
         else:
             print(f"{gegner.name} verursacht {gegner_schaden} Schaden. Spieler hat noch {spieler.lebenspunkte} Lebenspunkte.")
+            spieler.heiltrank_nutzen()
 
 def erzaehle_geschichte():
     geschichte = """
