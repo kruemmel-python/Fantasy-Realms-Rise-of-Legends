@@ -1,6 +1,5 @@
-import random
 import sqlite3
-import os
+import random
 
 # Konstanten definieren
 LEBENSPUNKTE = {'schwach': 50, 'mittel': 70, 'stark': 90}
@@ -24,8 +23,16 @@ def initialisiere_datenbank():
             max_lebenspunkte INTEGER,
             erfahrung INTEGER,
             level INTEGER,
-            gegenstaende TEXT,
-            faehigkeiten TEXT
+            gegner_multiplikator REAL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS inventar (
+            spieler_name TEXT,
+            gegenstand_name TEXT,
+            gegenstand_typ TEXT,
+            gegenstand_wert INTEGER,
+            FOREIGN KEY (spieler_name) REFERENCES spieler(name)
         )
     ''')
     cursor.execute('''
@@ -66,6 +73,8 @@ def initialisiere_datenbank():
     ''')
     conn.commit()
     conn.close()
+
+# Klassen und weitere Funktionen
 
 class Gegenstand:
     def __init__(self, name, typ, wert):
@@ -135,6 +144,22 @@ class Spieler:
     def angreifen(self):
         return random.randint(1, SPIELER_MAX_SCHADEN)
 
+    def faehigkeit_einsetzen(self):
+        if not self.faehigkeiten:
+            print("Keine Fähigkeiten im Inventar.")
+            return 0
+        print("Wähle eine Fähigkeit aus:")
+        for i, faehigkeit in enumerate(self.faehigkeiten):
+            print(f"{i + 1}. {faehigkeit.name} (Schaden: {faehigkeit.schaden})")
+        wahl = int(input("Nummer der Fähigkeit: ")) - 1
+        if 0 <= wahl < len(self.faehigkeiten):
+            faehigkeit = self.faehigkeiten[wahl]
+            print(f"Du setzt {faehigkeit.name} ein und verursachst {faehigkeit.schaden} Schaden.")
+            return faehigkeit.schaden
+        else:
+            print("Ungültige Auswahl.")
+            return 0
+
     def heilen(self, wert=30):
         self.lebenspunkte = min(self.lebenspunkte + wert, self.max_lebenspunkte)
         print(f"Du wurdest um {wert} Lebenspunkte geheilt. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}")
@@ -153,12 +178,16 @@ class Spieler:
     def heiltrank_nutzen(self):
         heiltraenke = [g for g in self.gegenstaende if g.typ == 'Heiltrank']
         if heiltraenke:
-            antwort = input("Möchtest du einen Heiltrank verwenden? (j/n): ")
-            if antwort.lower() == 'j':
-                self.heilen(heiltraenke[0].wert)
-                self.gegenstaende.remove(heiltraenke[0])
+            print("Wähle einen Heiltrank aus:")
+            for i, heiltrank in enumerate(heiltraenke):
+                print(f"{i + 1}. {heiltrank.name} (Wert: {heiltrank.wert})")
+            wahl = int(input("Nummer des Heiltranks: ")) - 1
+            if 0 <= wahl < len(heiltraenke):
+                heiltrank = heiltraenke[wahl]
+                self.heilen(heiltrank.wert)
+                self.gegenstaende.remove(heiltrank)
             else:
-                print("Heiltrank nicht verwendet.")
+                print("Ungültige Auswahl.")
         else:
             print("Keine Heiltränke im Inventar.")
 
@@ -195,7 +224,7 @@ class Spieler:
             for _ in range(anzahl_gefundene_faehigkeiten):
                 faehigkeit_name, faehigkeit_schaden = random.choice(faehigkeiten_liste)
                 faehigkeit = Faehigkeit(faehigkeit_name, faehigkeit_schaden)
-                self.faehigkeiten.append(faehigkeit)
+                self.add_faehigkeit(faehigkeit)
                 print(f"Du hast die Fähigkeit {faehigkeit_name} gefunden und deinem Inventar hinzugefügt.")
         else:
             print("Keine Fähigkeiten gefunden.")
@@ -203,19 +232,23 @@ class Spieler:
     def add_gegenstand(self, gegenstand):
         self.gegenstaende.append(gegenstand)
 
-def generiere_gegnernamen(typ):
-    if typ == 'schwach':
-        return f"Schwacher Gegner #{random.randint(1, 100)}"
-    elif typ == 'mittel':
-        return f"Mittelstarker Gegner #{random.randint(1, 100)}"
-    elif typ == 'stark':
-        return f"Starker Gegner #{random.randint(1, 100)}"
+    def add_faehigkeit(self, faehigkeit):
+        self.faehigkeiten.append(faehigkeit)
 
-def erstelle_spielfeld(gegner_multiplikator):
+    def nach_kampf_heilen(self):
+        self.lebenspunkte = min(self.lebenspunkte + 10, self.max_lebenspunkte)
+        print(f"Nach dem Kampf heilst du 10 Lebenspunkte. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}")
+
+# Weitere Funktionen
+
+def generiere_gegnernamen(typ):
+    return f"{typ.capitalize()} Gegner {random.randint(1, 1000)}"
+
+def erstelle_spielfeld(multiplikator):
     spielfeld = []
-    for gegner_typ in GEGNER_TYPEN:
+    for typ in GEGNER_TYPEN:
         for _ in range(ANZAHL_GEGNER_PRO_TYP):
-            gegner = Gegner(gegner_typ, gegner_multiplikator)
+            gegner = Gegner(typ, multiplikator)
             spielfeld.append(gegner)
     random.shuffle(spielfeld)
     return spielfeld
@@ -223,13 +256,18 @@ def erstelle_spielfeld(gegner_multiplikator):
 def spieler_speichern(spieler):
     conn = sqlite3.connect(DB_DATEI)
     cursor = conn.cursor()
-    gegenstaende = ','.join([f"{g.name}:{g.typ}:{g.wert}" for g in spieler.gegenstaende])
-    faehigkeiten = ','.join([f.name for f in spieler.faehigkeiten])
     cursor.execute('''
-        INSERT OR REPLACE INTO spieler (name, lebenspunkte, max_lebenspunkte, erfahrung, level, gegenstaende, faehigkeiten)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (spieler.name, spieler.lebenspunkte, spieler.max_lebenspunkte, spieler.level_system.erfahrung, 
-          spieler.level_system.level, gegenstaende, faehigkeiten))
+        INSERT OR REPLACE INTO spieler (name, lebenspunkte, max_lebenspunkte, erfahrung, level, gegner_multiplikator)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (spieler.name, spieler.lebenspunkte, spieler.max_lebenspunkte, spieler.level_system.erfahrung, spieler.level_system.level, spieler.gegner_multiplikator))
+
+    cursor.execute('DELETE FROM inventar WHERE spieler_name = ?', (spieler.name,))
+    for gegenstand in spieler.gegenstaende:
+        cursor.execute('''
+            INSERT INTO inventar (spieler_name, gegenstand_name, gegenstand_typ, gegenstand_wert)
+            VALUES (?, ?, ?, ?)
+        ''', (spieler.name, gegenstand.name, gegenstand.typ, gegenstand.wert))
+
     conn.commit()
     conn.close()
 
@@ -237,143 +275,101 @@ def spieler_laden(name):
     conn = sqlite3.connect(DB_DATEI)
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM spieler WHERE name = ?', (name,))
-    row = cursor.fetchone()
-    conn.close()
-    if row:
-        # Trennzeichen von Komma zu Semikolon ändern
-        gegenstaende_strings = row[5].split(';') if row[5] else []
-        gegenstaende = []
-        for g in gegenstaende_strings:
-            teile = g.split(':')
-            if len(teile) == 3:
-                gegenstaende = [Gegenstand(*g.split(':')) for g in row[5].split(',')] if row[5] else []
-                gegenstaende.append(gegenstaende)
-            else:
-                print(f"Fehlerhafter Gegenstand: {g}")
-        faehigkeiten = row[6].split(',') if row[6] else []
-        return Spieler(row[0], row[1], row[2], row[3], row[4], gegenstaende, faehigkeiten)
-    else:
+    spieler_daten = cursor.fetchone()
+    if not spieler_daten:
         return None
 
+    spieler = Spieler(spieler_daten[0], spieler_daten[1], spieler_daten[2], spieler_daten[3], spieler_daten[4], [], [])
+    spieler.level_system = LevelSystem(spieler_daten[3], spieler_daten[4])
+    spieler.gegner_multiplikator = spieler_daten[5]
 
+    cursor.execute('SELECT * FROM inventar WHERE spieler_name = ?', (name,))
+    inventar_daten = cursor.fetchall()
+    for gegenstand_daten in inventar_daten:
+        gegenstand = Gegenstand(gegenstand_daten[1], gegenstand_daten[2], gegenstand_daten[3])
+        spieler.gegenstaende.append(gegenstand)
 
+    conn.close()
+    return spieler
 
-def gasthaus(spieler):
-    while True:
-        print("\n--- Gasthaus ---")
-        print("1. Spielerinformationen anzeigen")
-        print("2. Inventar anzeigen")
-        print("3. Fähigkeiten anzeigen")
-        print("4. Gasthaus verlassen")
-
-        wahl = input("Was möchtest du tun? ")
-
-        if wahl == '1':
-            print(f"Spielername: {spieler.name}")
-            print(f"Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
-            print(f"Erfahrung: {spieler.level_system.erfahrung}")
-            print(f"Level: {spieler.level_system.level}")
-        elif wahl == '2':
-            spieler.inventar_anzeigen()
-        elif wahl == '3':
-            if not spieler.faehigkeiten:
-                print("Du hast keine Fähigkeiten.")
-            else:
-                print("Du hast folgende Fähigkeiten:")
-                for faehigkeit in spieler.faehigkeiten:
-                    print(f"{faehigkeit.name} - Schaden: {faehigkeit.schaden}")
-        elif wahl == '4':
-            print("Du verlässt das Gasthaus.")
-            break
-        else:
-            print("Ungültige Auswahl. Bitte versuche es erneut.")
-
-# Hauptspielschleife
 def spiel_starten():
     initialisiere_datenbank()
-
     name = input("Gib deinen Spielernamen ein: ")
     spieler = spieler_laden(name)
-    if not spieler:
-        spieler = Spieler(name, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
 
-    print(f"Willkommen, {spieler.name}!")
+    if spieler is None:
+        print(f"Spieler {name} nicht gefunden, ein neues Spiel wird gestartet.")
+        spieler = Spieler(name, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
+    else:
+        print(f"Willkommen zurück, {name}!")
 
     while True:
-        print("\n1. Weitergehen")
-        print("2. Inventar anzeigen")
-        print("3. Heiltrank verwenden")
-        print("4. Gasthaus betreten")
-        print("5. Spiel speichern und beenden")
+        print("\n1. Weitergehen\n2. Inventar anzeigen\n3. Heiltrank verwenden\n4. Gasthaus betreten\n5. Spiel speichern und beenden")
+        aktion = input("Was möchtest du tun? ")
 
-        wahl = input("Was möchtest du tun? ")
-
-        if wahl == '1':
-            if not spieler.spielfeld:
-                print("Das Spielfeld ist leer. Du hast alle Gegner besiegt!")
-                break
-            gegner = spieler.spielfeld.pop(0)
-            print(f"Ein {gegner.typ}er Gegner mit {gegner.lebenspunkte} Lebenspunkten erscheint.")
-
+        if aktion == '1':
+            gegner = random.choice(spieler.spielfeld)
+            print(f"Ein {gegner.typ} Gegner erscheint!")
             while gegner.lebenspunkte > 0 and spieler.lebenspunkte > 0:
-                while True:
-                    aktion = input("Was möchtest du tun? (angreifen/heilen/inventar/faehigkeit/gasthaus): ").lower()
-                    if aktion in ["angreifen", "heilen", "inventar", "faehigkeit", "gasthaus"]:
-                        break
-                    else:
-                        print("Ungültige Aktion. Bitte wählen Sie eine der angegebenen Aktionen.")
+                print("\nWähle deine Aktion:")
+                print("1. Angriff")
+                print("2. Fähigkeit einsetzen")
+                print("3. Heiltrank verwenden")
+                aktion = input("Aktion: ")
 
-                if aktion == "angreifen":
+                if aktion == '1':
                     schaden = spieler.angreifen()
                     gegner.lebenspunkte -= schaden
-                    print(f"Du hast {schaden} Schaden verursacht. Gegner Lebenspunkte: {gegner.lebenspunkte}")
-                elif aktion == "heilen":
-                    spieler.heilen()
-                elif aktion == "inventar":
-                    spieler.inventar_anzeigen()
-                    gegenstand_name = input("Welchen Gegenstand möchtest du verwenden? (Name eingeben oder leer lassen): ")
-                    if gegenstand_name:
-                        spieler.gegenstand_verwenden(gegenstand_name)
-                elif aktion == "faehigkeit":
-                    for i, faehigkeit in enumerate(spieler.faehigkeiten):
-                        print(f"{i + 1}: {faehigkeit.name} (Schaden: {faehigkeit.schaden})")
-                    faehigkeit_index = int(input("Welche Fähigkeit möchtest du einsetzen? (Nummer eingeben): ")) - 1
-                    if 0 <= faehigkeit_index < len(spieler.faehigkeiten):
-                        faehigkeit = spieler.faehigkeiten[faehigkeit_index]
-                        gegner.lebenspunkte -= faehigkeit.schaden
-                        print(f"Du hast {faehigkeit.schaden} Schaden mit {faehigkeit.name} verursacht. Gegner Lebenspunkte: {gegner.lebenspunkte}")
-                    else:
-                        print("Ungültige Auswahl. Bitte wählen Sie eine gültige Nummer.")
-                elif aktion == "gasthaus":
-                    gasthaus(spieler)
-                    continue
-
+                    print(f"Du greifst den Gegner an und verursachst {schaden} Schaden. Gegner hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                elif aktion == '2':
+                    schaden = spieler.faehigkeit_einsetzen()
+                    gegner.lebenspunkte -= schaden
+                    print(f"Du setzt eine Fähigkeit ein und verursachst {schaden} Schaden. Gegner hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                elif aktion == '3':
+                    spieler.heiltrank_nutzen()
+                else:
+                    print("Ungültige Aktion. Du verlierst deinen Zug.")
+                
                 if gegner.lebenspunkte > 0:
-                    gegner_schaden = gegner.angreifen()
-                    spieler.lebenspunkte -= gegner_schaden
-                    print(f"Der Gegner greift an und verursacht {gegner_schaden} Schaden. Deine Lebenspunkte: {spieler.lebenspunkte}")
+                    schaden = gegner.angreifen()
+                    spieler.lebenspunkte -= schaden
+                    print(f"Der Gegner greift dich an und verursacht {schaden} Schaden. Du hast noch {spieler.lebenspunkte} Lebenspunkte.")
 
             if spieler.lebenspunkte <= 0:
-                print("Du bist gestorben. Spiel vorbei.")
+                print("Du wurdest besiegt!")
                 break
+            else:
+                print("Du hast den Gegner besiegt!")
+                erfahrung = random.randint(10, 20)
+                print(f"Du erhältst {erfahrung} Erfahrungspunkte.")
+                spieler.level_system.erfahrung_sammeln(erfahrung, spieler)
+                
+                # Sicherstellen, dass der besiegte Gegner im Spielfeld enthalten ist
+                if gegner in spieler.spielfeld:
+                    spieler.spielfeld.remove(gegner)
+                else:
+                    print("Fehler: Gegner nicht im Spielfeld gefunden.")
 
-            print(f"Du hast den {gegner.typ}en Gegner besiegt!")
-            spieler.finde_heiltraenke()
-            erfahrungspunkte = 10 * (GEGNER_TYPEN.index(gegner.typ) + 1)
-            spieler.level_system.erfahrung_sammeln(erfahrungspunkte, spieler)  # Hier den spieler übergeben
-            spieler_speichern(spieler)
-        elif wahl == '2':
+                spieler.nach_kampf_heilen()
+                spieler.finde_schatz()
+
+        elif aktion == '2':
             spieler.inventar_anzeigen()
-        elif wahl == '3':
+
+        elif aktion == '3':
             spieler.heiltrank_nutzen()
-        elif wahl == '4':
-            gasthaus(spieler)
-        elif wahl == '5':
+
+        elif aktion == '4':
+            print("Du betrittst das Gasthaus und ruhst dich aus. Alle Lebenspunkte werden wiederhergestellt.")
+            spieler.lebenspunkte = spieler.max_lebenspunkte
+
+        elif aktion == '5':
             spieler_speichern(spieler)
             print("Spiel gespeichert. Bis zum nächsten Mal!")
             break
+
         else:
-            print("Ungültige Auswahl. Bitte versuche es erneut.")
+            print("Ungültige Eingabe. Bitte versuche es erneut.")
 
-
-spiel_starten()
+if __name__ == "__main__":
+    spiel_starten()
