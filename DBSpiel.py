@@ -106,24 +106,41 @@ class LevelSystem:
         spieler.spielfeld = erstelle_spielfeld(spieler.gegner_multiplikator)
 
 class Gegner:
-    def __init__(self, typ, multiplikator=1.0):
-        self.typ = typ
-        self.lebenspunkte = int(LEBENSPUNKTE[typ] * multiplikator)
-        self.max_schaden = int(MAX_SCHADEN[typ] * multiplikator)
-        self.name = generiere_gegnernamen(typ)
-
+    def __init__(self, id):
+        self.id = id
+        conn = sqlite3.connect(DB_DATEI)
+        cursor = conn.cursor()
+        cursor.execute('SELECT typ, lebenspunkte, max_schaden, name FROM gegner WHERE id = ?', (id,))
+        gegner_daten = cursor.fetchone()
+        conn.close()
+        if gegner_daten:
+            self.typ, self.lebenspunkte, self.max_schaden, self.name = gegner_daten
+        else:
+            raise ValueError(f"Gegner mit ID {id} nicht in der Datenbank gefunden.")
     def angreifen(self):
         return random.randint(1, self.max_schaden)
 
+def lade_gegner(id):
+    conn = sqlite3.connect(DB_DATEI)
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM gegner WHERE id = ?', (id,))
+    gegner_id = cursor.fetchone()
+    conn.close()
+    if gegner_id:
+        return Gegner(gegner_id[0])
+    else:
+        return None
+
+
 class Spieler:
-    def __init__(self, name, lebenspunkte, max_lebenspunkte, erfahrung, level, gegenstaende, faehigkeiten):
+    def __init__(self, name, lebenspunkte, max_lebenspunkte, erfahrung, level, gegenstaende, faehigkeiten, gegner_multiplikator):
         self.name = name
         self.lebenspunkte = lebenspunkte
         self.max_lebenspunkte = max_lebenspunkte
         self.level_system = LevelSystem(erfahrung, level)
         self.gegenstaende = gegenstaende
         self.faehigkeiten = faehigkeiten
-        self.gegner_multiplikator = 1.0
+        self.gegner_multiplikator = gegner_multiplikator
         self.spielfeld = erstelle_spielfeld(self.gegner_multiplikator)
 
     def inventar_anzeigen(self):
@@ -246,12 +263,16 @@ def generiere_gegnernamen(typ):
 
 def erstelle_spielfeld(multiplikator):
     spielfeld = []
-    for typ in GEGNER_TYPEN:
-        for _ in range(ANZAHL_GEGNER_PRO_TYP):
-            gegner = Gegner(typ, multiplikator)
-            spielfeld.append(gegner)
+    conn = sqlite3.connect(DB_DATEI)
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM gegner')
+    gegner_ids = cursor.fetchall()
+    conn.close()
+    for id in gegner_ids:
+        spielfeld.append(id[0])
     random.shuffle(spielfeld)
     return spielfeld
+
 
 def spieler_speichern(spieler):
     conn = sqlite3.connect(DB_DATEI)
@@ -279,7 +300,7 @@ def spieler_laden(name):
     if not spieler_daten:
         return None
 
-    spieler = Spieler(spieler_daten[0], spieler_daten[1], spieler_daten[2], spieler_daten[3], spieler_daten[4], [], [])
+    spieler = Spieler(spieler_daten[0], spieler_daten[1], spieler_daten[2], spieler_daten[3], spieler_daten[4], [], [], spieler_daten[5])
     spieler.level_system = LevelSystem(spieler_daten[3], spieler_daten[4])
     spieler.gegner_multiplikator = spieler_daten[5]
 
@@ -292,6 +313,9 @@ def spieler_laden(name):
     conn.close()
     return spieler
 
+
+# ... (Vorheriger Code bleibt unverändert)
+
 def spiel_starten():
     initialisiere_datenbank()
     name = input("Gib deinen Spielernamen ein: ")
@@ -299,7 +323,9 @@ def spiel_starten():
 
     if spieler is None:
         print(f"Spieler {name} nicht gefunden, ein neues Spiel wird gestartet.")
-        spieler = Spieler(name, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
+        # Setze einen Standardwert für den gegner_multiplikator, z.B. 1.0
+        spieler = Spieler(name, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [], 1.0)
+        spieler_speichern(spieler)  # Speichere den neuen Spieler in der Datenbank
     else:
         print(f"Willkommen zurück, {name}!")
 
@@ -308,50 +334,49 @@ def spiel_starten():
         aktion = input("Was möchtest du tun? ")
 
         if aktion == '1':
-            gegner = random.choice(spieler.spielfeld)
-            print(f"Ein {gegner.typ} Gegner erscheint!")
-            while gegner.lebenspunkte > 0 and spieler.lebenspunkte > 0:
-                print("\nWähle deine Aktion:")
-                print("1. Angriff")
-                print("2. Fähigkeit einsetzen")
-                print("3. Heiltrank verwenden")
-                aktion = input("Aktion: ")
+            gegner_id = random.choice(spieler.spielfeld)
+            gegner = lade_gegner(gegner_id)
+            if gegner:
+                print(f"Ein {gegner.typ} namens {gegner.name} erscheint!")
+                while gegner.lebenspunkte > 0 and spieler.lebenspunkte > 0:
+                    print("\nWähle deine Aktion:")
+                    print("1. Angriff")
+                    print("2. Fähigkeit einsetzen")
+                    print("3. Heiltrank verwenden")
+                    aktion = input("Aktion: ")
 
-                if aktion == '1':
-                    schaden = spieler.angreifen()
-                    gegner.lebenspunkte -= schaden
-                    print(f"Du greifst den Gegner an und verursachst {schaden} Schaden. Gegner hat noch {gegner.lebenspunkte} Lebenspunkte.")
-                elif aktion == '2':
-                    schaden = spieler.faehigkeit_einsetzen()
-                    gegner.lebenspunkte -= schaden
-                    print(f"Du setzt eine Fähigkeit ein und verursachst {schaden} Schaden. Gegner hat noch {gegner.lebenspunkte} Lebenspunkte.")
-                elif aktion == '3':
-                    spieler.heiltrank_nutzen()
-                else:
-                    print("Ungültige Aktion. Du verlierst deinen Zug.")
-                
-                if gegner.lebenspunkte > 0:
-                    schaden = gegner.angreifen()
-                    spieler.lebenspunkte -= schaden
-                    print(f"Der Gegner greift dich an und verursacht {schaden} Schaden. Du hast noch {spieler.lebenspunkte} Lebenspunkte.")
+                    if aktion == '1':
+                        schaden = spieler.angreifen()
+                        gegner.lebenspunkte -= schaden
+                        print(f"Du greifst den Gegner an und verursachst {schaden} Schaden. Gegner hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                    elif aktion == '2':
+                        schaden = spieler.faehigkeit_einsetzen()
+                        gegner.lebenspunkte -= schaden
+                        print(f"Du setzt eine Fähigkeit ein und verursachst {schaden} Schaden. Gegner hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                    elif aktion == '3':
+                        spieler.heiltrank_nutzen()
+                    else:
+                        print("Ungültige Aktion. Du verlierst deinen Zug.")
+                    
+                    if gegner.lebenspunkte > 0:
+                        schaden = gegner.angreifen()
+                        spieler.lebenspunkte -= schaden
+                        print(f"Der Gegner greift dich an und verursacht {schaden} Schaden. Du hast noch {spieler.lebenspunkte} Lebenspunkte.")
 
-            if spieler.lebenspunkte <= 0:
-                print("Du wurdest besiegt!")
-                break
-            else:
-                print("Du hast den Gegner besiegt!")
-                erfahrung = random.randint(10, 20)
-                print(f"Du erhältst {erfahrung} Erfahrungspunkte.")
-                spieler.level_system.erfahrung_sammeln(erfahrung, spieler)
-                
-                # Sicherstellen, dass der besiegte Gegner im Spielfeld enthalten ist
-                if gegner in spieler.spielfeld:
-                    spieler.spielfeld.remove(gegner)
-                else:
-                    print("Fehler: Gegner nicht im Spielfeld gefunden.")
-
-                spieler.nach_kampf_heilen()
-                spieler.finde_schatz()
+                    if spieler.lebenspunkte <= 0:
+                        print("Du wurdest besiegt!")
+                        break
+                    elif gegner.lebenspunkte <= 0:
+                        print("Du hast den Gegner besiegt!")
+                        erfahrung = random.randint(10, 20)
+                        print(f"Du erhältst {erfahrung} Erfahrungspunkte.")
+                        spieler.level_system.erfahrung_sammeln(erfahrung, spieler)
+                        
+                        # Sicherstellen, dass der besiegte Gegner im Spielfeld entfernt wird
+                        spieler.spielfeld.remove(gegner_id)
+                        
+                        spieler.nach_kampf_heilen()
+                        spieler.finde_schatz()
 
         elif aktion == '2':
             spieler.inventar_anzeigen()
