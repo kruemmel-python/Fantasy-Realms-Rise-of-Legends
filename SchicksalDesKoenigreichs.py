@@ -50,7 +50,7 @@ class Quest:
     name: str
     beschreibung: str
     belohnung: int
-    ziel_typ: str  # 'gegner' oder 'gegenstand'
+    ziel_typ: str  # 'gegner', 'gegenstand', 'fähigkeit', 'erfahrung', 'level'
     ziel_menge: int
     abgeschlossen: bool = False
     fortschritt: int = 0
@@ -131,6 +131,28 @@ class Spieler:
         self.level_system = LevelSystem(self.erfahrung, self.level)
         self.spielfeld = erstelle_spielfeld(self.gegner_multiplikator)
 
+    def quest_fortschritt_aktualisieren(self, ziel_typ: str, menge: int = 1) -> None:
+        for quest in self.tägliche_herausforderungen:
+            if quest.ziel_typ == ziel_typ and not quest.abgeschlossen:
+                quest.fortschritt_aktualisieren(menge)
+                print(f"Fortschritt bei Tagesquest {quest.name}: {quest.fortschritt_anzeigen()}")
+                if quest.abgeschlossen:
+                    self.gold += quest.belohnung
+                    print(f"Tagesquest {quest.name} abgeschlossen! Belohnung: {quest.belohnung} Gold")
+
+    def tagesquest_hinzufügen(self, quest: Tagesquest) -> None:
+        self.tägliche_herausforderungen.append(quest)
+        print(f"Tagesquest hinzugefügt: {quest.name} - {quest.beschreibung}")
+
+    def tagesquests_anzeigen(self) -> None:
+        if not self.tägliche_herausforderungen:
+            print("Keine Tagesquests verfügbar.")
+        else:
+            print("Aktuelle Tagesquests:")
+            for quest in self.tägliche_herausforderungen:
+                status = "Abgeschlossen" if quest.abgeschlossen else f"Fortschritt: {quest.fortschritt_anzeigen()}"
+                print(f"{quest.name}: {quest.beschreibung} - Belohnung: {quest.belohnung} Gold - Status: {status}")
+
     def inventar_anzeigen(self) -> None:
         print(f"Gold: {self.gold}")
         print(f"Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}")
@@ -153,7 +175,7 @@ class Spieler:
         return random.randint(1, SPIELER_MAX_SCHADEN) + waffen_schaden
 
     def verteidigen(self, schaden: int) -> int:
-        rüstung_schutz = self.rüstung.verteidigung if self.rüstung else 0
+        rüstung_schutz = self.rüstung.verlegung if self.rüstung else 0
         reduzierter_schaden = max(schaden - rüstung_schutz, 0)
         self.lebenspunkte -= reduzierter_schaden
         return reduzierter_schaden
@@ -212,7 +234,11 @@ class Spieler:
 
     def erfahrung_sammeln(self, punkte: int) -> None:
         self.level_system.erfahrung_sammeln(punkte, self)
-    
+        self.quest_fortschritt_aktualisieren('erfahrung', punkte)
+        if self.level_system.level > self.level:
+            self.level = self.level_system.level
+            self.quest_fortschritt_aktualisieren('level', self.level)
+
     def quest_hinzufügen(self, quest: Quest) -> None:
         self.quests.append(quest)
         print(f"Quest {quest.name} wurde hinzugefügt: {quest.beschreibung}")
@@ -393,7 +419,7 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             spieler.heiltrank_nutzen()
         elif wahl == '5':
             print("Du hast den Kampf abgebrochen und kehrst ins Hauptmenü zurück.")
-            return zeige_menü(spieler)   # Hier kehren wir zum Hauptmenü zurück
+            return zeige_menü(spieler)
         else:
             print("Ungültige Wahl. Bitte wähle eine Option aus dem Menü.")
 
@@ -404,10 +430,7 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             spieler.erfahrung_sammeln(50)
             spieler.heilen()
             spieler.finde_heiltränke()
-            for quest in spieler.quests:
-                if quest.ziel_typ == 'gegner' and not quest.abgeschlossen:
-                    quest.fortschritt_aktualisieren()
-                    print(f"Fortschritt bei Quest {quest.name}: {quest.fortschritt_anzeigen()}")
+            spieler.quest_fortschritt_aktualisieren('gegner', 1)
             speichere_spielerdaten(spieler)
             return
 
@@ -419,105 +442,6 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
         else:
             print(f"{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.")
             spieler.heiltrank_nutzen()
-
-def erzähle_geschichte() -> None:
-    geschichte = """
-    Herz der Mutigen: Das Schicksal des Königreichs
-    In einer Welt, die von dunklen Mächten heimgesucht wird, liegt das Schicksal aller Lebewesen in den Händen eines mutigen Abenteurers - dir. 
-    Vor langer Zeit wurde das Land in Stücke gerissen und von furchterregenden Kreaturen überrannt, die aus den Tiefen der Unterwelt kamen. 
-    Die Legende besagt, dass nur derjenige, der das sagenumwobene Artefakt 'Herz der Mutigen' findet und die vier Elementwächter besiegt, 
-    das Land vereinen und den Frieden wiederherstellen kann. Dieses Artefakt verleiht seinem Besitzer unvorstellbare Macht und die Fähigkeit, 
-    die Dunkelheit zu vertreiben. Doch der Weg ist gefährlich und nur die Tapfersten wagen es, ihn zu beschreiten.
-
-    Dein Abenteuer beginnt in den Ruinen des alten Königreichs, wo die ersten Hinweise auf das Artefakt versteckt sind. 
-    Mit jedem Gegner, den du besiegst, und jedem Rätsel, das du löst, kommst du dem Ziel näher. Aber sei gewarnt: 
-    Die Elementwächter werden nicht kampflos aufgeben. Sie werden alles in ihrer Macht Stehende tun, um dich aufzuhalten.
-
-    Am Ende des Weges, wenn du alle Prüfungen bestanden und die Wächter besiegt hast, wartet das 'Herz der Mutigen' auf dich. 
-    Mit ihm kannst du die Welt retten und als Held in die Geschichte eingehen. Bist du bereit, dein Schicksal anzunehmen und das größte Abenteuer deines Lebens zu beginnen?
-    """
-    print(geschichte)
-
-def starte_spiel() -> None:
-    name = input("Gib deinen Spielernamen ein: ")
-    erzähle_geschichte()
-    spieler = lade_spielerdaten(name)
-
-    if spieler is None:
-        spieler = Spieler(name, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
-    else:
-        spieler.lebenspunkte = spieler.max_lebenspunkte
-        print(f"Willkommen zurück, {spieler.name}! Level: {spieler.level_system.level}, Erfahrungspunkte: {spieler.level_system.erfahrung}, Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
-
-    while True:
-        zeige_menü(spieler)
-
-def zeige_menü(spieler: Spieler) -> None:
-    print("\nHauptmenü")
-    print("1: Erkunden")
-    print("2: Inventar anzeigen")
-    print("3: Fähigkeiten lernen")
-    print("4: Zauber wirken")
-    print("5: Quests anzeigen")
-    print("6: Tägliche Herausforderung abschließen")
-    print("7: Händler besuchen")
-    print("8: Spiel speichern")
-    print("9: Spiel beenden")
-
-    wahl = input("Wähle eine Option: ")
-
-    if wahl == '1':
-        erkunden(spieler)
-    elif wahl == '2':
-        spieler.inventar_anzeigen()
-    elif wahl == '3':
-        fähigkeiten_lernen(spieler)
-    elif wahl == '4':
-        zauber_wirken(spieler)
-    elif wahl == '5':
-        quests_anzeigen(spieler)
-    elif wahl == '6':
-        tägliche_herausforderung_abschließen(spieler)
-    elif wahl == '7':
-        händler_besuchen(spieler)
-    elif wahl == '8':
-        speichere_spielerdaten(spieler)
-    elif wahl == '9':
-        spiel_beenden()
-    else:
-        print("Ungültige Wahl. Bitte versuche es erneut.")
-
-def erkunden(spieler: Spieler) -> None:
-    position = 0
-    while position < SPIELFELD_GROESSE and spieler.lebenspunkte > 0:
-        input("Drücke Enter, um zu würfeln...")
-        wurf = random.randint(1, 6)
-        position += wurf
-        position = min(position, SPIELFELD_GROESSE - 1)
-        print(f"Der Spieler würfelt eine {wurf} und bewegt sich auf Feld {position}.")
-        if spieler.spielfeld[position] is not None:
-            kampf(spieler, spieler.spielfeld[position])
-            if spieler.lebenspunkte <= 0:
-                print("Der Spieler hat keine Lebenspunkte mehr und verliert das Spiel.")
-                break
-        else:
-            npc_treffen(spieler)
-        if position >= SPIELFELD_GROESSE - 1:
-            print("Der Spieler hat das Ziel erreicht und gewinnt das Spiel!")
-            break
-
-    if spieler.lebenspunkte <= 0:
-        print("Das Spiel ist zu Ende. Der Spieler hat verloren.")
-    else:
-        print("Herzlichen Glückwunsch! Der Spieler hat gewonnen.")
-
-    speichere_spielerdaten(spieler)
-
-    erneut_spielen = input("Möchtest du erneut spielen? (j/n): ")
-    if erneut_spielen.lower() == 'j':
-        starte_spiel()
-    else:
-        print("Danke fürs Spielen!")
 
 def fähigkeiten_lernen(spieler: Spieler) -> None:
     verfügbare_fähigkeiten = [
@@ -538,6 +462,7 @@ def fähigkeiten_lernen(spieler: Spieler) -> None:
         if spieler.gold >= ausgewählte_fähigkeit.kosten:
             spieler.gold -= ausgewählte_fähigkeit.kosten
             spieler.add_fähigkeit(ausgewählte_fähigkeit)
+            spieler.quest_fortschritt_aktualisieren('fähigkeit', 1)
             print(f"Du hast die Fähigkeit {ausgewählte_fähigkeit.name} gelernt.")
         else:
             print("Du hast nicht genug Gold, um diese Fähigkeit zu lernen.")
@@ -628,9 +553,127 @@ def händler_besuchen(spieler: Spieler) -> None:
     else:
         print("Abgebrochen.")
 
-
 def spiel_beenden() -> None:
     print("Das Spiel wird beendet. Danke fürs Spielen!")
     exit()
+
+def tagesquests_anzeigen(spieler: Spieler) -> None:
+    spieler.tagesquests_anzeigen()
+
+def tagesquests_generieren(spieler: Spieler) -> None:
+    tagesquests = [
+        Tagesquest(name="Besiege 10 schwache Gegner", beschreibung="Besiege 10 schwache Gegner", belohnung=50, ziel_typ='gegner', ziel_menge=10),
+        Tagesquest(name="Sammle 5 Heiltränke", beschreibung="Sammle 5 Heiltränke", belohnung=30, ziel_typ='gegenstand', ziel_menge=5),
+        Tagesquest(name="Lerne 2 Fähigkeiten", beschreibung="Lerne 2 Fähigkeiten", belohnung=40, ziel_typ='fähigkeit', ziel_menge=2),
+        Tagesquest(name="Erreiche 500 Erfahrungspunkte", beschreibung="Erreiche 500 Erfahrungspunkte", belohnung=50, ziel_typ='erfahrung', ziel_menge=500),
+        Tagesquest(name="Erreiche Level 5", beschreibung="Erreiche Level 5", belohnung=100, ziel_typ='level', ziel_menge=5),
+    ]
+    for tagesquest in tagesquests:
+        spieler.tagesquest_hinzufügen(tagesquest)
+
+def starte_tagesquests(spieler: Spieler) -> None:
+    tagesquests_generieren(spieler)
+    tagesquests_anzeigen(spieler)
+
+def zeige_menü(spieler: Spieler) -> None:
+    print("\nHauptmenü")
+    print("1: Erkunden")
+    print("2: Inventar anzeigen")
+    print("3: Fähigkeiten lernen")
+    print("4: Zauber wirken")
+    print("5: Quests anzeigen")
+    print("6: Tägliche Herausforderung anzeigen")
+    print("7: Händler besuchen")
+    print("8: Spiel speichern")
+    print("9: Spiel beenden")
+
+    wahl = input("Wähle eine Option: ")
+
+    if wahl == '1':
+        erkunden(spieler)
+    elif wahl == '2':
+        spieler.inventar_anzeigen()
+    elif wahl == '3':
+        fähigkeiten_lernen(spieler)
+    elif wahl == '4':
+        zauber_wirken(spieler)
+    elif wahl == '5':
+        quests_anzeigen(spieler)
+    elif wahl == '6':
+        tagesquests_anzeigen(spieler)
+    elif wahl == '7':
+        händler_besuchen(spieler)
+    elif wahl == '8':
+        speichere_spielerdaten(spieler)
+    elif wahl == '9':
+        spiel_beenden()
+    else:
+        print("Ungültige Wahl. Bitte versuche es erneut.")
+
+def erkunden(spieler: Spieler) -> None:
+    position = 0
+    while position < SPIELFELD_GROESSE and spieler.lebenspunkte > 0:
+        input("Drücke Enter, um zu würfeln...")
+        wurf = random.randint(1, 6)
+        position += wurf
+        position = min(position, SPIELFELD_GROESSE - 1)
+        print(f"Der Spieler würfelt eine {wurf} und bewegt sich auf Feld {position}.")
+        if spieler.spielfeld[position] is not None:
+            kampf(spieler, spieler.spielfeld[position])
+            if spieler.lebenspunkte <= 0:
+                print("Der Spieler hat keine Lebenspunkte mehr und verliert das Spiel.")
+                break
+        else:
+            npc_treffen(spieler)
+        if position >= SPIELFELD_GROESSE - 1:
+            print("Der Spieler hat das Ziel erreicht und gewinnt das Spiel!")
+            break
+
+    if spieler.lebenspunkte <= 0:
+        print("Das Spiel ist zu Ende. Der Spieler hat verloren.")
+    else:
+        print("Herzlichen Glückwunsch! Der Spieler hat gewonnen.")
+
+    speichere_spielerdaten(spieler)
+
+    erneut_spielen = input("Möchtest du erneut spielen? (j/n): ")
+    if erneut_spielen.lower() == 'j':
+        starte_spiel()
+    else:
+        print("Danke fürs Spielen!")
+
+def starte_spiel() -> None:
+    name = input("Gib deinen Spielernamen ein: ")
+    erzähle_geschichte()
+    spieler = lade_spielerdaten(name)
+
+    if spieler is None:
+        spieler = Spieler(name, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
+    else:
+        spieler.lebenspunkte = spieler.max_lebenspunkte
+        print(f"Willkommen zurück, {spieler.name}! Level: {spieler.level_system.level}, Erfahrungspunkte: {spieler.level_system.erfahrung}, Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
+
+    starte_tagesquests(spieler)
+
+    while True:
+        zeige_menü(spieler)
+
+def erzähle_geschichte() -> None:
+    geschichte = """
+    Herz der Mutigen: Das Schicksal des Königreichs
+    In einer Welt, die von dunklen Mächten heimgesucht wird, liegt das Schicksal aller Lebewesen in den Händen eines mutigen Abenteurers - dir. 
+    Vor langer Zeit wurde das Land in Stücke gerissen und von furchterregenden Kreaturen überrannt, die aus den Tiefen der Unterwelt kamen. 
+    Die Legende besagt, dass nur derjenige, der das sagenumwobene Artefakt 'Herz der Mutigen' findet und die vier Elementwächter besiegt, 
+    das Land vereinen und den Frieden wiederherstellen kann. Dieses Artefakt verleiht seinem Besitzer unvorstellbare Macht und die Fähigkeit, 
+    die Dunkelheit zu vertreiben. Doch der Weg ist gefährlich und nur die Tapfersten wagen es, ihn zu beschreiten.
+
+    Dein Abenteuer beginnt in den Ruinen des alten Königreichs, wo die ersten Hinweise auf das Artefakt versteckt sind. 
+    Mit jedem Gegner, den du besiegst, und jedem Rätsel, das du löst, kommst du dem Ziel näher. Aber sei gewarnt: 
+    Die Elementwächter werden nicht kampflos aufgeben. Sie werden alles in ihrer Macht Stehende tun, um dich aufzuhalten.
+
+    Am Ende des Weges, wenn du alle Prüfungen bestanden und die Wächter besiegt hast, wartet das 'Herz der Mutigen' auf dich. 
+    Mit ihm kannst du die Welt retten und als Held in die Geschichte eingehen. Bist du bereit, dein Schicksal anzunehmen und das größte Abenteuer deines Lebens zu beginnen?
+    """
+    print(geschichte)
 
 starte_spiel()
