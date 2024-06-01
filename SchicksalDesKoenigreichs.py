@@ -3,6 +3,8 @@ import random
 import csv
 import os
 from dataclasses import dataclass, field
+from colorama import Fore, Style
+
 
 # Konstanten
 LEBENSPUNKTE = {'schwach': 50, 'mittel': 70, 'stark': 90, 'boss': 200}
@@ -46,106 +48,7 @@ BENUTZBARE_GEGENSTAENDE = [
     Rüstung(name="Plattenpanzer", typ="Rüstung", wert=150, verteidigung=25),
     Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=8),
     Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=5),
-    Waffe(name="Klinge des Zorns", typ="Waffe", wert=110, schaden=16),
-    Waffe(name="Klinge der Weisheit", typ="Waffe", wert=120, schaden=17),
-    Waffe(name="Klinge der Ehre", typ="Waffe", wert=130, schaden=18),
-    Waffe(name="Klinge des Schicksals", typ="Waffe", wert=140, schaden=19),
-    Waffe(name="Klinge des Königs", typ="Waffe", wert=150, schaden=20),
-    Waffe(name="Klinge der Dunkelheit", typ="Waffe", wert=160, schaden=21),
-    Waffe(name="Klinge des Lichts", typ="Waffe", wert=170, schaden=22),
-    Waffe(name="Klinge des Sturms", typ="Waffe", wert=180, schaden=23),
-    Waffe(name="Klinge des Drachen", typ="Waffe", wert=190, schaden=24),
-    Waffe(name="Klinge des Chaos", typ="Waffe", wert=200, schaden=25),
-    Waffe(name="Klinge der Ruhe", typ="Waffe", wert=210, schaden=26),
-    Waffe(name="Klinge der Macht", typ="Waffe", wert=220, schaden=27),
-    Waffe(name="Klinge der Gerechtigkeit", typ="Waffe", wert=230, schaden=28),
-    Waffe(name="Klinge der Tapferkeit", typ="Waffe", wert=240, schaden=29),
-    Waffe(name="Klinge der Wahrheit", typ="Waffe", wert=250, schaden=30),
-    Waffe(name="Klinge der Legenden", typ="Waffe", wert=260, schaden=31),
-    Waffe(name="Klinge der Eroberung", typ="Waffe", wert=270, schaden=32),
-    Waffe(name="Klinge der Siege", typ="Waffe", wert=280, schaden=33),
-    Waffe(name="Klinge der Rebellion", typ="Waffe", wert=290, schaden=34),
-    Waffe(name="Klinge der Revolution", typ="Waffe", wert=300, schaden=35),
-    Waffe(name="Beil des Zerstörers", typ="Waffe", wert=130, schaden=21),
-    Waffe(name="Beil des Kriegers", typ="Waffe", wert=140, schaden=22),
-    Waffe(name="Beil des Siegers", typ="Waffe", wert=150, schaden=23),
-    Waffe(name="Beil des Berserkers", typ="Waffe", wert=160, schaden=24),
-    Waffe(name="Beil des Vandalen", typ="Waffe", wert=170, schaden=25),
-    Waffe(name="Beil des Eroberers", typ="Waffe", wert=180, schaden=26),
-    Waffe(name="Beil des Tyrannen", typ="Waffe", wert=190, schaden=27),
-    Waffe(name="Beil des Barbaren", typ="Waffe", wert=200, schaden=28),
-    Waffe(name="Beil des Schlächters", typ="Waffe", wert=210, schaden=29),
-    Waffe(name="Beil des Henkers", typ="Waffe", wert=220, schaden=30),
-    Waffe(name="Beil des Anführers", typ="Waffe", wert=230, schaden=31),
-    Waffe(name="Beil des Pioniers", typ="Waffe", wert=240, schaden=32),
-    Waffe(name="Beil des Entdeckers", typ="Waffe", wert=250, schaden=33),
-    Waffe(name="Beil des Eindringlings", typ="Waffe", wert=260, schaden=34),
-    Waffe(name="Beil des Avantgardisten", typ="Waffe", wert=270, schaden=35),
-    Waffe(name="Beil des Innovators", typ="Waffe", wert=280, schaden=36),
-    Waffe(name="Beil des Neuerers", typ="Waffe", wert=290, schaden=37),
-    Waffe(name="Beil des Erneuerers", typ="Waffe", wert=300, schaden=38),
-    Waffe(name="Beil des Reformators", typ="Waffe", wert=310, schaden=39),
-    Waffe(name="Beil des Umgestalters", typ="Waffe", wert=320, schaden=40),
-    Rüstung(name="Helm des Wächters", typ="Helm", wert=85, verteidigung=11),
-    Rüstung(name="Helm des Beschützers", typ="Helm", wert=90, verteidigung=12),
-    Rüstung(name="Helm des Verteidigers", typ="Helm", wert=95, verteidigung=13),
-    Rüstung(name="Helm des Hüters", typ="Helm", wert=100, verteidigung=14),
-    Rüstung(name="Helm des Bewahrers", typ="Helm", wert=105, verteidigung=15),
-    Rüstung(name="Helm des Schildwächters", typ="Helm", wert=110, verteidigung=16),
-    Rüstung(name="Helm des Patrons", typ="Helm", wert=115, verteidigung=17),
-    Rüstung(name="Helm des Förderers", typ="Helm", wert=120, verteidigung=18),
-    Rüstung(name="Helm des Meisters", typ="Helm", wert=125, verteidigung=19),
-    Rüstung(name="Helm des Experten", typ="Helm", wert=130, verteidigung=20),
-    Rüstung(name="Helm des Profis", typ="Helm", wert=135, verteidigung=21),
-    Rüstung(name="Helm des Virtuosen", typ="Helm", wert=140, verteidigung=22),
-    Rüstung(name="Helm des Künstlers", typ="Helm", wert=145, verteidigung=23),
-    Rüstung(name="Helm des Handwerkers", typ="Helm", wert=150, verteidigung=24),
-    Rüstung(name="Helm des Fachmanns", typ="Helm", wert=155, verteidigung=25),
-    Rüstung(name="Helm des Spezialisten", typ="Helm", wert=160, verteidigung=26),
-    Rüstung(name="Helm des Gelehrten", typ="Helm", wert=165, verteidigung=27),
-    Rüstung(name="Helm des Akademikers", typ="Helm", wert=170, verteidigung=28),
-    Rüstung(name="Helm des Dozenten", typ="Helm", wert=175, verteidigung=29),
-    Rüstung(name="Helm des Professors", typ="Helm", wert=180, verteidigung=30),
-    Rüstung(name="Panzer des Kriegers", typ="Rüstung", wert=160, verteidigung=26),
-    Rüstung(name="Panzer des Soldaten", typ="Rüstung", wert=170, verteidigung=27),
-    Rüstung(name="Panzer des Kämpfers", typ="Rüstung", wert=180, verteidigung=28),
-    Rüstung(name="Panzer des Streiters", typ="Rüstung", wert=190, verteidigung=29),
-    Rüstung(name="Panzer des Kämpen", typ="Rüstung", wert=200, verteidigung=30),
-    Rüstung(name="Panzer des Gladiators", typ="Rüstung", wert=210, verteidigung=31),
-    Rüstung(name="Panzer des Zenturios", typ="Rüstung", wert=220, verteidigung=32),
-    Rüstung(name="Panzer des Champions", typ="Rüstung", wert=230, verteidigung=33),
-    Rüstung(name="Panzer des Siegers", typ="Rüstung", wert=240, verteidigung=34),
-    Rüstung(name="Panzer des Helden", typ="Rüstung", wert=250, verteidigung=35),
-    Rüstung(name="Panzer des Eroberers", typ="Rüstung", wert=260, verteidigung=36),
-    Rüstung(name="Panzer des Imperators", typ="Rüstung", wert=270, verteidigung=37),
-    Rüstung(name="Panzer des Monarchen", typ="Rüstung", wert=280, verteidigung=38),
-    Rüstung(name="Panzer des Herrschers", typ="Rüstung", wert=290, verteidigung=39),
-    Rüstung(name="Panzer des Kaisers", typ="Rüstung", wert=300, verteidigung=40),
-    Rüstung(name="Panzer des Übermenschen", typ="Rüstung", wert=310, verteidigung=41),
-    Rüstung(name="Panzer des Titanen", typ="Rüstung", wert=320, verteidigung=42),
-    Rüstung(name="Panzer des Giganten", typ="Rüstung", wert=330, verteidigung=43),
-    Rüstung(name="Panzer des Kolosses", typ="Rüstung", wert=340, verteidigung=44),
-    Rüstung(name="Panzer des Olympiers", typ="Rüstung", wert=350, verteidigung=45),
-    Rüstung(name="Stiefel des Wanderers", typ="Stiefel", wert=75, verteidigung=9),
-    Rüstung(name="Stiefel des Pfadfinders", typ="Stiefel", wert=80, verteidigung=10),
-    Rüstung(name="Stiefel des Spähers", typ="Stiefel", wert=85, verteidigung=11),
-    Rüstung(name="Stiefel des Entdeckers", typ="Stiefel", wert=90, verteidigung=12),
-    Rüstung(name="Stiefel des Abenteurers", typ="Stiefel", wert=95, verteidigung=13),
-    Rüstung(name="Stiefel des Eroberers", typ="Stiefel", wert=100, verteidigung=14),
-    Rüstung(name="Stiefel des Triumphators", typ="Stiefel", wert=105, verteidigung=15),
-    Rüstung(name="Stiefel des Siegers", typ="Stiefel", wert=110, verteidigung=16),
-    Rüstung(name="Stiefel des Meisters", typ="Stiefel", wert=115, verteidigung=17),
-    Rüstung(name="Stiefel des Experten", typ="Stiefel", wert=120, verteidigung=18),
-    Rüstung(name="Handschuhe des Handwerkers", typ="Handschuhe", wert=65, verteidigung=6),
-    Rüstung(name="Handschuhe des Künstlers", typ="Handschuhe", wert=70, verteidigung=7),
-    Rüstung(name="Handschuhe des Meisters", typ="Handschuhe", wert=75, verteidigung=8),
-    Rüstung(name="Handschuhe des Experten", typ="Handschuhe", wert=80, verteidigung=9),
-    Rüstung(name="Handschuhe des Virtuosen", typ="Handschuhe", wert=85, verteidigung=10),
-    Rüstung(name="Handschuhe des Profis", typ="Handschuhe", wert=90, verteidigung=11),
-    Rüstung(name="Handschuhe des Spezialisten", typ="Handschuhe", wert=95, verteidigung=12),
-    Rüstung(name="Handschuhe des Gelehrten", typ="Handschuhe", wert=100, verteidigung=13),
-    Rüstung(name="Handschuhe des Akademikers", typ="Handschuhe", wert=105, verteidigung=14),
-    Rüstung(name="Handschuhe des Dozenten", typ="Handschuhe", wert=110, verteidigung=15)
+    # Weitere Gegenstände...
 ]
 
 @dataclass
@@ -156,12 +59,28 @@ class Fähigkeit:
     mana_kosten: int = 0
 
 @dataclass
-class Zauber:
-    name: str
+class MagischeSchriftrolle(Gegenstand):
     schaden: int
     kosten: int
     mana_kosten: int
     zauberart: str
+
+# Magische Schriftrollen hinzufügen
+MAGISCHE_SCHRIFTROLLEN = [
+    MagischeSchriftrolle(name="Feuerball-Schriftrolle", schaden=70, kosten=100, mana_kosten=50, zauberart="Feuer", wert=150, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Eislanze-Schriftrolle", schaden=60, kosten=90, mana_kosten=40, zauberart="Eis", wert=130, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Blitzschlag-Schriftrolle", schaden=80, kosten=120, mana_kosten=60, zauberart="Blitz", wert=170, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Erdbeben-Schriftrolle", schaden=100, kosten=150, mana_kosten=70, zauberart="Erde", wert=200, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Windstoß-Schriftrolle", schaden=50, kosten=70, mana_kosten=30, zauberart="Luft", wert=100, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Wasserstrahl-Schriftrolle", schaden=55, kosten=75, mana_kosten=35, zauberart="Wasser", wert=110, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Heilungs-Schriftrolle", schaden=-50, kosten=100, mana_kosten=50, zauberart="Heilung", wert=160, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Schattenklinge-Schriftrolle", schaden=65, kosten=85, mana_kosten=45, zauberart="Schatten", wert=140, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Lichtstrahl-Schriftrolle", schaden=75, kosten=95, mana_kosten=55, zauberart="Licht", wert=150, typ="Magische Schriftrolle"),
+    MagischeSchriftrolle(name="Meteor-Schriftrolle", schaden=120, kosten=200, mana_kosten=80, zauberart="Feuer", wert=220, typ="Magische Schriftrolle")
+]
+
+
+BENUTZBARE_GEGENSTAENDE.extend(MAGISCHE_SCHRIFTROLLEN)
 
 @dataclass
 class Quest:
@@ -211,22 +130,24 @@ class LevelSystem:
         if self.level == 10:
             spieler.waehle_spezialisierung()
 
+
 class Skill:
-    def __init__(self, name, level=1, max_level=10, xp_cost=20000, grundschaden=0):
+    def __init__(self, name, level=1, max_level=10, gold_cost=1000, grundschaden=0):
         self.name = name
         self.level = level
         self.max_level = max_level
-        self.xp_cost = xp_cost
-        self.grundschaden = grundschaden
+        self.gold_cost = gold_cost
+        self.grundschaden = grundschaden 
 
-    def level_up(self, xp):
+    def level_up(self, gold):
         if self.level < self.max_level:
-            if xp >= self.xp_cost:
+            if gold >= self.gold_cost:
                 self.level += 1
-                print(f"{self.name} hat Level {self.level} erreicht!")
-                return xp - self.xp_cost
+                self.grundschaden = int(self.grundschaden * 1.1)  # 10% Erhöhung des Grundschadens
+                print(f"{self.name} hat Level {self.level} erreicht! Neuer Grundschaden: {self.grundschaden}")
+                return gold - self.gold_cost
             else:
-                raise ValueError("Nicht genügend Erfahrungspunkte")
+                raise ValueError("Nicht genügend Gold")
         else:
             raise ValueError("Maximales Level erreicht")
 
@@ -234,7 +155,8 @@ class Skill:
         return self.grundschaden + (self.level * 5)  # Beispiel: 5 Schaden pro Level
 
     def __repr__(self):
-        return f"{self.name} (Level {self.level}/{self.max_level}, XP-Kosten: {self.xp_cost})"
+        return f"{self.name} (Level {self.level}/{self.max_level}, Gold-Kosten: {self.gold_cost})"
+
 
 class Skillsystem:
     def __init__(self):
@@ -243,59 +165,58 @@ class Skillsystem:
     def add_skill(self, skill):
         self.skills.append(skill)
 
-    def level_up_skill(self, skill_name, xp):
+    def level_up_skill(self, skill_name, gold):
         for skill in self.skills:
             if skill.name == skill_name:
-                remaining_xp = skill.level_up(xp)
-                return skill, remaining_xp
+                remaining_gold = skill.level_up(gold)
+                return skill, remaining_gold
         raise ValueError(f"Skill {skill_name} nicht gefunden")
 
-    def verteile_xp(self, xp):
+    def zeige_skills(self):
         for skill in self.skills:
-            try:
-                xp = skill.level_up(xp)
-            except ValueError:
-                continue  # Ignoriere, wenn ein Skill bereits maximales Level erreicht hat
-        return xp
+            print(skill)
 
     def __repr__(self):
         return "\n".join(str(skill) for skill in self.skills)
 
+
+
 class KriegerSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Schwertkampf", xp_cost=15000))
-        self.add_skill(Skill("Schildnutzung", xp_cost=10000))
-        self.add_skill(Skill("Berserker-Rage", xp_cost=20000))
-        self.add_skill(Skill("Kampfgeschick", xp_cost=12000))
-        self.add_skill(Skill("Kriegerstärke", xp_cost=18000))
+        self.add_skill(Skill("Schwertkampf", gold_cost=1000))
+        self.add_skill(Skill("Schildnutzung", gold_cost=1000))
+        self.add_skill(Skill("Berserker-Rage", gold_cost=2000))
+        self.add_skill(Skill("Kampfgeschick", gold_cost=1200))
+        self.add_skill(Skill("Kriegerstärke", gold_cost=1800))
 
 class MagierSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Feuerball", xp_cost=15000))
-        self.add_skill(Skill("Eislanze", xp_cost=12000))
-        self.add_skill(Skill("Blitzschlag", xp_cost=18000))
-        self.add_skill(Skill("Magische Barriere", xp_cost=10000))
-        self.add_skill(Skill("Arkane Macht", xp_cost=20000))
+        self.add_skill(Skill("Feuerball", gold_cost=1500))
+        self.add_skill(Skill("Eislanze", gold_cost=1200))
+        self.add_skill(Skill("Blitzschlag", gold_cost=1800))
+        self.add_skill(Skill("Magische Barriere", gold_cost=1000))
+        self.add_skill(Skill("Arkane Macht", gold_cost=2000))
 
 class SchurkeSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Schleichangriff", xp_cost=14000))
-        self.add_skill(Skill("Vergiften", xp_cost=10000))
-        self.add_skill(Skill("Doppelschlag", xp_cost=15000))
-        self.add_skill(Skill("Diebeskunst", xp_cost=8000))
-        self.add_skill(Skill("Meuchelmord", xp_cost=20000))
+        self.add_skill(Skill("Schleichangriff", gold_cost=1400))
+        self.add_skill(Skill("Vergiften", gold_cost=1000))
+        self.add_skill(Skill("Doppelschlag", gold_cost=1500))
+        self.add_skill(Skill("Diebeskunst", gold_cost=800))
+        self.add_skill(Skill("Meuchelmord", gold_cost=2000))
 
 class HeilerSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Heilung", xp_cost=10000))
-        self.add_skill(Skill("Schutzschild", xp_cost=12000))
-        self.add_skill(Skill("Wiederbelebung", xp_cost=15000))
-        self.add_skill(Skill("Heiliger Segen", xp_cost=8000))
-        self.add_skill(Skill("Göttliche Gnade", xp_cost=20000))
+        self.add_skill(Skill("Heilung", gold_cost=1000))
+        self.add_skill(Skill("Schutzschild", gold_cost=1200))
+        self.add_skill(Skill("Wiederbelebung", gold_cost=1500))
+        self.add_skill(Skill("Heiliger Segen", gold_cost=800))
+        self.add_skill(Skill("Göttliche Gnade", gold_cost=2000))
+
 
 # Spezialisierungen hinzufügen
 class Krieger:
@@ -398,7 +319,7 @@ class Spieler:
     gold: int = START_GOLD[2]
     gegner_multiplikator: float = 1.0
     spielfeld: List[Optional[Gegner]] = field(default_factory=list)
-    zauber: List[Zauber] = field(default_factory=list)
+    magische_schriftrollen: List[MagischeSchriftrolle] = field(default_factory=list)
     quests: List[Quest] = field(default_factory=list)
     tägliche_herausforderungen: List[Tagesquest] = field(default_factory=list)
     level_system: LevelSystem = field(init=False)
@@ -441,14 +362,57 @@ class Spieler:
         self.xp_fuer_skills = self.skillsystem.verteile_xp(self.xp_fuer_skills)
 
     def skill_level_up(self, skill_name):
-        skill, remaining_xp = self.skillsystem.level_up_skill(skill_name, self.level_system.erfahrung)
-        self.level_system.erfahrung = remaining_xp
+        skill, remaining_gold = self.skillsystem.level_up_skill(skill_name, self.gold)
+        self.gold = remaining_gold
         return skill
-
+                                                                     
     def skills_anzeigen(self):
         print("Aktuelle Skills:")
         print(self.skillsystem)
-        return zeige_menü
+        return self.skill_menue()
+    
+    def skills_xp_anzeigen(self):
+        print("XP für aktuelle Skills:")
+        self.skillsystem.zeige_skills_xp()
+        return self.skill_menue()
+
+    def skill_menue(self):
+        print("\nSkill-Menü")
+        print("1: Skills anzeigen")
+        print("2: Skill leveln")
+        print("3: Skill-Status anzeigen")
+        print("4: Zum Hauptmenü zurückkehren")
+
+        choice = input("Wähle eine Option: ")
+
+        if choice == '1':
+            self.skills_anzeigen()
+        elif choice == '2':
+            self.skill_level_up_menue()
+        elif choice == '3':
+            self.skills_anzeigen()
+        elif choice == '4':
+            return zeige_menü(self)
+        else:
+            print("Ungültige Wahl. Bitte versuche es erneut.")
+        return self.skill_menue()
+
+    def skill_level_up_menue(self):
+        print("Wähle einen Skill zum Leveln:")
+        for i, skill in enumerate(self.skillsystem.skills):
+            print(f"{i + 1}: {skill.name} (Level {skill.level}/{skill.max_level}, Gold-Kosten: {skill.gold_cost})")
+
+        choice = int(input("Wähle einen Skill (Nummer eingeben): "))
+        if 1 <= choice <= len(self.skillsystem.skills):
+            ausgewählter_skill = self.skillsystem.skills[choice - 1]
+            try:
+                self.skill_level_up(ausgewählter_skill.name)
+            except ValueError as e:
+                print(e)
+        else:
+            print("Ungültige Wahl.")
+        return self.skill_menue()
+
 
     def quest_fortschritt_aktualisieren(self, ziel_typ: str, menge: int = 1) -> None:
         for quest in self.quests:
@@ -683,9 +647,12 @@ class Spieler:
         self.fähigkeiten.append(fähigkeit)
         print(f"Fähigkeit {fähigkeit.name} wurde erlernt.")
 
-    def add_zauber(self, zauber: Zauber) -> None:
-        self.zauber.append(zauber)
-        print(f"Zauber {zauber.name} wurde erlernt.")
+    def add_magische_schriftrolle(self, schriftrolle: MagischeSchriftrolle) -> None:
+        if len(self.magische_schriftrollen) < 2:
+            self.magische_schriftrollen.append(schriftrolle)
+            print(f"Magische Schriftrolle {schriftrolle.name} wurde erlernt.")
+        else:
+            print("Du kannst nur 2 magische Schriftrollen erlernen.")
 
     def erfahrung_sammeln(self, punkte: int) -> None:
         self.level_system.erfahrung_sammeln(punkte, self)
@@ -747,18 +714,18 @@ class Spieler:
             print("Ungültige Wahl.")
             return None
 
-    def zauber_auswählen(self) -> Optional[Zauber]:
-        if not self.zauber:
-            print("Keine Zauber verfügbar.")
+    def schriftrolle_auswählen(self) -> Optional[MagischeSchriftrolle]:
+        if not self.magische_schriftrollen:
+            print("Keine magischen Schriftrollen verfügbar.")
             return None
-        print("Verfügbare Zauber:")
-        for i, zauber in enumerate(self.zauber):
-            print(f"{i + 1}: {zauber.name} - Schaden: {zauber.schaden}, Mana-Kosten: {zauber.mana_kosten}")
-        wahl = int(input("Wähle einen Zauber (Nummer eingeben): "))
-        if 1 <= wahl <= len(self.zauber):
-            ausgewählter_zauber = self.zauber[wahl - 1]
-            if self.mana >= ausgewählter_zauber.mana_kosten:
-                return ausgewählter_zauber
+        print("Verfügbare magische Schriftrollen:")
+        for i, schriftrolle in enumerate(self.magische_schriftrollen):
+            print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
+        wahl = int(input("Wähle eine magische Schriftrolle (Nummer eingeben): "))
+        if 1 <= wahl <= len(self.magische_schriftrollen):
+            ausgewählte_schriftrolle = self.magische_schriftrollen[wahl - 1]
+            if self.mana >= ausgewählte_schriftrolle.mana_kosten:
+                return ausgewählte_schriftrolle
             else:
                 print("Nicht genügend Mana.")
                 return None
@@ -766,10 +733,10 @@ class Spieler:
             print("Ungültige Wahl.")
             return None
 
-    def zaubern(self, zauber: Zauber, gegner: Gegner) -> None:
-        gegner.lebenspunkte -= zauber.schaden
-        self.mana -= zauber.mana_kosten
-        print(f"Zauber {zauber.name} verwendet und {zauber.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+    def schriftrolle_verwenden(self, schriftrolle: MagischeSchriftrolle, gegner: Gegner) -> None:
+        gegner.lebenspunkte -= schriftrolle.schaden
+        self.mana -= schriftrolle.mana_kosten
+        print(f"Magische Schriftrolle {schriftrolle.name} verwendet und {schriftrolle.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
 
 def speichere_spielerdaten(spieler: Spieler) -> None:
     daten = [
@@ -818,8 +785,6 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
             writer.writerow(expected_headers)
         writer.writerows(vorhandene_daten)
 
-
-
 def lade_spielerdaten(name: str) -> Optional[Spieler]:
     if not os.path.exists(CSV_DATEI):
         return None
@@ -867,10 +832,6 @@ def lade_spielerdaten(name: str) -> Optional[Spieler]:
                 return spieler
     return None
 
-
-
-
-
 def erstelle_spielfeld(multiplikator: float = 1.0) -> List[Optional[Gegner]]:
     spielfeld = [None] * SPIELFELD_GROESSE
     verfügbare_positionen = list(range(SPIELFELD_GROESSE))
@@ -899,10 +860,10 @@ def generiere_gegnernamen(typ: str) -> str:
 
 def kampfeinleitung(gegner: Gegner) -> None:
     einleitungen = {
-        'schwach': f"Achtung! Du bist auf einen {gegner.name} gestoßen. Bereite dich auf einen Kampf vor!",
-        'mittel': f"Vorsicht! Ein wilder {gegner.name} kreuzt deinen Weg. Zeige ihm deine Stärke!",
-        'stark': f"Ein mächtiger {gegner.name} erscheint! Dies wird eine wahre Herausforderung!",
-        'boss': f"Ein epischer Kampf steht bevor! Der {gegner.name} fordert dich heraus!"
+        'schwach': f"{Fore.YELLOW}Achtung! Du bist auf einen {gegner.name} gestoßen. Bereite dich auf einen Kampf vor!{Style.RESET_ALL}",
+        'mittel': f"{Fore.BLUE}Vorsicht! Ein wilder {gegner.name} kreuzt deinen Weg. Zeige ihm deine Stärke!{Style.RESET_ALL}",
+        'stark': f"{Fore.RED}Ein mächtiger {gegner.name} erscheint! Dies wird eine wahre Herausforderung!{Style.RESET_ALL}",
+        'boss': f"{Fore.MAGENTA}Ein epischer Kampf steht bevor! Der {gegner.name} fordert dich heraus!{Style.RESET_ALL}"
     }
     print(einleitungen[gegner.typ])
 
@@ -912,7 +873,7 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
         print("\nKampfmenü")
         print("1: Angriff")
         print("2: Fähigkeit verwenden")
-        print("3: Zauber verwenden")
+        print("3: Magische Schriftrolle verwenden")
         print("4: Heiltrank verwenden")
         print("5: Kampf abbrechen und ins Hauptmenü zurückkehren")
 
@@ -921,17 +882,17 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
         if choice == '1':
             schaden = spieler.angreifen()
             gegner.lebenspunkte -= schaden
-            print(f"Du verursachst {schaden} Schaden. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+            print(f"{Fore.GREEN}Du verursachst {schaden} Schaden. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.{Style.RESET_ALL}")
         elif choice == '2':
             fähigkeit = spieler.fähigkeit_auswählen()
             if fähigkeit:
                 gegner.lebenspunkte -= fähigkeit.schaden
                 spieler.mana -= fähigkeit.mana_kosten
-                print(f"Fähigkeit {fähigkeit.name} verwendet und {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                print(f"{Fore.CYAN}Fähigkeit {fähigkeit.name} verwendet und {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.{Style.RESET_ALL}")
         elif choice == '3':
-            zauber = spieler.zauber_auswählen()
-            if zauber:
-                spieler.zaubern(zauber, gegner)
+            schriftrolle = spieler.schriftrolle_auswählen()
+            if schriftrolle:
+                spieler.schriftrolle_verwenden(schriftrolle, gegner)
         elif choice == '4':
             spieler.heiltrank_nutzen()
         elif choice == '5':
@@ -941,17 +902,17 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             print("Ungültige Wahl. Bitte wähle eine Option aus dem Menü.")
 
         if gegner.lebenspunkte <= 0:
-            print(f"{gegner.name} wurde besiegt!")
+            print(f"{Fore.YELLOW}{gegner.name} wurde besiegt!{Style.RESET_ALL}")
             spieler.add_muenzen(gegner.kupfer, gegner.silber, gegner.gold)
-            print(f"Du hast {gegner.kupfer} Kupfer, {gegner.silber} Silber und {gegner.gold} Gold erhalten.")
+            print(f"{Fore.YELLOW}Du hast {gegner.kupfer} Kupfer, {gegner.silber} Silber und {gegner.gold} Gold erhalten.{Style.RESET_ALL}")
             if gegner.seltene_gegenstände:
                 for gegenstand in gegner.seltene_gegenstände:
                     spieler.add_gegenstand(gegenstand)
-                    print(f"Du hast einen seltenen Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert} Kupfer")
+                    print(f"{Fore.YELLOW}Du hast einen seltenen Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert} Kupfer{Style.RESET_ALL}")
             if gegner.benutzbare_gegenstände:
                 for gegenstand in gegner.benutzbare_gegenstände:
                     spieler.add_gegenstand(gegenstand)
-                    print(f"Du hast einen benutzbaren Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert} Kupfer")
+                    print(f"{Fore.YELLOW}Du hast einen benutzbaren Gegenstand gefunden: {gegenstand.name}{Style.RESET_ALL}")
             spieler.erfahrung_sammeln(50)
             spieler.heilen()
             spieler.finde_heiltränke()
@@ -962,17 +923,17 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
         gegner_schaden = gegner.angreifen()
         reduzierter_schaden = spieler.verteidigen(gegner_schaden)
         if spieler.lebenspunkte <= 0:
-            print(f"{gegner.name} verursacht {gegner_schaden} Schaden. Der Spieler wurde besiegt.")
+            print(f"{Fore.RED}{gegner.name} verursacht {gegner_schaden} Schaden. Der Spieler wurde besiegt.{Style.RESET_ALL}")
             break
         else:
-            print(f"{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.")
+            print(f"{Fore.RED}{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.{Style.RESET_ALL}")
             spieler.heiltrank_nutzen()
 
 def zauber_wirken(spieler: Spieler) -> None:
-    zauber = spieler.zauber_auswählen()
+    zauber = spieler.schriftrolle_auswählen()
     if zauber:
         gegner = Gegner('mittel', 1.0)  # Beispielgegner
-        spieler.zaubern(zauber, gegner)
+        spieler.schriftrolle_verwenden(zauber, gegner)
 
 def quests_anzeigen(spieler: Spieler) -> None:
     if not spieler.quests:
@@ -1122,7 +1083,7 @@ def zeige_menü(spieler: Spieler) -> None:
     print("\nHauptmenü")
     print("1: Erkunden")
     print("2: Inventar anzeigen")
-    print("3: Zauber wirken")
+    print("3: Magische Schriftrolle wirken")
     print("4: Quests anzeigen")
     print("5: Tägliche Herausforderung anzeigen")
     print("6: Händler besuchen")
@@ -1146,7 +1107,7 @@ def zeige_menü(spieler: Spieler) -> None:
     elif choice == '6':
         händler_besuchen(spieler)
     elif choice == '7':
-        spieler.skills_anzeigen()
+        spieler.skill_menue()
     elif choice == '8':
         speichere_spielerdaten(spieler)
         print("Das Spiel wurde gespeichert!")
@@ -1250,4 +1211,3 @@ def erzähle_geschichte() -> None:
     print(geschichte)
 
 starte_spiel()
-
