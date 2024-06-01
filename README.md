@@ -1,6 +1,6 @@
-### Spielbeschreibung für Herz der Mutigen: Das Schicksal des Königreichs
+Spieldatei: SchicksalDesKoenigreichs.py
 
-SchicksalDesKoenigreichs.py
+### Spielbeschreibung für Herz der Mutigen: Das Schicksal des Königreichs
 
 **Herz der Mutigen: Das Schicksal des Königreichs** ist ein umfassendes und interaktives Text-basiertes Rollenspiel, das sich an die Fans von klassischen Konsolen-RPGs richtet. Hier ist eine detaillierte Beschreibung der Spielmechanik und der Features, die dir helfen werden, das Spiel und seine Möglichkeiten besser zu verstehen.
 
