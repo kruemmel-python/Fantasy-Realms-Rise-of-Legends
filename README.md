@@ -1,65 +1,70 @@
-Eine ausführliche Beschreibung des Codes ist hier zu finden: `ausfuehrliche-codebeschreibung.md`
+### Spielbeschreibung für Herz der Mutigen: Das Schicksal des Königreichs
 
+**Herz der Mutigen: Das Schicksal des Königreichs** ist ein umfassendes und interaktives Text-basiertes Rollenspiel, das sich an die Fans von klassischen Konsolen-RPGs richtet. Hier ist eine detaillierte Beschreibung der Spielmechanik und der Features, die dir helfen werden, das Spiel und seine Möglichkeiten besser zu verstehen.
 
+#### Spielstart und Charaktererstellung
+Das Abenteuer beginnt mit der Eingabe deines Spielernamens und der Auswahl deiner Charakterklasse. Zur Auswahl stehen:
 
-# Herz der Mutigen: Das Schicksal des Königreichs
+1. **Krieger** - Stark im Nahkampf, mit Fähigkeiten, die auf physische Stärke und Verteidigung setzen.
+2. **Magier** - Beherrscht mächtige Zauber, die großen Schaden anrichten, jedoch Mana kosten.
+3. **Schurke** - Spezialisiert auf Stealth und kritische Angriffe, mit Fähigkeiten wie Schleichangriff und Vergiften.
+4. **Heiler** - Unterstützt das Team mit Heilzaubern und defensiven Fähigkeiten.
 
-## Über das Spiel
+#### Spielwelt und Erkundung
+Die Welt von Herz der Mutigen: Das Schicksal des Königreichs ist in ein Spielfeld unterteilt, auf dem du dich durch Würfeln bewegen kannst. Jede Bewegung kann zu verschiedenen Ereignissen führen, darunter:
 
-"Herz der Mutigen: Das Schicksal des Königreichs" ist ein textbasiertes Abenteuerspiel, das dich in die Rolle eines mutigen Helden versetzt. Deine Mission ist es, das zerstückelte Land zu vereinen und den Frieden wiederherzustellen, indem du furchterregende Kreaturen besiegst, Rätsel löst und mächtige Artefakte sammelst. Dein ultimatives Ziel ist es, das legendäre Artefakt "Herz der Mutigen" zu finden und die Dunkelheit zu vertreiben.
+- **Kämpfe**: Du triffst auf verschiedene Gegner, von schwachen Kobolden bis hin zu mächtigen Bossen wie der Hydra.
+- **NPCs**: Zufällig triffst du auf NPCs, die dir Quests anbieten.
+- **Händler**: Du kannst auf Händler stoßen, bei denen du Waffen, Rüstungen und andere Gegenstände kaufen und verkaufen kannst.
 
-## Spielanleitung
+#### Kämpfe und Fähigkeiten
+Der Kampf ist rundenbasiert und bietet verschiedene Optionen:
 
-1. Klone das Repository und navigiere in das entsprechende Verzeichnis.
-2. Führe das Spiel aus, indem du `python SchicksalDesKoenigreichs.py` in deiner Konsole eingibst.
-3. Folge den Anweisungen auf dem Bildschirm, um deinen Charakter zu erstellen und dein Abenteuer zu beginnen.
+- **Angriff**: Führe einen normalen Angriff mit deiner ausgerüsteten Waffe aus.
+- **Fähigkeit verwenden**: Setze eine deiner erlernten Fähigkeiten ein, die Mana kosten und oft speziellen Schaden verursachen.
+- **Magische Schriftrolle verwenden**: Nutze eine magische Schriftrolle, die mächtige Zauber entfesselt.
+- **Heiltrank verwenden**: Stelle mit einem Heiltrank deine Lebenspunkte wieder her.
+- **Kampf abbrechen**: Kehre ins Hauptmenü zurück, wenn der Kampf zu schwierig wird.
 
-## Features
+Die Kämpfe sind farblich kodiert, um die Übersichtlichkeit zu erhöhen:
+- **Schaden** wird in **rot** angezeigt.
+- **Heilung** wird in **grün** dargestellt.
+- **Statusmeldungen** wie "Gegner besiegt" erscheinen in **blau**.
 
-- Dynamisches Level-System: Sammle Erfahrungspunkte und steige im Level auf, um deine Fähigkeiten zu verbessern.
-- Vielfältige Gegner: Stelle dich einer Reihe von Gegnern, von schwachen Kobolden bis hin zu mächtigen Drachen. Sie alle werden stärke mit jeden Levelaufstieg deines Spielcharacters.
-- Inventarsystem: Sammle Gegenstände und Fähigkeiten, die dir auf deiner Reise helfen werden.
-- Spannende Kämpfe: Nutze Strategie und Geschick, um in rundenbasierten Kämpfen zu triumphieren.
+#### Skillsystem
+Anstatt Erfahrungspunkte für das Leveln von Fähigkeiten zu verwenden, brauchst du Gold. Jede Fähigkeit hat ihre eigenen Kosten und kann bis zu einem bestimmten Level verbessert werden. Zum Beispiel:
 
-## Mitwirken
+- **Schwertkampf (Krieger)**: Verbessert den physischen Schaden.
+- **Feuerball (Magier)**: Ein mächtiger Feuerzauber.
+- **Schleichangriff (Schurke)**: Ein Angriff aus dem Verborgenen, der hohen Schaden verursacht.
+- **Heilung (Heiler)**: Stellt Lebenspunkte wieder her.
 
-Ich freue mich über Beiträge von der Community! Bitte lese `CONTRIBUTING.md` für Details zu meinem Code of Conduct und dem Prozess für das Einreichen von Pull Requests.
+#### Quests und tägliche Herausforderungen
+Neben dem Erkunden und Kämpfen gibt es verschiedene Quests und tägliche Herausforderungen, die dir Belohnungen in Form von Kupfer, Silber und Gold geben. 
 
-## Lizenz
+- **Quests**: Längere Aufgaben mit großen Belohnungen.
+- **Tägliche Herausforderungen**: Kurze Aufgaben, die täglich abgeschlossen werden können.
 
-Dieses Projekt ist unter Lizenz lizenziert - siehe die `LICENSE.md`-Datei für Details.
+#### Inventar und Ausrüstung
+Du kannst eine Vielzahl von Gegenständen sammeln, darunter:
 
-## Danksagungen
+- **Waffen**: Erhöhen deinen Schaden.
+- **Rüstungen**: Erhöhen deine Verteidigung.
+- **Tränke**: Stellen Lebenspunkte oder Mana wieder her.
+- **Magische Schriftrollen**: Ermöglichen dir, mächtige Zauber zu wirken.
 
-- besonderer Dank geht an karriere tutor® https://www.karrieretutor.de deren Dozenten (Boris Dreyer und Sebastian Pignatelli), die mich im Laufe meiner Schulung, auf diese Idee gebracht haben.
+Das Inventarsystem ist benutzerfreundlich gestaltet, sodass du jederzeit nachsehen kannst, was du bei dir trägst, und welche Ausrüstung du angelegt hast.
 
+#### Speichern und Laden des Spiels
+Du kannst dein Spiel jederzeit speichern und später wieder laden. Dies gibt dir die Freiheit, dein Abenteuer in Herz der Mutigen: Das Schicksal des Königreichs nach Belieben zu pausieren und fortzusetzen.
 
-Das Spiel "Schicksal des Königreichs" ist ein textbasiertes Rollenspiel, das in Python programmiert wurde. Hier ist eine ausführliche Beschreibung des Spiels:
+#### Die Geschichte
+Das Spiel beginnt mit einer epischen Geschichte:
 
-**Spielkonzept:**
-- Spieler beginnen ihr Abenteuer mit einer festgelegten Anzahl von Lebenspunkten und können verschiedene Gegenstände und Fähigkeiten sammeln.
-- Das Ziel ist es, durch ein Spielfeld zu navigieren, das mit Gegnern verschiedener Stärke gefüllt ist.
-- Spieler können Erfahrungspunkte sammeln, um im Level aufzusteigen, was ihre Lebenspunkte erhöht und sie stärker macht.
+> **Herz der Mutigen: Das Schicksal des Königreichs**
+> In einer Welt, die von dunklen Mächten heimgesucht wird, liegt das Schicksal aller Lebewesen in den Händen eines mutigen Abenteurers - dir. Vor langer Zeit wurde das Land in Stücke gerissen und von furchterregenden Kreaturen überrannt, die aus den Tiefen der Unterwelt kamen. Die Legende besagt, dass nur derjenige, der das sagenumwobene Artefakt 'Herz der Mutigen' findet und die vier Elementwächter besiegt, das Land vereinen und den Frieden wiederherstellen kann. 
 
-**Hauptmerkmale:**
-- **Gegner:** Es gibt drei Typen von Gegnern – schwach, mittel und stark – mit jeweils unterschiedlichen Lebenspunkten und Schadenswerten.
-- **Level-System:** Spieler können Erfahrungspunkte sammeln und im Level aufsteigen, was ihre maximalen Lebenspunkte erhöht.
-- **Gegenstände:** Spieler können Gegenstände wie Heiltränke finden und verwenden, um ihre Lebenspunkte zu regenerieren.
-- **Fähigkeiten:** Spieler können spezielle Fähigkeiten erlernen, die im Kampf gegen Gegner eingesetzt werden können.
-- **Kämpfe:** Spieler treten in rundenbasierten Kämpfen gegen Gegner an, wobei sie abwechselnd angreifen.
-- **Speichern und Laden:** Spielerdaten können in einer CSV-Datei gespeichert und geladen werden, um den Fortschritt zu behalten.
+Dein Ziel ist es, das Artefakt zu finden und die Welt zu retten. Dabei erwartet dich ein Abenteuer voller Herausforderungen, Kämpfe und spannender Begegnungen.
 
-**Spielablauf:**
-1. Das Spiel beginnt mit einer Einführungsgeschichte, die den Hintergrund und das Ziel des Spiels erläutert.
-2. Spieler geben ihren Namen ein und starten entweder ein neues Spiel oder laden einen bestehenden Spielstand.
-3. Auf dem Spielfeld würfeln die Spieler, um sich fortzubewegen, und treffen auf Gegner, mit denen sie kämpfen müssen.
-4. Nach jedem gewonnenen Kampf haben die Spieler die Möglichkeit, Heiltränke zu finden und ihre Lebenspunkte zu regenerieren.
-5. Das Spiel endet, wenn der Spieler das Ende des Spielfelds erreicht oder keine Lebenspunkte mehr hat.
-
-**Technische Details:**
-- Das Spiel verwendet die `random`-Bibliothek für Zufallsereignisse wie Würfelwürfe und das Finden von Gegenständen.
-- Es gibt Klassen für Gegenstände, Fähigkeiten, das Level-System, Gegner und den Spieler, die die Logik des Spiels definieren.
-- Funktionen ermöglichen das Speichern und Laden von Spielerdaten sowie das Erstellen des Spielfelds und das Durchführen von Kämpfen.
-
-Das Spiel bietet eine interaktive Erfahrung, bei der Entscheidungen und Zufallselemente das Ergebnis beeinflussen. Es ist eine gute Übung für Programmieranfänger, um objektorientierte Programmierung und Dateiverwaltung in Python zu lernen.
-
+### Fazit
+Herz der Mutigen: Das Schicksal des Königreichs bietet eine tiefgehende Rollenspielerfahrung mit einer Vielzahl von Möglichkeiten zur Charakterentwicklung und einem reichhaltigen Spielfeld voller Überraschungen. Ob du dich auf Kämpfe spezialisierst, Quests erfüllst oder neue Fähigkeiten erlernst, jede Entscheidung bringt dich näher an das ultimative Ziel: das Königreich zu retten und als Held in die Geschichte einzugehen.
