@@ -1,4 +1,20 @@
+from typing import Tuple, List, Optional, Dict
+import random
+import csv
+import os
+import json
+from dataclasses import dataclass, field
+"""
+Erstellt von: Ralf Krümmel
+Datum: 03.06.2024
+Beschreibung: Dieser Code ist in 7 Tagen entstanden.
+"""
+# Zufällige Farbauswahl ohne Weiß
+def zufallsfarbe():
+    farben = ["\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"]
+    return random.choice(farben)
 
+# Konstanten
 LEBENSPUNKTE = {'schwach': 50, 'mittel': 70, 'stark': 90, 'boss': 200}
 MAX_SCHADEN = {'schwach': 30, 'mittel': 40, 'stark': 50, 'boss': 75}
 GOLD_BELOHNUNG = {'schwach': (0, 0, 10), 'mittel': (0, 0, 20), 'stark': (0, 0, 30), 'boss': (0, 0, 100)}
@@ -18,6 +34,12 @@ START_GOLD = (0, 0, 1)  # (Kupfer, Silber, Gold)
 SELTENE_DROP_RATE = 0.15  # 15%
 SEHR_SELTENE_DROP_RATE = 0.01  # 1%
 
+# Definieren der Ressourcenklasse
+@dataclass
+class Resource:
+    name: str
+    category: str
+
 @dataclass
 class Gegenstand:
     name: str
@@ -31,15 +53,42 @@ class Waffe(Gegenstand):
 @dataclass
 class Rüstung(Gegenstand):
     verteidigung: int
+
+# Definieren der Ressourcen
+wood = Resource("Holz", "Material")
+stone = Resource("Stein", "Material")
+iron = Resource("Eisen", "Metall")
+herb = Resource("Kraut", "Pflanze")
+magic_stone = Resource("Magischer Stein", "Magie")
+
+# Liste der möglichen Namen für die Gegenstände
+GEGENSTAND_NAMEN = [
+    "Flammenzorn", "Eiswind", "Erdbeber", "Sturmbringer",
+    "Schattenläufer", "Lichtbogen", "Naturgewalt", "Sternenfunkeln"
+]
+
 # Liste der Gegenstände, die ein Spieler benutzen kann
 BENUTZBARE_GEGENSTAENDE = [
-    Waffe(name="Dämonenklinge", typ="Waffe", wert=100, schaden=15),
-    Waffe(name="Kriegsbeil", typ="Waffe", wert=120, schaden=20),
-    Rüstung(name="Eisenhelm", typ="Helm", wert=80, verteidigung=10),
-    Rüstung(name="Plattenpanzer", typ="Rüstung", wert=150, verteidigung=25),
-    Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=8),
-    Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=5)
+    Waffe(name="Dämonenklinge", typ="Waffe", wert=100, schaden=45),
+    Waffe(name="Kriegsbeil", typ="Waffe", wert=120, schaden=30),
+    Rüstung(name="Eisenhelm", typ="Helm", wert=80, verteidigung=100),
+    Rüstung(name="Plattenpanzer", typ="Rüstung", wert=150, verteidigung=65),
+    Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=48),
+    Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=65)
 ]
+
+# Zuordnung von Namen zu speziellen Effekten
+SPEZIELLE_EFFEKTE = {
+    "Flammenzorn": {"schaden": 5, "effekt": "Feuer"},
+    "Eiswind": {"verteidigung": 3, "effekt": "Eis"},
+    "Erdbeber": {"schaden": 4, "verteidigung": 2, "effekt": "Erde"},
+    "Sturmbringer": {"schaden": 6, "effekt": "Blitz"},
+    "Schattenläufer": {"verteidigung": 4, "effekt": "Schatten"},
+    "Lichtbogen": {"schaden": 5, "verteidigung": 1, "effekt": "Licht"},
+    "Naturgewalt": {"schaden": 3, "verteidigung": 3, "effekt": "Natur"},
+    "Sternenfunkeln": {"schaden": 2, "verteidigung": 4, "effekt": "Sterne"}
+}
+
 @dataclass
 class MagischeSchriftrolle(Gegenstand):
     schaden: int
@@ -279,6 +328,7 @@ class Gegner:
     gold: int = field(init=False)
     seltene_gegenstände: List[Gegenstand] = field(default_factory=list)
     benutzbare_gegenstände: List[Gegenstand] = field(default_factory=list)
+    resourcen_drop: Dict[str, int] = field(default_factory=dict)
 
     def __post_init__(self):
         self.name = generiere_gegnernamen(self.typ)
@@ -287,6 +337,14 @@ class Gegner:
         self.kupfer, self.silber, self.gold = GOLD_BELOHNUNG[self.typ]
         self.drop_seltene_gegenstände()
         self.drop_benutzbare_gegenstände()
+        self.drop_resourcen()
+
+    def drop_resourcen(self) -> None:
+        resource_names = ["Holz", "Stein", "Eisen", "Kraut", "Magischer Stein"]
+        for res in resource_names:
+            if random.random() < 0.25:  # 25% chance to drop each resource
+                self.resourcen_drop[res] = random.randint(1, 5)
+                print(f"{self.name} hat {self.resourcen_drop[res]} Einheiten {res} gedroppt.")
 
     def angreifen(self) -> int:
         return random.randint(1, self.max_schaden)
@@ -309,6 +367,7 @@ class Gegner:
             magische_schriftrolle = random.choice(MAGISCHE_SCHRIFTROLLEN)
             self.benutzbare_gegenstände.append(magische_schriftrolle)
             print(f"Magische Schriftrolle {magische_schriftrolle.name} von {self.name} gedroppt")
+
 
 @dataclass
 class Spieler:
@@ -343,6 +402,13 @@ class Spieler:
     vergiftet: bool = False
     skillsystem: Skillsystem = field(init=False)
     spezialisierung: Optional[object] = field(default=None, init=False)
+    ressourceninventar: Dict[str, int] = field(default_factory=lambda: {
+        "Holz": 10,
+        "Stein": 8,
+        "Eisen": 5,
+        "Kraut": 12,
+        "Magischer Stein": 3
+    })
 
     def __post_init__(self):
         self.level_system = LevelSystem(self.erfahrung, self.level)
@@ -367,6 +433,14 @@ class Spieler:
             self.skillsystem = KriegerSkillsystem()
             self.spezialisierung = Krieger()
         self.fähigkeiten = self.spezialisierung.grandskills
+
+    def add_ressourcen(self, ressource: str, menge: int) -> None:
+        if ressource in self.ressourceninventar:
+            self.ressourceninventar[ressource] += menge
+        else:
+            self.ressourceninventar[ressource] = menge
+        print(f"Du hast {menge} Einheiten {ressource} erhalten. Insgesamt: {self.ressourceninventar[ressource]}")
+
 
     def erfahrung_sammeln(self, xp):
         self.level_system.erfahrung_sammeln(xp, self)
@@ -462,7 +536,10 @@ class Spieler:
         waffen_schaden = getattr(self.waffe, 'schaden', 0) if isinstance(self.waffe, Waffe) else 0
         gesamt_schaden = grundschaden + waffen_schaden
         print(f"\033[33mGesamtschaden: {gesamt_schaden}\033[0m")
-
+        # Display resources
+        print("\033[34m**** Ressourceninventar: ****\033[0m")
+        for ressource, menge in self.ressourceninventar.items():
+            print(f"{zufallsfarbe()}{ressource}: {menge}\033[0m")
         gegenstand_anzahl = {}
         for gegenstand in self.gegenstände:
             if gegenstand.name in gegenstand_anzahl:
@@ -782,101 +859,73 @@ class Spieler:
                 self.manaregeneration_aktiv = False
                 print("Die Manaregeneration ist not mehr aktiv.")
 
+import json
+
 def speichere_spielerdaten(spieler: Spieler) -> None:
-    daten = [
-        spieler.name,
-        spieler.lebenspunkte,
-        spieler.max_lebenspunkte,
-        spieler.level_system.erfahrung,
-        spieler.level_system.level,
-        ';'.join([f"{g.name},{g.typ},{g.wert}" for g in spieler.gegenstände]),
-        ';'.join([fähigkeit.name for fähigkeit in spieler.fähigkeiten]),
-        spieler.kupfer,
-        spieler.silber,
-        spieler.gold,
-        spieler.waffe.name if spieler.waffe else '',
-        spieler.rüstung.name if spieler.rüstung else '',
-        spieler.klasse,
-        '|'.join([f"{q.name}|{q.beschreibung}|{q.belohnung[0]}|{q.belohnung[1]}|{q.belohnung[2]}|{q.ziel_typ}|{q.ziel_menge}|{q.abgeschlossen}|{q.fortschritt}" for q in spieler.quests])
-    ]
+    spieler_data = {
+        "name": spieler.name,
+        "klasse": spieler.klasse,
+        "lebenspunkte": spieler.lebenspunkte,
+        "max_lebenspunkte": spieler.max_lebenspunkte,
+        "erfahrung": spieler.erfahrung,
+        "level": spieler.level,
+        "kupfer": spieler.kupfer,
+        "silber": spieler.silber,
+        "gold": spieler.gold,
+        "mana": spieler.mana,
+        "max_mana": spieler.max_mana,
+        "waffeninventar": [(waffe.name, waffe.schaden, waffe.wert, waffe.typ) for waffe in spieler.waffeninventar],
+        "rüstungsinventar": [(rüstung.name, rüstung.verteidigung, rüstung.wert, rüstung.typ) for rüstung in spieler.rüstungsinventar],
+        "gegenstände": [(gegenstand.name, gegenstand.typ, getattr(gegenstand, 'wert', 0)) for gegenstand in spieler.gegenstände],
+        "fähigkeiten": [(fähigkeit.name, fähigkeit.schaden, fähigkeit.mana_kosten, fähigkeit.kosten) for fähigkeit in spieler.fähigkeiten],
+        "magische_schriftrollen": [(schriftrolle.name, schriftrolle.schaden, schriftrolle.mana_kosten, schriftrolle.typ, schriftrolle.wert, schriftrolle.kosten, schriftrolle.zauberart) for schriftrolle in spieler.magische_schriftrollen],
+        "ressourceninventar": spieler.ressourceninventar,
+        "quests": [(quest.name, quest.beschreibung, quest.belohnung, quest.ziel_typ, quest.ziel_menge) for quest in spieler.quests],  # Include ziel_typ and ziel_menge for Quest
+        "tägliche_herausforderungen": [(tagesquest.name, tagesquest.beschreibung, tagesquest.belohnung, tagesquest.ziel_typ, tagesquest.ziel_menge) for tagesquest in spieler.tägliche_herausforderungen]
+    }
 
-    vorhandene_daten = []
-    if os.path.exists(CSV_DATEI):
-        with open(CSV_DATEI, 'r', newline='') as file:
-            reader = csv.reader(file)
-            vorhandene_daten = list(reader)
-
-    with_kopfzeile = False
-    expected_headers = [
-        'Name', 'Lebenspunkte', 'MaxLebenspunkte', 'Erfahrung', 'Level',
-        'Gegenstände', 'Fähigkeiten', 'Kupfer', 'Silber', 'Gold', 'Waffe', 'Rüstung', 'Klasse', 'Quests'
-    ]
-    if len(vorhandene_daten) == 0 or vorhandene_daten[0] != expected_headers:
-        with_kopfzeile = True
-
-    spieler_gefunden = False
-    for i, zeile in enumerate(vorhandene_daten):
-        if zeile[0] == spieler.name:
-            vorhandene_daten[i] = daten
-            spieler_gefunden = True
-            break
-
-    if not spieler_gefunden:
-        vorhandene_daten.append(daten)
-
-    with open(CSV_DATEI, 'w', newline='') as file:
-        writer = csv.writer(file)
-        if with_kopfzeile:
-            writer.writerow(expected_headers)
-        writer.writerows(vorhandene_daten)
-
+    with open(f"{spieler.name}_data.json", "w") as file:
+        json.dump(spieler_data, file)
+    print("Das Spiel wurde gespeichert!")
+   
 
 def lade_spielerdaten(name: str) -> Optional[Spieler]:
-    if not os.path.exists(CSV_DATEI):
+    try:
+        with open(f"{name}_data.json", "r") as file:
+            spieler_data = json.load(file)
+
+        spieler = Spieler(
+            name=spieler_data["name"],
+            klasse=spieler_data["klasse"],
+            lebenspunkte=spieler_data["lebenspunkte"],
+            max_lebenspunkte=spieler_data["max_lebenspunkte"],
+            erfahrung=spieler_data["erfahrung"],
+            level=spieler_data["level"],
+            gegenstände=[],
+            fähigkeiten=[],
+            kupfer=spieler_data["kupfer"],
+            silber=spieler_data["silber"],
+            gold=spieler_data["gold"],
+            mana=spieler_data["mana"],
+            max_mana=spieler_data["max_mana"]
+        )
+
+        spieler.waffeninventar = [Waffe(name=w[0], schaden=w[1], wert=w[2], typ=w[3]) for w in spieler_data["waffeninventar"]]
+        spieler.rüstungsinventar = [Rüstung(name=r[0], verteidigung=r[1], wert=r[2], typ=r[3]) for r in spieler_data["rüstungsinventar"]]
+        spieler.gegenstände = [Gegenstand(name=g[0], typ=g[1], wert=g[2]) for g in spieler_data["gegenstände"]]
+        spieler.fähigkeiten = [Fähigkeit(name=f[0], schaden=f[1], mana_kosten=f[2], kosten=f[3]) for f in spieler_data["fähigkeiten"]]
+        spieler.magische_schriftrollen = [MagischeSchriftrolle(name=ms[0], schaden=ms[1], mana_kosten=ms[2], typ=ms[3], wert=ms[4], kosten=ms[5], zauberart=ms[6]) for ms in spieler_data["magische_schriftrollen"]]
+        spieler.ressourceninventar = spieler_data["ressourceninventar"]
+        spieler.quests = [Quest(name=q[0], beschreibung=q[1], belohnung=q[2], ziel_typ=q[3], ziel_menge=q[4]) for q in spieler_data["quests"]]  # Include ziel_typ and ziel_menge for Quest
+        spieler.tägliche_herausforderungen = [Tagesquest(name=tq[0], beschreibung=tq[1], belohnung=tq[2], ziel_typ=tq[3], ziel_menge=tq[4]) for tq in spieler_data["tägliche_herausforderungen"]]
+
+        print(f"{spieler.name} wurde geladen.")
+        return spieler
+
+    except FileNotFoundError:
+        print("Keine gespeicherten Daten gefunden. Starte ein neues Spiel.")
         return None
 
-    with open(CSV_DATEI, 'r', newline='') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row['Name'] == name:
-                max_lebenspunkte = int(row['MaxLebenspunkte'])
-                lebenspunkte = int(row['Lebenspunkte'])
-                erfahrung = int(row['Erfahrung'])
-                level = int(row['Level'])
-                gegenstände = [Gegenstand(*name.split(',')) for name in row['Gegenstände'].split(';') if name]
-                fähigkeiten = [Fähigkeit(name, 0, 0, 0) for name in row['Fähigkeiten'].split(';') if name]
-                kupfer = int(row['Kupfer'])
-                silber = int(row['Silber'])
-                gold = int(row['Gold'])
-                waffe = next((w for w in BENUTZBARE_GEGENSTAENDE if isinstance(w, Waffe) and w.name == row['Waffe']), None)
-                rüstung = next((r for r in BENUTZBARE_GEGENSTAENDE if isinstance(r, Rüstung) and r.name == row['Rüstung']), None)
-                klasse = row['Klasse']
-                quests = [
-                    Quest(
-                        name=q[0],
-                        beschreibung=q[1],
-                        belohnung=(int(q[2]), int(q[3]), int(q[4])),
-                        ziel_typ=q[5],
-                        ziel_menge=int(q[6]),
-                        abgeschlossen=q[7] == 'True',
-                        fortschritt=int(q[8]) if q[8] else 0
-                    )
-                    for q in [quest.split('|') for quest in row['Quests'].split(';') if quest]
-                ]
-
-                # Erstelle die Instanz der entsprechenden Klasse
-                spieler = Spieler(name, klasse, lebenspunkte, max_lebenspunkte, erfahrung, level, gegenstände, fähigkeiten)
-
-                # Setze die zusätzlichen Attribute des Spielers
-                spieler.kupfer = kupfer
-                spieler.silber = silber
-                spieler.gold = gold
-                spieler.waffe = waffe
-                spieler.rüstung = rüstung
-                spieler.quests = quests
-
-                return spieler
-    return None
 
 
 
@@ -917,7 +966,6 @@ def kampfeinleitung(gegner: Gegner) -> None:
     print(einleitungen[gegner.typ])
 
   
-# Update the `kampf` function to drop magical scrolls
 def kampf(spieler: Spieler, gegner: Gegner) -> None:
     kampfeinleitung(gegner)
     print("\033[31m******\033[0m")
@@ -981,6 +1029,11 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
                 magische_schriftrolle = random.choice(MAGISCHE_SCHRIFTROLLEN)
                 print(f"\033[35mDu hast eine magische Schriftrolle gefunden: {magische_schriftrolle.name} - Schaden: {magische_schriftrolle.schaden}, Mana-Kosten: {magische_schriftrolle.mana_kosten}\033[0m")
                 spieler.add_magische_schriftrolle(magische_schriftrolle)
+            # Drop resources
+            if gegner.resourcen_drop:
+                for ressource, menge in gegner.resourcen_drop.items():
+                    print(f"\033[33mDu hast {menge} Einheiten {ressource} erhalten.\033[0m")
+                    spieler.add_ressourcen(ressource, menge)
             spieler.erfahrung_sammeln(50)
             if spieler.level_system.level > spieler.level:
                 spieler.level = spieler.level_system.level
@@ -1002,6 +1055,8 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             print(f"\033[31m{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.\033[0m")
             spieler.heiltrank_nutzen()
     print("\033[31m******\033[0m")
+
+
 
 
 
@@ -1207,7 +1262,8 @@ def zeige_menü(spieler: Spieler) -> None:
     print("7: Skills anzeigen")
     print("8: Spiel speichern")
     print("9: Spiel laden")
-    print("10: Spiel beenden")
+    print("10: Gegenstand Herstellen")
+    print("11: Spiel beenden")
 
     choice = input("Wähle eine Option: ")
 
@@ -1228,7 +1284,6 @@ def zeige_menü(spieler: Spieler) -> None:
     elif choice == '8':
         speichere_spielerdaten(spieler)
         print("Das Spiel wurde gespeichert!")
-        return zeige_menü(spieler)
     elif choice == '9':
         name = input("Gib deinen Spielernamen ein: ")
         spieler = lade_spielerdaten(name)
@@ -1236,13 +1291,93 @@ def zeige_menü(spieler: Spieler) -> None:
             print(f"Willkommen zurück, {spieler.name}!")
             return zeige_menü(spieler)
         else:
-            print("Spieler not gefanden. Neues Spiel starten.")
+            print("Spieler nicht gefunden. Neues Spiel starten.")
             return starte_spiel()
     elif choice == '10':
+        herstellen(spieler)  # Pass the spieler argument
+    elif choice == '11':
         spiel_beenden()
     else:
         print("Ungültige Wahl. Bitte versuche es erneut.")
         return zeige_menü(spieler)
+
+
+
+def herstellen(spieler: Spieler):
+    resourcen_mengen = {}
+    verwendete_ressourcen = set()
+    ressource_used = False  # Flag to check if any resource is used
+
+    for ressource, menge in spieler.ressourceninventar.items():
+        while True:
+            try:
+                verwendete_menge = int(input(f"Wieviel {ressource} möchten Sie verwenden? Verfügbar: {menge}: "))
+                if verwendete_menge > menge:
+                    print(f"Sie haben nicht genug {ressource}.")
+                elif verwendete_menge < 0:
+                    print("Bitte geben Sie eine gültige Zahl ein.")
+                elif verwendete_menge == 0:
+                    break  # Skip this resource
+                elif verwendete_menge < 2:
+                    print(f"Sie müssen mindestens 2 Einheiten von {ressource} verwenden, außer wenn Sie 0 eingeben, um es zu überspringen.")
+                else:
+                    ressource_used = True
+                    resourcen_mengen[ressource] = verwendete_menge
+                    verwendete_ressourcen.add(ressource)
+                    break
+            except ValueError:
+                print("Bitte eine gültige Zahl eingeben.")
+
+    if not ressource_used:
+        print("Keine Ressourcen verwendet. Kein Gegenstand wurde hergestellt.")
+        return
+
+    print("Geben Sie 'herstellen' ein, um den Gegenstand herzustellen.")
+    confirmation = input("Bestätigen: ")
+    if confirmation.lower() != 'herstellen':
+        print("Herstellung abgebrochen.")
+        return
+
+    name = random.choice(GEGENSTAND_NAMEN)
+    gegenstand = random.choice(BENUTZBARE_GEGENSTAENDE)
+
+    if isinstance(gegenstand, Waffe):
+        gegenstand.schaden += random.randint(0, 80)  # Beispielwert
+    elif isinstance(gegenstand, Rüstung):
+        gegenstand.verteidigung += random.randint(0, 55)  # Beispielwert
+
+    if name in SPEZIELLE_EFFEKTE:
+        effekte = SPEZIELLE_EFFEKTE[name]
+        if isinstance(gegenstand, Waffe):
+            gegenstand.schaden += effekte.get("schaden", 0)
+        elif isinstance(gegenstand, Rüstung):
+            gegenstand.verteidigung += effekte.get("verteidigung", 0)
+        print(f"Spezieller Effekt: {effekte.get('effekt', 'Kein')}")
+
+    # Zusätzliche Effekte bei Verwendung von mindestens vier verschiedenen Ressourcen
+    if len(verwendete_ressourcen) >= 4:
+        extra_effekte = random.sample(list(SPEZIELLE_EFFEKTE.values()), 2)
+        for eff in extra_effekte:
+            if isinstance(gegenstand, Waffe):
+                gegenstand.schaden += eff.get("schaden", 0)
+            elif isinstance(gegenstand, Rüstung):
+                gegenstand.verteidigung += eff.get("verteidigung", 0)
+            print(f"Zusätzlicher Effekt: {eff.get('effekt', 'Kein')}")
+
+    print(f"Du hast {name} hergestellt mit Schaden: {getattr(gegenstand, 'schaden', 'N/A')} und Verteidigung: {getattr(gegenstand, 'verteidigung', 'N/A')}")
+
+    for ressource, menge in resourcen_mengen.items():
+        spieler.ressourceninventar[ressource] -= menge
+
+    if isinstance(gegenstand, Waffe):
+        spieler.waffeninventar.append(gegenstand)
+        print(f"{gegenstand.name} wurde dem Waffeninventar hinzugefügt.")
+    elif isinstance(gegenstand, Rüstung):
+        spieler.rüstungsinventar.append(gegenstand)
+        print(f"{gegenstand.name} wurde dem Rüstungsinventar hinzugefügt.")
+
+
+
 
 def magische_schriftrolle_erlernen(spieler: Spieler) -> None:
     print("\033[34m**** Verfügbare magische Schriftrollen zum Erlernen: ****\033[0m")
@@ -1311,7 +1446,16 @@ def starte_spiel() -> None:
         print("2: Magier")
         print("3: Schurke")
         print("4: Heiler")
-        wahl = int(input("Gib die Nummer deiner Klasse ein: "))
+        while True:
+            try:
+                wahl = int(input("Gib die Nummer deiner Klasse ein: "))
+                if wahl not in [1, 2, 3, 4]:
+                    print("Ungültige Wahl. Bitte eine Zahl zwischen 1 und 4 eingeben.")
+                    continue
+                break
+            except ValueError:
+                print("Ungültige Eingabe. Bitte eine gültige Zahl eingeben.")
+        
         if wahl == 1:
             klasse = "Krieger"
         elif wahl == 2:
@@ -1320,9 +1464,6 @@ def starte_spiel() -> None:
             klasse = "Schurke"
         elif wahl == 4:
             klasse = "Heiler"
-        else:
-            print("Ungültige Wahl. Standardmäßig wird die Klasse 'Krieger' gewählt.")
-            klasse = "Krieger"
         spieler = Spieler(name, klasse, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
     else:
         spieler.lebenspunkte = spieler.max_lebenspunkte
@@ -1332,6 +1473,7 @@ def starte_spiel() -> None:
 
     while True:
         zeige_menü(spieler)
+
 
 def erzähle_geschichte() -> None:
     geschichte = """
