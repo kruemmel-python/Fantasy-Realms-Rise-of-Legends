@@ -800,7 +800,7 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
         spieler.gold,
         spieler.waffe.name if spieler.waffe else '',
         spieler.rüstung.name if spieler.rüstung else '',
-        spieler.klasse,  # Stelle sicher, dass die Klasse hier korrekt gespeichert wird
+        spieler.klasse,
         '|'.join([f"{q.name}|{q.beschreibung}|{q.belohnung[0]}|{q.belohnung[1]}|{q.belohnung[2]}|{q.ziel_typ}|{q.ziel_menge}|{q.abgeschlossen}|{q.fortschritt}" for q in spieler.quests])
     ]
 
@@ -835,7 +835,6 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
         writer.writerows(vorhandene_daten)
 
 
-
 def lade_spielerdaten(name: str) -> Optional[Spieler]:
     if not os.path.exists(CSV_DATEI):
         return None
@@ -864,7 +863,7 @@ def lade_spielerdaten(name: str) -> Optional[Spieler]:
                         ziel_typ=q[5],
                         ziel_menge=int(q[6]),
                         abgeschlossen=q[7] == 'True',
-                        fortschritt=int(q[8])
+                        fortschritt=int(q[8]) if q[8] else 0
                     )
                     for q in [quest.split('|') for quest in row['Quests'].split(';') if quest]
                 ]
@@ -882,6 +881,8 @@ def lade_spielerdaten(name: str) -> Optional[Spieler]:
 
                 return spieler
     return None
+
+
 
 
 def erstelle_spielfeld(multiplikator: float = 1.0) -> List[Optional[Gegner]]:
@@ -1020,19 +1021,28 @@ def quests_anzeigen(spieler: Spieler) -> None:
         print("Aktuelle Quests:")
         for i, quest in enumerate(spieler.quests):
             status = "Abgeschlossen" if quest.abgeschlossen else f"Fortschritt: {quest.fortschritt_anzeigen()}"
-            print(f"{i + 1}: {quest.name} - {quest.beschreibung} - Belohnung: {quest.belohnung} Kupfer, Silber and Gold - Status: {status}")
+            print(f"{i + 1}: {quest.name} - {quest.beschreibung} - Belohnung: {quest.belohnung} - Status: {status}")
 
-        choice = int(input("Wähle die Nummer der Quest, die du abschließen möchtest (oder 0, um ins Hauptmenü zurückzukehren): "))
+        while True:
+            choice = input("Wähle die Nummer der Quest, die du abschließen möchtest (oder 0, um ins Hauptmenü zurückzukehren): ")
+            if choice.isdigit():
+                choice = int(choice)
+                break
+            else:
+                print("Ungültige Eingabe. Bitte eine Zahl eingeben.")
+
         if 1 <= choice <= len(spieler.quests):
             ausgewählte_quest = spieler.quests[choice - 1]
             if ausgewählte_quest.abgeschlossen:
                 spieler.quest_abschließen(ausgewählte_quest.name)
                 return zeige_menü(spieler)
             else:
-                print(f"Die Quest {ausgewählte_quest.name} ist noch not abgeschlossen.")
+                print(f"Die Quest {ausgewählte_quest.name} ist noch nicht abgeschlossen.")
                 return zeige_menü(spieler)
         else:
             print("Zurück zum Hauptmenü.")
+
+
 
 def tägliche_herausforderung_abschließen(spieler: Spieler) -> None:
     if not spieler.tägliche_herausforderungen:
