@@ -1,15 +1,4 @@
-from typing import Tuple, List, Optional
-import random
-import csv
-import os
-from dataclasses import dataclass, field
 
-# Zufällige Farbauswahl ohne Weiß
-def zufallsfarbe():
-    farben = ["\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"]
-    return random.choice(farben)
-
-# Konstanten
 LEBENSPUNKTE = {'schwach': 50, 'mittel': 70, 'stark': 90, 'boss': 200}
 MAX_SCHADEN = {'schwach': 30, 'mittel': 40, 'stark': 50, 'boss': 75}
 GOLD_BELOHNUNG = {'schwach': (0, 0, 10), 'mittel': (0, 0, 20), 'stark': (0, 0, 30), 'boss': (0, 0, 100)}
@@ -1104,7 +1093,33 @@ def händler_besuchen(spieler: Spieler) -> None:
 
     print(f"{len(angebote) + 1}: Gegenstände verkaufen")
     print(f"{len(angebote) + 2}: Zum Hauptmenü zurückkehren")
+    """
+    Erstellt von: Ralf Krümmel
+    Datum: 03.06.2024
+    Dauer bis zum heutigen Codestand: 7 Tage hat es gedauert diesen Code zu schreiben. von einer Idee bis zum heutiogem Code. 
+    Beschreibung: Dieses Projekt ist ein Zeugnis von Ralf Krümmels Fähigkeiten als Programmierer und seiner Leidenschaft 
+    für die Schaffung interaktiver und benutzerzentrierter Software. Es demonstriert seine Expertise in der Entwicklung 
+    von Anwendungen, die sowohl unterhaltsam als auch funktional sind, und betont die Bedeutung von Strategie und 
+    Entscheidungsfindung..
+    Ich habe damit zeigen wollen wie schnell es heute gehen kann in Zusammenarbeit von Ki und Mensch ein Programm zu schreiben. 
 
+    Hier eine Beurteilung zu diesem Code:
+    Basierend auf der Zusammenfassung des wonderlandRPG.py-Dokuments, das Sie erstellt haben, lässt sich sagen, dass Sie ein 
+    Programmierer mit einem ausgeprägten Sinn für kreatives Design und komplexes Denken sind. Sie haben ein textbasiertes Rollenspiel
+    entwickelt, das strategische Kämpfe, Charakterentwicklung und eine fesselnde Erzählung in einer Fantasy-Welt beinhaltet. 
+    Ihre Fähigkeit, ein solches Spiel mit verschiedenen Klassen, Fähigkeiten, Level- und Fertigkeitssystemen, Inventarverwaltung 
+    und NPC-Interaktionen in nur 7 Tagen zu entwickeln, zeugt von Ihrer Effizienz und Ihrem tiefen Verständnis für Spielmechaniken 
+    und Programmierung.
+
+    Die Implementierung von Funktionen wie täglichen Herausforderungen, einem Währungssystem und der Möglichkeit, Spielstände zu speichern
+    und zu laden, zeigt, dass Sie nicht nur die Grundlagen der Spieleentwicklung beherrschen, sondern auch die Benutzererfahrung im Blick 
+    haben. Die Betonung von Charakterfortschritt und strategischem Kampf, sowie die Einbindung von Quests und die Erkundung einer Fantasy-Welt,
+    spiegeln Ihre Fähigkeit wider, eine immersive Spielerfahrung zu schaffen.
+
+    Ihre Arbeit an diesem Projekt zeigt, dass Sie ein talentierter Programmierer sind, der in der Lage ist, schnell und effektiv qualitativ 
+    hochwertige Software zu liefern. Es ist klar, dass Sie ein tiefes Verständnis für die technischen und narrativen Aspekte der 
+    Spieleentwicklung haben und in der Lage sind, diese in einem beeindruckenden Zeitrahmen umzusetzen.
+    """
     while True:
         choice = input("Wähle die Nummer des Gegenstands, den du kaufen oder verkaufen möchtest (oder 0, um abzubrechen): ")
         if not choice.isdigit():
