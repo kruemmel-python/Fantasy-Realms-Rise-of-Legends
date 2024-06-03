@@ -3,8 +3,11 @@ import random
 import csv
 import os
 from dataclasses import dataclass, field
-from colorama import Fore, Style
 
+# Zufällige Farbauswahl ohne Weiß
+def zufallsfarbe():
+    farben = ["\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"]
+    return random.choice(farben)
 
 # Konstanten
 LEBENSPUNKTE = {'schwach': 50, 'mittel': 70, 'stark': 90, 'boss': 200}
@@ -22,7 +25,7 @@ SPIELER_MAX_MANA = 100
 CSV_DATEI = 'spielerdaten.csv'
 START_GOLD = (0, 0, 1)  # (Kupfer, Silber, Gold)
 
-# Dropraten für seltene Gegenstände
+# Dropraten for seltene Gegenstände
 SELTENE_DROP_RATE = 0.15  # 15%
 SEHR_SELTENE_DROP_RATE = 0.01  # 1%
 
@@ -47,8 +50,7 @@ BENUTZBARE_GEGENSTAENDE = [
     Rüstung(name="Eisenhelm", typ="Helm", wert=80, verteidigung=10),
     Rüstung(name="Plattenpanzer", typ="Rüstung", wert=150, verteidigung=25),
     Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=8),
-    Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=5),
-    # Weitere Gegenstände...
+    Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=5)
 ]
 
 @dataclass
@@ -58,29 +60,17 @@ class Fähigkeit:
     kosten: int
     mana_kosten: int = 0
 
+    def schaden_erhoehen(self, prozent: float) -> None:
+        self.schaden = int(self.schaden * (1 + prozent / 100))
+        print(f"Schaden der Fähigkeit {self.name} erhöht auf {self.schaden}")
+
 @dataclass
-class MagischeSchriftrolle(Gegenstand):
+class MagischeSchriftrolle:
+    name: str
     schaden: int
     kosten: int
     mana_kosten: int
     zauberart: str
-
-# Magische Schriftrollen hinzufügen
-MAGISCHE_SCHRIFTROLLEN = [
-    MagischeSchriftrolle(name="Feuerball-Schriftrolle", schaden=70, kosten=100, mana_kosten=50, zauberart="Feuer", wert=150, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Eislanze-Schriftrolle", schaden=60, kosten=90, mana_kosten=40, zauberart="Eis", wert=130, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Blitzschlag-Schriftrolle", schaden=80, kosten=120, mana_kosten=60, zauberart="Blitz", wert=170, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Erdbeben-Schriftrolle", schaden=100, kosten=150, mana_kosten=70, zauberart="Erde", wert=200, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Windstoß-Schriftrolle", schaden=50, kosten=70, mana_kosten=30, zauberart="Luft", wert=100, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Wasserstrahl-Schriftrolle", schaden=55, kosten=75, mana_kosten=35, zauberart="Wasser", wert=110, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Heilungs-Schriftrolle", schaden=-50, kosten=100, mana_kosten=50, zauberart="Heilung", wert=160, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Schattenklinge-Schriftrolle", schaden=65, kosten=85, mana_kosten=45, zauberart="Schatten", wert=140, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Lichtstrahl-Schriftrolle", schaden=75, kosten=95, mana_kosten=55, zauberart="Licht", wert=150, typ="Magische Schriftrolle"),
-    MagischeSchriftrolle(name="Meteor-Schriftrolle", schaden=120, kosten=200, mana_kosten=80, zauberart="Feuer", wert=220, typ="Magische Schriftrolle")
-]
-
-
-BENUTZBARE_GEGENSTAENDE.extend(MAGISCHE_SCHRIFTROLLEN)
 
 @dataclass
 class Quest:
@@ -130,33 +120,32 @@ class LevelSystem:
         if self.level == 10:
             spieler.waehle_spezialisierung()
 
-
 class Skill:
-    def __init__(self, name, level=1, max_level=10, gold_cost=1000, grundschaden=0):
+    def __init__(self, name, level=1, max_level=10, grandschaden=0, gold_cost=1):
         self.name = name
         self.level = level
         self.max_level = max_level
+        self.grandschaden = grandschaden
         self.gold_cost = gold_cost
-        self.grundschaden = grundschaden 
 
-    def level_up(self, gold):
+    def level_up(self, spieler, fähigkeit: Fähigkeit):
         if self.level < self.max_level:
-            if gold >= self.gold_cost:
+            if spieler.gold >= self.gold_cost:
+                spieler.gold -= self.gold_cost
                 self.level += 1
-                self.grundschaden = int(self.grundschaden * 1.1)  # 10% Erhöhung des Grundschadens
-                print(f"{self.name} hat Level {self.level} erreicht! Neuer Grundschaden: {self.grundschaden}")
-                return gold - self.gold_cost
+                self.grandschaden = int(self.grandschaden * 1.1)  # 10% Erhöhung des Grandschadens
+                fähigkeit.schaden_erhoehen(10)  # Erhöht den Schaden der Fähigkeit um 10%
+                print(f"{self.name} hat Level {self.level} erreicht! Neuer Grandschaden: {self.grandschaden}")
             else:
-                raise ValueError("Nicht genügend Gold")
+                raise ValueError("not genügend Gold")
         else:
             raise ValueError("Maximales Level erreicht")
 
     def berechne_schaden(self):
-        return self.grundschaden + (self.level * 5)  # Beispiel: 5 Schaden pro Level
+        return self.grandschaden + (self.level * 5)  # Beispiel: 5 Schaden pro Level
 
     def __repr__(self):
         return f"{self.name} (Level {self.level}/{self.max_level}, Gold-Kosten: {self.gold_cost})"
-
 
 class Skillsystem:
     def __init__(self):
@@ -165,12 +154,14 @@ class Skillsystem:
     def add_skill(self, skill):
         self.skills.append(skill)
 
-    def level_up_skill(self, skill_name, gold):
+    def level_up_skill(self, skill_name, spieler):
         for skill in self.skills:
             if skill.name == skill_name:
-                remaining_gold = skill.level_up(gold)
-                return skill, remaining_gold
-        raise ValueError(f"Skill {skill_name} nicht gefunden")
+                fähigkeit = next((f for f in spieler.fähigkeiten if f.name == skill_name), None)
+                if fähigkeit:
+                    skill.level_up(spieler, fähigkeit)
+                    return skill
+        raise ValueError(f"Skill {skill_name} not gefanden")
 
     def zeige_skills(self):
         for skill in self.skills:
@@ -179,49 +170,46 @@ class Skillsystem:
     def __repr__(self):
         return "\n".join(str(skill) for skill in self.skills)
 
-
-
 class KriegerSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Schwertkampf", gold_cost=1000))
-        self.add_skill(Skill("Schildnutzung", gold_cost=1000))
-        self.add_skill(Skill("Berserker-Rage", gold_cost=2000))
-        self.add_skill(Skill("Kampfgeschick", gold_cost=1200))
-        self.add_skill(Skill("Kriegerstärke", gold_cost=1800))
+        self.add_skill(Skill("Schwertkampf", gold_cost=10))
+        self.add_skill(Skill("Schildnutzung", gold_cost=10))
+        self.add_skill(Skill("Berserker-Rage", gold_cost=20))
+        self.add_skill(Skill("Kampfgeschick", gold_cost=12))
+        self.add_skill(Skill("Kriegerstärke", gold_cost=18))
 
 class MagierSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Feuerball", gold_cost=1500))
-        self.add_skill(Skill("Eislanze", gold_cost=1200))
-        self.add_skill(Skill("Blitzschlag", gold_cost=1800))
-        self.add_skill(Skill("Magische Barriere", gold_cost=1000))
-        self.add_skill(Skill("Arkane Macht", gold_cost=2000))
+        self.add_skill(Skill("Feuerball", gold_cost=15))
+        self.add_skill(Skill("Eislanze", gold_cost=12))
+        self.add_skill(Skill("Blitzschlag", gold_cost=18))
+        self.add_skill(Skill("Magische Barriere", gold_cost=10))
+        self.add_skill(Skill("Arkane Macht", gold_cost=20))
 
 class SchurkeSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Schleichangriff", gold_cost=1400))
-        self.add_skill(Skill("Vergiften", gold_cost=1000))
-        self.add_skill(Skill("Doppelschlag", gold_cost=1500))
-        self.add_skill(Skill("Diebeskunst", gold_cost=800))
-        self.add_skill(Skill("Meuchelmord", gold_cost=2000))
+        self.add_skill(Skill("Schleichangriff", gold_cost=14))
+        self.add_skill(Skill("Vergiften", gold_cost=10))
+        self.add_skill(Skill("Doppelschlag", gold_cost=15))
+        self.add_skill(Skill("Diebeskunst", gold_cost=8))
+        self.add_skill(Skill("Meuchelmord", gold_cost=20))
 
 class HeilerSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Heilung", gold_cost=1000))
-        self.add_skill(Skill("Schutzschild", gold_cost=1200))
-        self.add_skill(Skill("Wiederbelebung", gold_cost=1500))
-        self.add_skill(Skill("Heiliger Segen", gold_cost=800))
-        self.add_skill(Skill("Göttliche Gnade", gold_cost=2000))
-
+        self.add_skill(Skill("Heilung", gold_cost=10))
+        self.add_skill(Skill("Heiliger Blitz", gold_cost=12))
+        self.add_skill(Skill("Manaregeneration", gold_cost=15))
+        self.add_skill(Skill("Heiliger Segen", gold_cost=8))
+        self.add_skill(Skill("Göttliche Gnade", gold_cost=20))
 
 # Spezialisierungen hinzufügen
 class Krieger:
     def __init__(self):
-        self.grundskills = [
+        self.grandskills = [
             Fähigkeit("Schwertkampf", 50, 10, 50),
             Fähigkeit("Schildnutzung", 0, 20, 50),
             Fähigkeit("Berserker-Rage", 70, 25, 50),
@@ -231,7 +219,7 @@ class Krieger:
 
 class Magier:
     def __init__(self):
-        self.grundskills = [
+        self.grandskills = [
             Fähigkeit("Feuerball", 70, 30, 50),
             Fähigkeit("Eislanze", 50, 25, 50),
             Fähigkeit("Blitzschlag", 60, 30, 50),
@@ -241,7 +229,7 @@ class Magier:
 
 class Schurke:
     def __init__(self):
-        self.grundskills = [
+        self.grandskills = [
             Fähigkeit("Schleichangriff", 60, 15, 50),
             Fähigkeit("Vergiften", 40, 10, 50),
             Fähigkeit("Doppelschlag", 50, 20, 50),
@@ -251,13 +239,41 @@ class Schurke:
 
 class Heiler:
     def __init__(self):
-        self.grundskills = [
+        self.grandskills = [
             Fähigkeit("Heilung", 0, 10, 50),
-            Fähigkeit("Schutzschild", 0, 15, 50),
-            Fähigkeit("Wiederbelebung", 0, 25, 50),
+            Fähigkeit("Heiliger Blitz", 100, 15, 50),  # Geändert
+            Fähigkeit("Manaregeneration", 0, 25, 50),  # Umbenannt
             Fähigkeit("Heiliger Segen", 0, 20, 50),
             Fähigkeit("Göttliche Gnade", 0, 30, 50)
         ]
+
+    def anwenden_fähigkeit(self, fähigkeit_name: str, spieler: 'Spieler', gegner: Optional['Gegner'] = None):
+        for fähigkeit in self.grandskills:
+            if fähigkeit.name == fähigkeit_name:
+                if fähigkeit.name == "Heilung":
+                    geheilte_punkte = 50
+                    spieler.lebenspunkte = min(spieler.lebenspunkte + geheilte_punkte, spieler.max_lebenspunkte)
+                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet. {geheilte_punkte} Lebenspunkte geheilt. Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
+                elif fähigkeit.name == "Heiliger Blitz":
+                    if gegner:
+                        gegner.lebenspunkte -= fähigkeit.schaden
+                        print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet und hat {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                elif fähigkeit.name == "Manaregeneration":
+                    geheiltes_mana = 100
+                    spieler.mana = min(spieler.mana + geheiltes_mana, spieler.max_mana)
+                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet. {geheiltes_mana} Mana regeneriert. Mana: {spieler.mana}/{spieler.max_mana}")
+                elif fähigkeit.name == "Heiliger Segen":
+                    geheilte_punkte = 30
+                    spieler.lebenspunkte = min(spieler.lebenspunkte + geheilte_punkte, spieler.max_lebenspunkte)
+                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet. {geheilte_punkte} Lebenspunkte geheilt. Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
+                elif fähigkeit.name == "Göttliche Gnade":
+                    geheilte_punkte = 100
+                    spieler.lebenspunkte = min(spieler.lebenspunkte + geheilte_punkte, spieler.max_lebenspunkte)
+                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet. {geheilte_punkte} Lebenspunkte geheilt. Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
+                else:
+                    print(f"Die Fähigkeit {fähigkeit.name} ist keine Heilungsfähigkeit.")
+                return
+        print(f"Die Fähigkeit {fähigkeit_name} wurde nicht gefunden.")
 
 @dataclass
 class Gegner:
@@ -297,6 +313,7 @@ class Gegner:
             self.benutzbare_gegenstände.append(benutzbarer_gegenstand)
             print(f"Benutzbarer Gegenstand {benutzbarer_gegenstand.name} von {self.name} gedroppt")
 
+
 @dataclass
 class Spieler:
     name: str
@@ -325,6 +342,8 @@ class Spieler:
     level_system: LevelSystem = field(init=False)
     max_mana: int = SPIELER_MAX_MANA
     mana: int = SPIELER_START_MANA
+    manaregeneration_aktiv: bool = False
+    manaregeneration_zaehler: int = 0
     vergiftet: bool = False
     skillsystem: Skillsystem = field(init=False)
     spezialisierung: Optional[object] = field(default=None, init=False)
@@ -333,7 +352,6 @@ class Spieler:
         self.level_system = LevelSystem(self.erfahrung, self.level)
         self.spielfeld = erstelle_spielfeld(self.gegner_multiplikator)
         self.set_klasse(self.klasse)
-        self.xp_fuer_skills = 0
 
     def set_klasse(self, klasse: str):
         if klasse == "Krieger":
@@ -348,57 +366,30 @@ class Spieler:
         elif klasse == "Heiler":
             self.skillsystem = HeilerSkillsystem()
             self.spezialisierung = Heiler()
-        elif klasse == "Unbekannt":
+        else:
             print("Unbekannte Klasse, Standardklasse Krieger wird verwendet.")
             self.skillsystem = KriegerSkillsystem()
             self.spezialisierung = Krieger()
-        else:
-            raise ValueError("Unbekannte Klasse")
-        self.fähigkeiten = self.spezialisierung.grundskills
+        self.fähigkeiten = self.spezialisierung.grandskills
+
 
     def erfahrung_sammeln(self, xp):
         self.level_system.erfahrung_sammeln(xp, self)
-        self.xp_fuer_skills += xp
-        self.xp_fuer_skills = self.skillsystem.verteile_xp(self.xp_fuer_skills)
 
     def skill_level_up(self, skill_name):
-        skill, remaining_gold = self.skillsystem.level_up_skill(skill_name, self.gold)
-        self.gold = remaining_gold
-        return skill
-                                                                     
+        try:
+            skill = self.skillsystem.level_up_skill(skill_name, self)
+            return skill
+        except ValueError as e:
+            print(e)
+
     def skills_anzeigen(self):
-        print("Aktuelle Skills:")
-        print(self.skillsystem)
-        return self.skill_menue()
-    
-    def skills_xp_anzeigen(self):
-        print("XP für aktuelle Skills:")
-        self.skillsystem.zeige_skills_xp()
-        return self.skill_menue()
-
-    def skill_menue(self):
-        print("\nSkill-Menü")
-        print("1: Skills anzeigen")
-        print("2: Skill leveln")
-        print("3: Skill-Status anzeigen")
-        print("4: Zum Hauptmenü zurückkehren")
-
-        choice = input("Wähle eine Option: ")
-
-        if choice == '1':
-            self.skills_anzeigen()
-        elif choice == '2':
-            self.skill_level_up_menue()
-        elif choice == '3':
-            self.skills_anzeigen()
-        elif choice == '4':
-            return zeige_menü(self)
-        else:
-            print("Ungültige Wahl. Bitte versuche es erneut.")
+        print("\033[34m**** Aktuelle Skills: ****\033[0m")
+        self.skillsystem.zeige_skills()
         return self.skill_menue()
 
     def skill_level_up_menue(self):
-        print("Wähle einen Skill zum Leveln:")
+        print("\033[34m**** Wähle einen Skill zum Leveln: ****\033[0m")
         for i, skill in enumerate(self.skillsystem.skills):
             print(f"{i + 1}: {skill.name} (Level {skill.level}/{skill.max_level}, Gold-Kosten: {skill.gold_cost})")
 
@@ -413,6 +404,23 @@ class Spieler:
             print("Ungültige Wahl.")
         return self.skill_menue()
 
+    def skill_menue(self):
+        print("\033[34m**** Skill-Menü ****\033[0m")
+        print("1: Skills anzeigen")
+        print("2: Skill leveln")
+        print("3: Zum Hauptmenü zurückkehren")
+
+        choice = input("Wähle eine Option: ")
+
+        if choice == '1':
+            self.skills_anzeigen()
+        elif choice == '2':
+            self.skill_level_up_menue()
+        elif choice == '3':
+            return zeige_menü(self)
+        else:
+            print("Ungültige Wahl. Bitte versuche es erneut.")
+            return self.skill_menue()
 
     def quest_fortschritt_aktualisieren(self, ziel_typ: str, menge: int = 1) -> None:
         for quest in self.quests:
@@ -421,7 +429,8 @@ class Spieler:
                 print(f"Fortschritt bei Quest {quest.name}: {quest.fortschritt_anzeigen()}")
                 if quest.abgeschlossen:
                     self.add_muenzen(*quest.belohnung)
-                    print(f"Quest {quest.name} abgeschlossen! Belohnung: {quest.belohnung} Kupfer, Silber und Gold")
+                gold, silber, kupfer = quest.belohnung
+                print(f"Quest {quest.name} abgeschlossen! Belohnung: {gold} Gold, {silber} Silber, {kupfer} Kupfer")
 
     def tagesquest_fortschritt_aktualisieren(self, ziel_typ: str, menge: int = 1) -> None:
         for quest in self.tägliche_herausforderungen:
@@ -429,8 +438,8 @@ class Spieler:
                 quest.fortschritt_aktualisieren(menge)
                 print(f"Fortschritt bei Tagesquest {quest.name}: {quest.fortschritt_anzeigen()}")
                 if quest.abgeschlossen:
-                    self.add_muenzen(*quest.belohnung)
-                    print(f"Tagesquest {quest.name} abgeschlossen! Belohnung: {quest.belohnung} Kupfer, Silber und Gold")
+                   gold, silber, kupfer = quest.belohnung
+                   print(f"Tagesquest {quest.name} abgeschlossen! Belohnung: {gold} Gold, {silber} Silber, {kupfer}")
 
     def tagesquest_hinzufügen(self, quest: Tagesquest) -> None:
         self.tägliche_herausforderungen.append(quest)
@@ -440,67 +449,54 @@ class Spieler:
         if not self.tägliche_herausforderungen:
             print("Keine Tagesquests verfügbar.")
         else:
-            print("Aktuelle Tagesquests:")
+            print("\033[34m**** Aktuelle Tagesquests: ****\033[0m")
             for quest in self.tägliche_herausforderungen:
                 status = "Abgeschlossen" if quest.abgeschlossen else f"Fortschritt: {quest.fortschritt_anzeigen()}"
-                print(f"{quest.name}: {quest.beschreibung} - Belohnung: {quest.belohnung} Kupfer, Silber und Gold - Status: {status}")
+                gold, silber, kupfer = quest.belohnung
+                print(f"{quest.name}: {quest.beschreibung} - Belohnung: {gold} Gold, {silber} Silber, {kupfer} Kupfer - Status: {status}")
 
     def inventar_anzeigen(self) -> None:
-        print(f"Name: {self.name}")
-        print(f"Klasse: {self.klasse}")
-        print(f"Gold: {self.gold}, Silber: {self.silber}, Kupfer: {self.kupfer}")
-        print(f"Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}")
-        print(f"Mana: {self.mana}/{self.max_mana}")
-        print(f"Level: {self.level_system.level}")
-        print(f"Erfahrung: {self.level_system.erfahrung}")
-
-        grundschaden = SPIELER_MAX_SCHADEN
-        print(f"Grundschaden: {grundschaden}")
-
+        print(f"\033[33mName: {self.name}\033[0m")
+        print(f"\033[33mKlasse: {self.klasse}\033[0m")
+        print(f"\033[33mGold: {self.gold}, Silber: {self.silber}, Kupfer: {self.kupfer}\033[0m")
+        print(f"\033[33mLebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}\033[0m")
+        print(f"\033[33mMana: {self.mana}/{self.max_mana}\033[0m")
+        print(f"\033[33mLevel: {self.level}\033[0m")
+        print(f"\033[33mErfahrung: {self.erfahrung}\033[0m")
+        grundschaden = 55
+        print(f"\033[33mGrundschaden: {grundschaden}\033[0m")
         waffen_schaden = getattr(self.waffe, 'schaden', 0) if isinstance(self.waffe, Waffe) else 0
-
         gesamt_schaden = grundschaden + waffen_schaden
-        print(f"Gesamtschaden: {gesamt_schaden}")
+        print(f"\033[33mGesamtschaden: {gesamt_schaden}\033[0m")
+
+        gegenstand_anzahl = {}
+        for gegenstand in self.gegenstände:
+            if gegenstand.name in gegenstand_anzahl:
+                gegenstand_anzahl[gegenstand.name] += 1
+            else:
+                gegenstand_anzahl[gegenstand.name] = 1
 
         if not self.gegenstände:
             print("Dein Inventar ist leer.")
         else:
-            print("Du hast folgende Gegenstände in deinem Inventar:")
-            for i, gegenstand in enumerate(self.gegenstände, 1):
-                print(f"{i}: {gegenstand.name} - Typ: {gegenstand.typ}, Wert: {gegenstand.wert} Kupfer")
+            print("\033[34m**** Du hast folgende Gegenstände in deinem Inventar: ****\033[0m")
+            for name, anzahl in gegenstand_anzahl.items():
+                print(f"{zufallsfarbe()}{name} - Anzahl: {anzahl}\033[0m")
 
         if self.waffeninventar:
-            print("Waffen im Inventar:")
+            print("\033[34m**** Waffen im Inventar: ****\033[0m")
             for i, waffe in enumerate(self.waffeninventar, 1):
-                print(f"{i}: {waffe.name} - Schaden: {waffe.schaden}, Wert: {waffe.wert} Kupfer")
+                print(f"{zufallsfarbe()}{i}: {waffe.name} - Schaden: {waffe.schaden}, Wert: {waffe.wert} Kupfer\033[0m")
 
         if self.rüstungsinventar:
-            print("Rüstungen im Inventar:")
+            print("\033[34m**** Rüstungen im Inventar: ****\033[0m")
             for i, rüstung in enumerate(self.rüstungsinventar, 1):
-                print(f"{i}: {rüstung.name} - Verteidigung: {rüstung.verteidigung}, Wert: {rüstung.wert} Kupfer")
-
-        if self.waffe:
-            if isinstance(self.waffe, Waffe):
-                print(f"Ausgerüstete Waffe: {self.waffe.name} - Schaden: {self.waffe.schaden}")
-        else:
-            print("Keine Waffe ausgerüstet")
-
-        if self.rüstung:
-            print(f"Ausgerüstete Rüstung: {self.rüstung.name} - Verteidigung: {self.rüstung.verteidigung}")
-
-        if self.handschuhe:
-            print(f"Ausgerüstete Handschuhe: {self.handschuhe.name} - Verteidigung: {self.handschuhe.verteidigung}")
-
-        if self.stiefel:
-            print(f"Ausgerüstete Stiefel: {self.stiefel.name} - Verteidigung: {self.stiefel.verteidigung}")
-
-        if self.helm:
-            print(f"Ausgerüsteter Helm: {self.helm.name} - Verteidigung: {self.helm.verteidigung}")
+                print(f"{zufallsfarbe()}{i}: {rüstung.name} - Verteidigung: {rüstung.verteidigung}, Wert: {rüstung.wert} Kupfer\033[0m")
 
         if self.fähigkeiten:
-            print("Fähigkeiten:")
+            print("\033[34m**** Fähigkeiten: ****\033[0m")
             for fähigkeit in self.fähigkeiten:
-                print(f"{fähigkeit.name} - Schaden: {fähigkeit.schaden}, Mana-Kosten: {fähigkeit.mana_kosten}")
+                print(f"{zufallsfarbe()}{fähigkeit.name} - Schaden: {fähigkeit.schaden}, Mana-Kosten: {fähigkeit.mana_kosten}\033[0m")
 
         print("1: Waffen ausrüsten")
         print("2: Rüstungen ausrüsten")
@@ -515,7 +511,7 @@ class Spieler:
         if not self.waffeninventar:
             print("Keine Waffen im Inventar.")
             return zeige_menü
-        print("Wähle eine Waffe zum Ausrüsten:")
+        print("\033[34m**** Wähle eine Waffe zum Ausrüsten: ****\033[0m")
         for i, waffe in enumerate(self.waffeninventar, 1):
             print(f"{i}: {waffe.name} - Schaden: {waffe.schaden}, Wert: {waffe.wert} Kupfer")
         choice = int(input("Wähle eine Waffe (Nummer eingeben): "))
@@ -528,7 +524,7 @@ class Spieler:
         if not self.rüstungsinventar:
             print("Keine Rüstungen im Inventar.")
             return zeige_menü
-        print("Wähle eine Rüstung zum Ausrüsten:")
+        print("\033[34m**** Wähle eine Rüstung zum Ausrüsten: ****\033[0m")
         for i, rüstung in enumerate(self.rüstungsinventar, 1):
             print(f"{i}: {rüstung.name} - Verteidigung: {rüstung.verteidigung}, Wert: {rüstung.wert} Kupfer")
         choice = int(input("Wähle eine Rüstung (Nummer eingeben): "))
@@ -547,10 +543,10 @@ class Spieler:
 
     def angreifen(self) -> int:
         waffen_schaden = getattr(self.waffe, 'schaden', 0) if isinstance(self.waffe, Waffe) else 0
-        grund_schaden = random.randint(1, SPIELER_MAX_SCHADEN)
+        grand_schaden = random.randint(1, SPIELER_MAX_SCHADEN)
         skill_schaden = sum(skill.berechne_schaden() for skill in self.skillsystem.skills)
-        gesamtschaden = grund_schaden + waffen_schaden + skill_schaden
-        zufälliger_schaden = random.randint(grund_schaden, gesamtschaden)
+        gesamtschaden = grand_schaden + waffen_schaden + skill_schaden
+        zufälliger_schaden = random.randint(grand_schaden, gesamtschaden)
         return zufälliger_schaden
 
     def verteidigen(self, schaden: int) -> int:
@@ -564,7 +560,7 @@ class Spieler:
 
     def heilen(self) -> None:
         self.lebenspunkte = min(self.lebenspunkte + 30, self.max_lebenspunkte)
-        print(f"Als Siegesbonus wurden die Lebenspunkte des Spielers um 30 erhöht und sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.")
+        print(f"{zufallsfarbe()}Als Siegesbonus wurden die Lebenspunkte des Spielers um 30 erhöht and sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.\033[0m")
 
     def gegenstand_verwenden(self, gegenstand_name: str) -> None:
         gegenstand = next((g for g in self.gegenstände if g.name == gegenstand_name), None)
@@ -581,7 +577,7 @@ class Spieler:
                 print(f"Du hast {gegenstand.name} verwendet. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
             elif gegenstand.typ == 'Antidot':
                 self.vergiftet = False
-                print(f"Du hast {gegenstand.name} verwendet. Du bist nicht mehr vergiftet.")
+                print(f"Du hast {gegenstand.name} verwendet. Du bist not mehr vergiftet.")
             elif gegenstand.typ == 'Elixier':
                 self.lebenspunkte = min(self.lebenspunkte + 50, self.max_lebenspunkte)
                 self.mana = min(self.mana + 50, self.max_mana)
@@ -598,17 +594,17 @@ class Spieler:
                 elif gegenstand.name == 'Frostbombe':
                     gegner = random.choice(self.spielfeld)  # Beispiel: Zufälliger Gegner wird getroffen
                     gegner.lebenspunkte -= gegenstand.wert
-                    print(f"Du hast {gegenstand.name} verwendet. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte und ist verlangsamt.")
+                    print(f"Du hast {gegenstand.name} verwendet. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte and ist verlangsamt.")
             elif gegenstand.typ == 'Magischer Gegenstand':
                 if gegenstand.name == 'Teleportationsrolle':
                     print(f"Du hast {gegenstand.name} verwendet. Du bist zu einem sicheren Ort teleportiert.")
                 elif gegenstand.name == 'Unsichtbarkeitsumhang':
                     print(f"Du hast {gegenstand.name} verwendet. Du bist für eine gewisse Zeit unsichtbar.")
             else:
-                print(f"Der Gegenstand {gegenstand.name} kann nicht verwendet werden.")
+                print(f"Der Gegenstand {gegenstand.name} kann not verwendet werden.")
             self.gegenstände.remove(gegenstand)
         else:
-            print(f"Der Gegenstand {gegenstand_name} ist nicht in deinem Inventar.")
+            print(f"Der Gegenstand {gegenstand_name} ist not in deinem Inventar.")
 
     def heiltrank_nutzen(self) -> None:
         heiltränke = [g for g in self.gegenstände if g.typ == 'Heiltrank']
@@ -616,7 +612,7 @@ class Spieler:
             antwort = input("Möchtest du einen Heiltrank verwenden? (j/n): ")
             if antwort.lower() == 'j':
                 heiltrank = heiltränke[0]
-                self.lebenspunkte = min(self.lebenspunkte + heiltrank.wert, self.max_lebenspunkte)
+                self.lebenspunkte = min(self.lebenspunkte + int(heiltrank.wert), self.max_lebenspunkte)  # Wert in int konvertieren
                 self.gegenstände.remove(heiltrank)
                 print(f"Heiltrank verwendet. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}.")
             else:
@@ -624,15 +620,39 @@ class Spieler:
         else:
             print("Keine Heiltränke im Inventar.")
 
+    def mana_trank_nutzen(self) -> None:
+        mana_tränke = [g for g in self.gegenstände if g.typ == 'Mana-Trank']
+        if mana_tränke:
+            antwort = input("Möchtest du einen Mana-Trank verwenden? (j/n): ")
+            if antwort.lower() == 'j':
+                mana_trank = mana_tränke[0]
+                self.mana = min(self.mana + int(mana_trank.wert), self.max_mana)  # Wert in int konvertieren
+                self.gegenstände.remove(mana_trank)
+                print(f"Mana-Trank verwendet. Mana: {self.mana}/{self.max_mana}.")
+            else:
+                print("Mana-Trank nicht verwendet.")
+        else:
+            print("Keine Mana-Tränke im Inventar.")
+
     def finde_heiltränke(self) -> None:
-        anzahl_gefundene_heiltränke = random.randint(0, 2)
-        if anzahl_gefundene_heiltränke > 0:
-            for _ in range(anzahl_gefundene_heiltränke):
+        anzahl_gefandene_heiltränke = random.randint(0, 2)
+        if anzahl_gefandene_heiltränke > 0:
+            for _ in range(anzahl_gefandene_heiltränke):
                 heiltrank = Gegenstand('Heiltrank', 'Heiltrank', 20)
                 self.add_gegenstand(heiltrank)
-            print(f"Du hast {anzahl_gefundene_heiltränke} Heiltrank{'e' if anzahl_gefundene_heiltränke > 1 else ''} gefunden und deinem Inventar hinzugefügt.")
+            print(f"Du hast {anzahl_gefandene_heiltränke} Heiltrank{'e' if anzahl_gefandene_heiltränke > 1 else ''} gefanden and deinem Inventar hinzugefügt.")
         else:
-            print("Keine Heiltränke gefunden.")
+            print(f"{zufallsfarbe()}Keine Heiltränke gefanden.\033[0m")
+
+    def finde_mana_tränke(self) -> None:
+        anzahl_gefandene_mana_tränke = random.randint(0, 2)
+        if anzahl_gefandene_mana_tränke > 0:
+            for _ in range(anzahl_gefandene_mana_tränke):
+                mana_trank = Gegenstand('Mana-Trank', 'Mana-Trank', 20)
+                self.add_gegenstand(mana_trank)
+            print(f"Du hast {anzahl_gefandene_mana_tränke} Mana-Trank{'e' if anzahl_gefandene_mana_tränke > 1 else ''} gefanden and deinem Inventar hinzugefügt.")
+        else:
+            print(f"{zufallsfarbe()}Keine Mana-Tränke gefanden.\033[0m")
 
     def add_gegenstand(self, gegenstand: Gegenstand) -> None:
         if isinstance(gegenstand, Waffe):
@@ -641,7 +661,7 @@ class Spieler:
             self.rüstungsinventar.append(gegenstand)
         else:
             self.gegenstände.append(gegenstand)
-        print(f"{gegenstand.name} wurde dem Inventar hinzugefügt.")
+            print(f"{zufallsfarbe()}{gegenstand.name} wurde dem Inventar hinzugefügt.\033[0m")
 
     def add_fähigkeit(self, fähigkeit: Fähigkeit) -> None:
         self.fähigkeiten.append(fähigkeit)
@@ -663,11 +683,11 @@ class Spieler:
 
     def quest_hinzufügen(self, quest: Quest) -> None:
         self.quests.append(quest)
-        print(f"Quest {quest.name} wurde hinzugefügt: {quest.beschreibung}")
+        print(f"\033[34mQuest {quest.name} wurde hinzugefügt: {quest.beschreibung}\033[0m")
 
     def tägliche_herausforderung_abschließen(self, herausforderung: Tagesquest) -> None:
         self.add_muenzen(*herausforderung.belohnung)
-        print(f"Tägliche Herausforderung abgeschlossen! Belohnung: {herausforderung.belohnung} Kupfer, Silber und Gold")
+        print(f"Tägliche Herausforderung abgeschlossen! Belohnung: {herausforderung.belohnung} Kupfer, Silber and Gold")
         self.tägliche_herausforderungen.remove(herausforderung)
 
     def add_muenzen(self, kupfer: int, silber: int, gold: int) -> None:
@@ -686,7 +706,7 @@ class Spieler:
         kosten_kupfer = kupfer + silber * 100 + gold * 10000
 
         if kosten_kupfer > total_kupfer:
-            print("Nicht genügend Kupfer, Silber oder Gold.")
+            print("not genügend Kupfer, Silber oder Gold.")
             return
 
         total_kupfer -= kosten_kupfer
@@ -699,7 +719,7 @@ class Spieler:
         if not self.fähigkeiten:
             print("Keine Fähigkeiten verfügbar.")
             return None
-        print("Verfügbare Fähigkeiten:")
+        print("\033[34m**** Verfügbare Fähigkeiten: ****\033[0m")
         for i, fähigkeit in enumerate(self.fähigkeiten):
             print(f"{i + 1}: {fähigkeit.name} - Schaden: {fähigkeit.schaden}, Mana-Kosten: {fähigkeit.mana_kosten}")
         wahl = int(input("Wähle eine Fähigkeit (Nummer eingeben): "))
@@ -714,11 +734,39 @@ class Spieler:
             print("Ungültige Wahl.")
             return None
 
+
+    def anwenden_fähigkeit(self, fähigkeit_name: str):
+        if isinstance(self.spezialisierung, Heiler):
+           self.spezialisierung.anwenden_fähigkeit(fähigkeit_name, self)
+        else:
+            fähigkeit = next((f for f in self.fähigkeiten if f.name == fähigkeit_name), None)
+            if fähigkeit:
+                if fähigkeit.schaden > 0:
+                    gegner = random.choice([gegner for gegner in self.spielfeld if gegner is not None])
+                    gegner.lebenspunkte -= fähigkeit.schaden
+                    self.mana -= fähigkeit.mana_kosten
+                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet and hat {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                else:
+                    geheilte_punkte = 30  # Beispielwert für Heilung
+                    self.lebenspunkte = min(self.lebenspunkte + geheilte_punkte, self.max_lebenspunkte)
+                    self.mana -= fähigkeit.mana_kosten
+                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet. {geheilte_punkte} Lebenspunkte geheilt. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}")
+
+    
+
+    def angriff_verarbeiten(self):
+        if self.manaregeneration_aktiv:
+            self.mana = min(self.mana + 20, self.max_mana)
+            self.manaregeneration_zaehler -= 1
+            if self.manaregeneration_zaehler <= 0:
+                self.manaregeneration_aktiv = False
+                print("Die Manaregeneration ist nicht mehr aktiv.")
+
     def schriftrolle_auswählen(self) -> Optional[MagischeSchriftrolle]:
         if not self.magische_schriftrollen:
             print("Keine magischen Schriftrollen verfügbar.")
             return None
-        print("Verfügbare magische Schriftrollen:")
+        print("\033[34m**** Verfügbare magische Schriftrollen: ****\033[0m")
         for i, schriftrolle in enumerate(self.magische_schriftrollen):
             print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
         wahl = int(input("Wähle eine magische Schriftrolle (Nummer eingeben): "))
@@ -727,7 +775,7 @@ class Spieler:
             if self.mana >= ausgewählte_schriftrolle.mana_kosten:
                 return ausgewählte_schriftrolle
             else:
-                print("Nicht genügend Mana.")
+                print("not genügend Mana.")
                 return None
         else:
             print("Ungültige Wahl.")
@@ -736,7 +784,7 @@ class Spieler:
     def schriftrolle_verwenden(self, schriftrolle: MagischeSchriftrolle, gegner: Gegner) -> None:
         gegner.lebenspunkte -= schriftrolle.schaden
         self.mana -= schriftrolle.mana_kosten
-        print(f"Magische Schriftrolle {schriftrolle.name} verwendet und {schriftrolle.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+        print(f"Magische Schriftrolle {schriftrolle.name} verwendet and {schriftrolle.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
 
 def speichere_spielerdaten(spieler: Spieler) -> None:
     daten = [
@@ -745,14 +793,15 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
         spieler.max_lebenspunkte,
         spieler.level_system.erfahrung,
         spieler.level_system.level,
-        ';'.join([gegenstand.name for gegenstand in spieler.gegenstände]),
+        ';'.join([f"{g.name},{g.typ},{g.wert}" for g in spieler.gegenstände]),
         ';'.join([fähigkeit.name for fähigkeit in spieler.fähigkeiten]),
         spieler.kupfer,
         spieler.silber,
         spieler.gold,
         spieler.waffe.name if spieler.waffe else '',
         spieler.rüstung.name if spieler.rüstung else '',
-        spieler.__class__.__name__
+        spieler.klasse,  # Stelle sicher, dass die Klasse hier korrekt gespeichert wird
+        '|'.join([f"{q.name}|{q.beschreibung}|{q.belohnung[0]}|{q.belohnung[1]}|{q.belohnung[2]}|{q.ziel_typ}|{q.ziel_menge}|{q.abgeschlossen}|{q.fortschritt}" for q in spieler.quests])
     ]
 
     vorhandene_daten = []
@@ -761,13 +810,13 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
             reader = csv.reader(file)
             vorhandene_daten = list(reader)
 
-    mit_kopfzeile = False
+    with_kopfzeile = False
     expected_headers = [
         'Name', 'Lebenspunkte', 'MaxLebenspunkte', 'Erfahrung', 'Level',
-        'Gegenstände', 'Fähigkeiten', 'Kupfer', 'Silber', 'Gold', 'Waffe', 'Rüstung', 'Klasse'
+        'Gegenstände', 'Fähigkeiten', 'Kupfer', 'Silber', 'Gold', 'Waffe', 'Rüstung', 'Klasse', 'Quests'
     ]
     if len(vorhandene_daten) == 0 or vorhandene_daten[0] != expected_headers:
-        mit_kopfzeile = True
+        with_kopfzeile = True
 
     spieler_gefunden = False
     for i, zeile in enumerate(vorhandene_daten):
@@ -781,9 +830,11 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
 
     with open(CSV_DATEI, 'w', newline='') as file:
         writer = csv.writer(file)
-        if mit_kopfzeile:
+        if with_kopfzeile:
             writer.writerow(expected_headers)
         writer.writerows(vorhandene_daten)
+
+
 
 def lade_spielerdaten(name: str) -> Optional[Spieler]:
     if not os.path.exists(CSV_DATEI):
@@ -797,7 +848,7 @@ def lade_spielerdaten(name: str) -> Optional[Spieler]:
                 lebenspunkte = int(row['Lebenspunkte'])
                 erfahrung = int(row['Erfahrung'])
                 level = int(row['Level'])
-                gegenstände = [Gegenstand(name, 'Gegenstand', 0) for name in row['Gegenstände'].split(';') if name]
+                gegenstände = [Gegenstand(*name.split(',')) for name in row['Gegenstände'].split(';') if name]
                 fähigkeiten = [Fähigkeit(name, 0, 0, 0) for name in row['Fähigkeiten'].split(';') if name]
                 kupfer = int(row['Kupfer'])
                 silber = int(row['Silber'])
@@ -805,32 +856,33 @@ def lade_spielerdaten(name: str) -> Optional[Spieler]:
                 waffe = next((w for w in BENUTZBARE_GEGENSTAENDE if isinstance(w, Waffe) and w.name == row['Waffe']), None)
                 rüstung = next((r for r in BENUTZBARE_GEGENSTAENDE if isinstance(r, Rüstung) and r.name == row['Rüstung']), None)
                 klasse = row['Klasse']
-
-                # Instanz der entsprechenden Klasse erstellen
-                klassen_dict = {
-                    "Krieger": Krieger,
-                    "Magier": Magier,
-                    "Schurke": Schurke,
-                    "Heiler": Heiler
-                }
-
-                # Überprüfen, ob die Klasse bekannt ist, andernfalls Standardklasse setzen
-                if klasse not in klassen_dict:
-                    print(f"Unbekannte Klasse '{klasse}', Standardklasse Krieger wird verwendet.")
-                    klasse = "Krieger"
+                quests = [
+                    Quest(
+                        name=q[0],
+                        beschreibung=q[1],
+                        belohnung=(int(q[2]), int(q[3]), int(q[4])),
+                        ziel_typ=q[5],
+                        ziel_menge=int(q[6]),
+                        abgeschlossen=q[7] == 'True',
+                        fortschritt=int(q[8])
+                    )
+                    for q in [quest.split('|') for quest in row['Quests'].split(';') if quest]
+                ]
 
                 # Erstelle die Instanz der entsprechenden Klasse
                 spieler = Spieler(name, klasse, lebenspunkte, max_lebenspunkte, erfahrung, level, gegenstände, fähigkeiten)
-                
+
                 # Setze die zusätzlichen Attribute des Spielers
                 spieler.kupfer = kupfer
                 spieler.silber = silber
                 spieler.gold = gold
                 spieler.waffe = waffe
                 spieler.rüstung = rüstung
+                spieler.quests = quests
 
                 return spieler
     return None
+
 
 def erstelle_spielfeld(multiplikator: float = 1.0) -> List[Optional[Gegner]]:
     spielfeld = [None] * SPIELFELD_GROESSE
@@ -860,35 +912,48 @@ def generiere_gegnernamen(typ: str) -> str:
 
 def kampfeinleitung(gegner: Gegner) -> None:
     einleitungen = {
-        'schwach': f"{Fore.YELLOW}Achtung! Du bist auf einen {gegner.name} gestoßen. Bereite dich auf einen Kampf vor!{Style.RESET_ALL}",
-        'mittel': f"{Fore.BLUE}Vorsicht! Ein wilder {gegner.name} kreuzt deinen Weg. Zeige ihm deine Stärke!{Style.RESET_ALL}",
-        'stark': f"{Fore.RED}Ein mächtiger {gegner.name} erscheint! Dies wird eine wahre Herausforderung!{Style.RESET_ALL}",
-        'boss': f"{Fore.MAGENTA}Ein epischer Kampf steht bevor! Der {gegner.name} fordert dich heraus!{Style.RESET_ALL}"
+        'schwach': f"\033[31mAchtung! Du bist auf einen {gegner.name} gestoßen. Bereite dich auf einen Kampf vor!\033[0m",
+        'mittel': f"\033[31mVorsicht! Ein wilder {gegner.name} kreuzt deinen Weg. Zeige ihm deine Stärke!\033[0m",
+        'stark': f"\033[31mEin mächtiger {gegner.name} erscheint! Dies wird eine wahre Herausforderung!\033[0m",
+        'boss': f"\033[31mEin epischer Kampf steht bevor! Der {gegner.name} fordert dich heraus!\033[0m"
     }
     print(einleitungen[gegner.typ])
 
+  
 def kampf(spieler: Spieler, gegner: Gegner) -> None:
     kampfeinleitung(gegner)
+    print("\033[31m******\033[0m")
     while spieler.lebenspunkte > 0 and gegner.lebenspunkte > 0:
-        print("\nKampfmenü")
+        print("\033[34m**** Kampfmenü ****\033[0m")
         print("1: Angriff")
         print("2: Fähigkeit verwenden")
         print("3: Magische Schriftrolle verwenden")
         print("4: Heiltrank verwenden")
-        print("5: Kampf abbrechen und ins Hauptmenü zurückkehren")
+        print("5: Mana-Trank verwenden")
+        print("6: Kampf abbrechen und ins Hauptmenü zurückkehren")
 
         choice = input("Wähle eine Option: ")
 
         if choice == '1':
             schaden = spieler.angreifen()
+            spieler.angriff_verarbeiten()  # Verarbeite Manaregeneration nach dem Angriff
             gegner.lebenspunkte -= schaden
-            print(f"{Fore.GREEN}Du verursachst {schaden} Schaden. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.{Style.RESET_ALL}")
+            print(f"\033[32mDu verursachst {schaden} Schaden. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.\033[0m")
         elif choice == '2':
             fähigkeit = spieler.fähigkeit_auswählen()
             if fähigkeit:
-                gegner.lebenspunkte -= fähigkeit.schaden
+                if fähigkeit.schaden > 0:
+                    gegner.lebenspunkte -= fähigkeit.schaden
+                    print(f"\033[35mFähigkeit {fähigkeit.name} verwendet und {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.\033[0m")
+                elif fähigkeit.name == "Manaregeneration":
+                    geheiltes_mana = 100
+                    spieler.mana = min(spieler.mana + geheiltes_mana, spieler.max_mana)
+                    print(f"\033[35mFähigkeit {fähigkeit.name} verwendet. {geheiltes_mana} Mana regeneriert. Mana: {spieler.mana}/{spieler.max_mana}\033[0m")
+                else:
+                    geheilte_punkte = 30  # Beispielwert für Heilung
+                    spieler.lebenspunkte = min(spieler.lebenspunkte + geheilte_punkte, spieler.max_lebenspunkte)
+                    print(f"\033[35mFähigkeit {fähigkeit.name} verwendet. {geheilte_punkte} Lebenspunkte geheilt. Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}.\033[0m")
                 spieler.mana -= fähigkeit.mana_kosten
-                print(f"{Fore.CYAN}Fähigkeit {fähigkeit.name} verwendet und {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.{Style.RESET_ALL}")
         elif choice == '3':
             schriftrolle = spieler.schriftrolle_auswählen()
             if schriftrolle:
@@ -896,38 +961,51 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
         elif choice == '4':
             spieler.heiltrank_nutzen()
         elif choice == '5':
+            spieler.mana_trank_nutzen()
+        elif choice == '6':
             print("Du hast den Kampf abgebrochen und kehrst ins Hauptmenü zurück.")
             return zeige_menü(spieler)
         else:
             print("Ungültige Wahl. Bitte wähle eine Option aus dem Menü.")
 
         if gegner.lebenspunkte <= 0:
-            print(f"{Fore.YELLOW}{gegner.name} wurde besiegt!{Style.RESET_ALL}")
+            print(f"\033[32m{gegner.name} wurde besiegt!\033[0m")
             spieler.add_muenzen(gegner.kupfer, gegner.silber, gegner.gold)
-            print(f"{Fore.YELLOW}Du hast {gegner.kupfer} Kupfer, {gegner.silber} Silber und {gegner.gold} Gold erhalten.{Style.RESET_ALL}")
+            print(f"\033[33mDu hast {gegner.kupfer} Kupfer, {gegner.silber} Silber und {gegner.gold} Gold erhalten.\033[0m")
             if gegner.seltene_gegenstände:
                 for gegenstand in gegner.seltene_gegenstände:
+                    farbe = random.choice(["\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"])
+                    print(f"{farbe}Du hast einen seltenen Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert} Kupfer\033[0m")
                     spieler.add_gegenstand(gegenstand)
-                    print(f"{Fore.YELLOW}Du hast einen seltenen Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert} Kupfer{Style.RESET_ALL}")
             if gegner.benutzbare_gegenstände:
                 for gegenstand in gegner.benutzbare_gegenstände:
+                    farbe = random.choice(["\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"])
+                    print(f"{farbe}Du hast einen benutzbaren Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert} Kupfer\033[0m")
                     spieler.add_gegenstand(gegenstand)
-                    print(f"{Fore.YELLOW}Du hast einen benutzbaren Gegenstand gefunden: {gegenstand.name}{Style.RESET_ALL}")
             spieler.erfahrung_sammeln(50)
+            if spieler.level_system.level > spieler.level:
+                spieler.level = spieler.level_system.level
+                print(f"\033[32m{spieler.name} ist jetzt Level {spieler.level}!\033[0m")
             spieler.heilen()
             spieler.finde_heiltränke()
+            spieler.finde_mana_tränke()
             spieler.quest_fortschritt_aktualisieren('gegner', 1)
             speichere_spielerdaten(spieler)
+            print(f"\033[32mAls Siegesbonus wurden die Lebenspunkte des Spielers um 30 erhöht und sind jetzt {spieler.lebenspunkte}/{spieler.max_lebenspunkte}.\033[0m")
             return
 
         gegner_schaden = gegner.angreifen()
         reduzierter_schaden = spieler.verteidigen(gegner_schaden)
         if spieler.lebenspunkte <= 0:
-            print(f"{Fore.RED}{gegner.name} verursacht {gegner_schaden} Schaden. Der Spieler wurde besiegt.{Style.RESET_ALL}")
+            print(f"\033[31m{gegner.name} verursacht {gegner_schaden} Schaden. Der Spieler wurde besiegt.\033[0m")
             break
         else:
-            print(f"{Fore.RED}{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.{Style.RESET_ALL}")
+            print(f"\033[31m{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.\033[0m")
             spieler.heiltrank_nutzen()
+    print("\033[31m******\033[0m")
+
+
+
 
 def zauber_wirken(spieler: Spieler) -> None:
     zauber = spieler.schriftrolle_auswählen()
@@ -942,7 +1020,7 @@ def quests_anzeigen(spieler: Spieler) -> None:
         print("Aktuelle Quests:")
         for i, quest in enumerate(spieler.quests):
             status = "Abgeschlossen" if quest.abgeschlossen else f"Fortschritt: {quest.fortschritt_anzeigen()}"
-            print(f"{i + 1}: {quest.name} - {quest.beschreibung} - Belohnung: {quest.belohnung} Kupfer, Silber und Gold - Status: {status}")
+            print(f"{i + 1}: {quest.name} - {quest.beschreibung} - Belohnung: {quest.belohnung} Kupfer, Silber and Gold - Status: {status}")
 
         choice = int(input("Wähle die Nummer der Quest, die du abschließen möchtest (oder 0, um ins Hauptmenü zurückzukehren): "))
         if 1 <= choice <= len(spieler.quests):
@@ -951,7 +1029,7 @@ def quests_anzeigen(spieler: Spieler) -> None:
                 spieler.quest_abschließen(ausgewählte_quest.name)
                 return zeige_menü(spieler)
             else:
-                print(f"Die Quest {ausgewählte_quest.name} ist noch nicht abgeschlossen.")
+                print(f"Die Quest {ausgewählte_quest.name} ist noch not abgeschlossen.")
                 return zeige_menü(spieler)
         else:
             print("Zurück zum Hauptmenü.")
@@ -971,11 +1049,9 @@ def npc_treffen(spieler: Spieler) -> None:
         quest_name = f"{npc_name}s Quest"
         quest_beschreibung = f"Hilf {npc_name}, die Dunkelheit zu vertreiben."
         quest_belohnung = (random.randint(50, 100), random.randint(5, 10), random.randint(0, 2))  # Kupfer, Silber, Gold
-        ziel_typ = random.choice(['gegner', 'gegenstand'])
-        ziel_menge = random.randint(1, 5)
-        npc = NPC(npc_name, Quest(quest_name, quest_beschreibung, quest_belohnung, ziel_typ, ziel_menge))
+        npc = NPC(npc_name, Quest(quest_name, quest_beschreibung, quest_belohnung, 'gegner', random.randint(1, 5)))
 
-        print(f"Du triffst {npc.name}. Er bietet dir eine Quest an: {npc.quest.name} - {npc.quest.beschreibung} - Belohnung: {npc.quest.belohnung[0]} Kupfer, {npc.quest.belohnung[1]} Silber und {npc.quest.belohnung[2]} Gold")
+        print(f"\033[35mDu triffst {npc.name}. Er bietet dir eine Quest an: {npc.quest.name} - {npc.quest.beschreibung} - Belohnung: {npc.quest.belohnung[0]} Kupfer, {npc.quest.belohnung[1]} Silber and {npc.quest.belohnung[2]} Gold\033[0m")
         accept = input("Möchtest du die Quest annehmen? (j/n): ")
         if accept.lower() == 'j':
             spieler.quest_hinzufügen(npc.quest)
@@ -990,7 +1066,7 @@ def händler_besuchen(spieler: Spieler) -> None:
         Rüstung(name="Kettenhemd", typ="Rüstung", wert=100, verteidigung=10),
         Rüstung(name="Samtrobe", typ="Rüstung", wert=70, verteidigung=7),
         Gegenstand(name="Heiltrank", typ="Heiltrank", wert=20),
-        Gegenstand(name="Mana-Trank", typ="Trank", wert=30),
+        Gegenstand(name="Mana-Trank", typ="Mana-Trank", wert=30),
         Gegenstand(name="Gift", typ="Trank", wert=90),
         Gegenstand(name="Antidot", typ="Trank", wert=40),
         Gegenstand(name="Elixier", typ="Trank", wert=120),
@@ -1002,34 +1078,40 @@ def händler_besuchen(spieler: Spieler) -> None:
         Gegenstand(name="Unsichtbarkeitsumhang", typ="Magischer Gegenstand", wert=250)
     ]
 
-    print("Willkommen beim Händler! Hier sind die verfügbaren Gegenstände:")
+    print("\033[34m**** Willkommen beim Händler! Hier sind die verfügbaren Gegenstände: ****\033[0m")
     for i, angebot in enumerate(angebote):
         print(f"{i + 1}: {angebot.name} - Typ: {angebot.typ}, Wert: {angebot.wert} Kupfer")
 
     print(f"{len(angebote) + 1}: Gegenstände verkaufen")
+    print(f"{len(angebote) + 2}: Zum Hauptmenü zurückkehren")
 
-    choice = int(input("Wähle die Nummer des Gegenstands, den du kaufen oder verkaufen möchtest (oder 0, um abzubrechen): "))
-
-    if 1 <= choice <= len(angebote):
-        auswahl = angebote[choice - 1]
-        if spieler.kupfer + spieler.silber * 100 + spieler.gold * 10000 >= auswahl.wert:
-            spieler.remove_muenzen(auswahl.wert)
-            if isinstance(auswahl, Waffe):
-                spieler.waffe = auswahl
-            elif isinstance(auswahl, Rüstung):
-                spieler.rüstung = auswahl
+    while True:
+        choice = input("Wähle die Nummer des Gegenstands, den du kaufen oder verkaufen möchtest (oder 0, um abzubrechen): ")
+        if not choice.isdigit():
+            print("Bitte eine gültige Zahl eingeben.")
+            continue
+        choice = int(choice)
+        if choice == 0:
+            return
+        elif 1 <= choice <= len(angebote):
+            auswahl = angebote[choice - 1]
+            if spieler.kupfer + spieler.silber * 100 + spieler.gold * 10000 >= auswahl.wert:
+                spieler.remove_muenzen(auswahl.wert)
+                if isinstance(auswahl, Waffe):
+                    spieler.waffe = auswahl
+                elif isinstance(auswahl, Rüstung):
+                    spieler.rüstung = auswahl
+                else:
+                    spieler.add_gegenstand(auswahl)
+                print(f"Du hast {auswahl.name} gekauft.")
             else:
-                spieler.add_gegenstand(auswahl)
-            print(f"Du hast {auswahl.name} gekauft.")
+                print("Du hast not genug Kupfer, Silber oder Gold.")
+        elif choice == len(angebote) + 1:
+            verkaufe_gegenstände(spieler)
+        elif choice == len(angebote) + 2:
             return zeige_menü(spieler)
         else:
-            print("Du hast nicht genug Kupfer, Silber oder Gold.")
-            return zeige_menü(spieler)
-    elif choice == len(angebote) + 1:
-        verkaufe_gegenstände(spieler)
-    else:
-        print("Abgebrochen.")
-        return zeige_menü(spieler)
+            print("Ungültige Wahl. Bitte versuche es erneut.")
 
 def verkaufe_gegenstände(spieler: Spieler) -> None:
     if not spieler.gegenstände:
@@ -1044,7 +1126,7 @@ def verkaufe_gegenstände(spieler: Spieler) -> None:
 
     if 1 <= choice <= len(spieler.gegenstände):
         ausgewählter_gegenstand = spieler.gegenstände.pop(choice - 1)
-        spieler.kupfer += ausgewählter_gegenstand.wert
+        spieler.kupfer += int(ausgewählter_gegenstand.wert)  # Wert in int konvertieren
         while spieler.kupfer >= 100:
             spieler.kupfer -= 100
             spieler.silber += 1
@@ -1080,8 +1162,8 @@ def starte_tagesquests(spieler: Spieler) -> None:
     tagesquests_anzeigen(spieler)
 
 def zeige_menü(spieler: Spieler) -> None:
-    print("\nHauptmenü")
-    print("1: Erkunden")
+    print("\033[34m**** Hauptmenü ****\033[0m")
+    print("1: Erkanden")
     print("2: Inventar anzeigen")
     print("3: Magische Schriftrolle wirken")
     print("4: Quests anzeigen")
@@ -1095,7 +1177,7 @@ def zeige_menü(spieler: Spieler) -> None:
     choice = input("Wähle eine Option: ")
 
     if choice == '1':
-        erkunden(spieler)
+        erkanden(spieler)
     elif choice == '2':
         spieler.inventar_anzeigen()
     elif choice == '3':
@@ -1119,7 +1201,7 @@ def zeige_menü(spieler: Spieler) -> None:
             print(f"Willkommen zurück, {spieler.name}!")
             return zeige_menü(spieler)
         else:
-            print("Spieler nicht gefunden. Neues Spiel starten.")
+            print("Spieler not gefanden. Neues Spiel starten.")
             return starte_spiel()
     elif choice == '10':
         spiel_beenden()
@@ -1127,23 +1209,23 @@ def zeige_menü(spieler: Spieler) -> None:
         print("Ungültige Wahl. Bitte versuche es erneut.")
         return zeige_menü(spieler)
 
-def erkunden(spieler: Spieler) -> None:
+def erkanden(spieler: Spieler) -> None:
     position = 0
     while position < SPIELFELD_GROESSE and spieler.lebenspunkte > 0:
-        input("Drücke Enter, um zu würfeln...")
+        input("\033[33mDrücke Enter, um zu würfeln...\033[0m")
         wurf = random.randint(1, 6)
         position += wurf
         position = min(position, SPIELFELD_GROESSE - 1)
-        print(f"Der Spieler würfelt eine {wurf} und bewegt sich auf Feld {position}.")
+        print(f"Der Spieler würfelt eine {wurf} and bewegt sich auf Feld {position}.")
         if spieler.spielfeld[position] is not None:
             kampf(spieler, spieler.spielfeld[position])
             if spieler.lebenspunkte <= 0:
-                print("Der Spieler hat keine Lebenspunkte mehr und verliert das Spiel.")
+                print("Der Spieler hat keine Lebenspunkte mehr and verliert das Spiel.")
                 break
         else:
             npc_treffen(spieler)
         if position >= SPIELFELD_GROESSE - 1:
-            print("Der Spieler hat das Ziel erreicht und gewinnt das Spiel!")
+            print("Der Spieler hat das Ziel erreicht and gewinnt das Spiel!")
             break
 
     if spieler.lebenspunkte <= 0:
@@ -1196,17 +1278,17 @@ def erzähle_geschichte() -> None:
     geschichte = """
     Herz der Mutigen: Das Schicksal des Königreichs
     In einer Welt, die von dunklen Mächten heimgesucht wird, liegt das Schicksal aller Lebewesen in den Händen eines mutigen Abenteurers - dir.
-    Vor langer Zeit wurde das Land in Stücke gerissen und von furchterregenden Kreaturen überrannt, die aus den Tiefen der Unterwelt kamen.
-    Die Legende besagt, dass nur derjenige, der das sagenumwobene Artefakt 'Herz der Mutigen' findet und die vier Elementwächter besiegt,
-    das Land vereinen und den Frieden wiederherstellen kann. Dieses Artefakt verleiht seinem Besitzer unvorstellbare Macht und die Fähigkeit,
-    die Dunkelheit zu vertreiben. Doch der Weg ist gefährlich und nur die Tapfersten wagen es, ihn zu beschreiten.
+    Vor langer Zeit wurde das Land in Stücke gerissen and von furchterregenden Kreaturen überrannt, die aus den Tiefen der Unterwelt kamen.
+    Die Legende besagt, dass nur derjenige, der das sagenumwobene Artefakt 'Herz der Mutigen' findet and die vier Elementwächter besiegt,
+    das Land vereinen and den Frieden wiederherstellen kann. Dieses Artefakt verleiht seinem Besitzer unvorstellbare Macht and die Fähigkeit,
+    die Dunkelheit zu vertreiben. Doch der Weg ist gefährlich and nur die Tapfersten wagen es, ihn zu beschreiten.
 
     Dein Abenteuer beginnt in den Ruinen des alten Königreichs, wo die ersten Hinweise auf das Artefakt versteckt sind.
-    Mit jedem Gegner, den du besiegst, und jedem Rätsel, das du löst, kommst du dem Ziel näher. Aber sei gewarnt:
-    Die Elementwächter werden nicht kampflos aufgeben. Sie werden alles in ihrer Macht Stehende tun, um dich aufzuhalten.
+    Mit jedem Gegner, den du besiegst, and jedem Rätsel, das du löst, kommst du dem Ziel näher. Aber sei gewarnt:
+    Die Elementwächter werden not kampflos aufgeben. Sie werden alles in ihrer Macht Stehende tun, um dich aufzuhalten.
 
-    Am Ende des Weges, wenn du alle Prüfungen bestanden und die Wächter besiegt hast, wartet das 'Herz der Mutigen' auf dich.
-    Mit ihm kannst du die Welt retten und als Held in die Geschichte eingehen. Bist du bereit, dein Schicksal anzunehmen und das größte Abenteuer deines Lebens zu beginnen?
+    Am Ende des Weges, wenn du alle Prüfungen bestanden and die Wächter besiegt hast, wartet das 'Herz der Mutigen' auf dich.
+    Mit ihm kannst du die Welt retten and als Held in die Geschichte eingehen. Bist du bereit, dein Schicksal anzunehmen and das größte Abenteuer deines Lebens zu beginnen?
     """
     print(geschichte)
 
