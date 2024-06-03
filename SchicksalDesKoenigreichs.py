@@ -42,7 +42,6 @@ class Waffe(Gegenstand):
 @dataclass
 class Rüstung(Gegenstand):
     verteidigung: int
-
 # Liste der Gegenstände, die ein Spieler benutzen kann
 BENUTZBARE_GEGENSTAENDE = [
     Waffe(name="Dämonenklinge", typ="Waffe", wert=100, schaden=15),
@@ -51,6 +50,18 @@ BENUTZBARE_GEGENSTAENDE = [
     Rüstung(name="Plattenpanzer", typ="Rüstung", wert=150, verteidigung=25),
     Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=8),
     Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=5)
+]
+@dataclass
+class MagischeSchriftrolle(Gegenstand):
+    schaden: int
+    kosten: int
+    mana_kosten: int
+    zauberart: str
+
+MAGISCHE_SCHRIFTROLLEN = [
+    MagischeSchriftrolle(name="Feuerball-Schriftrolle", typ="Schriftrolle", wert=100, schaden=50, kosten=100, mana_kosten=30, zauberart="Feuer"),
+    MagischeSchriftrolle(name="Blitz-Schriftrolle", typ="Schriftrolle", wert=120, schaden=60, kosten=120, mana_kosten=40, zauberart="Blitz"),
+    MagischeSchriftrolle(name="Eislanzen-Schriftrolle", typ="Schriftrolle", wert=80, schaden=40, kosten=80, mana_kosten=20, zauberart="Eis")
 ]
 
 @dataclass
@@ -63,14 +74,6 @@ class Fähigkeit:
     def schaden_erhoehen(self, prozent: float) -> None:
         self.schaden = int(self.schaden * (1 + prozent / 100))
         print(f"Schaden der Fähigkeit {self.name} erhöht auf {self.schaden}")
-
-@dataclass
-class MagischeSchriftrolle:
-    name: str
-    schaden: int
-    kosten: int
-    mana_kosten: int
-    zauberart: str
 
 @dataclass
 class Quest:
@@ -273,7 +276,7 @@ class Heiler:
                 else:
                     print(f"Die Fähigkeit {fähigkeit.name} ist keine Heilungsfähigkeit.")
                 return
-        print(f"Die Fähigkeit {fähigkeit_name} wurde nicht gefunden.")
+        print(f"Die Fähigkeit {fähigkeit_name} wurde not gefunden.")
 
 @dataclass
 class Gegner:
@@ -313,6 +316,10 @@ class Gegner:
             self.benutzbare_gegenstände.append(benutzbarer_gegenstand)
             print(f"Benutzbarer Gegenstand {benutzbarer_gegenstand.name} von {self.name} gedroppt")
 
+        if random.random() < 0.10:  # 10% Chance, eine magische Schriftrolle zu droppen
+            magische_schriftrolle = random.choice(MAGISCHE_SCHRIFTROLLEN)
+            self.benutzbare_gegenstände.append(magische_schriftrolle)
+            print(f"Magische Schriftrolle {magische_schriftrolle.name} von {self.name} gedroppt")
 
 @dataclass
 class Spieler:
@@ -372,7 +379,6 @@ class Spieler:
             self.spezialisierung = Krieger()
         self.fähigkeiten = self.spezialisierung.grandskills
 
-
     def erfahrung_sammeln(self, xp):
         self.level_system.erfahrung_sammeln(xp, self)
 
@@ -429,17 +435,16 @@ class Spieler:
                 print(f"Fortschritt bei Quest {quest.name}: {quest.fortschritt_anzeigen()}")
                 if quest.abgeschlossen:
                     self.add_muenzen(*quest.belohnung)
-                gold, silber, kupfer = quest.belohnung
-                print(f"Quest {quest.name} abgeschlossen! Belohnung: {gold} Gold, {silber} Silber, {kupfer} Kupfer")
+                    print(f"Quest {quest.name} abgeschlossen! Belohnung: {quest.belohnung[0]} Gold, {quest.belohnung[1]} Silber, {quest.belohnung[2]} Kupfer")
 
-    def tagesquest_fortschritt_aktualisieren(self, ziel_typ: str, menge: int = 1) -> None:
-        for quest in self.tägliche_herausforderungen:
-            if quest.ziel_typ == ziel_typ and not quest.abgeschlossen:
-                quest.fortschritt_aktualisieren(menge)
-                print(f"Fortschritt bei Tagesquest {quest.name}: {quest.fortschritt_anzeigen()}")
-                if quest.abgeschlossen:
-                   gold, silber, kupfer = quest.belohnung
-                   print(f"Tagesquest {quest.name} abgeschlossen! Belohnung: {gold} Gold, {silber} Silber, {kupfer}")
+        for tagesquest in self.tägliche_herausforderungen:
+            if tagesquest.ziel_typ == ziel_typ and not tagesquest.abgeschlossen:
+                tagesquest.fortschritt_aktualisieren(menge)
+                print(f"Fortschritt bei Tagesquest {tagesquest.name}: {tagesquest.fortschritt_anzeigen()}")
+                if tagesquest.abgeschlossen:
+                    self.add_muenzen(*tagesquest.belohnung)
+                    print(f"Tagesquest {tagesquest.name} abgeschlossen! Belohnung: {tagesquest.belohnung[0]} Gold, {tagesquest.belohnung[1]} Silber, {tagesquest.belohnung[2]} Kupfer")
+
 
     def tagesquest_hinzufügen(self, quest: Tagesquest) -> None:
         self.tägliche_herausforderungen.append(quest)
@@ -497,6 +502,11 @@ class Spieler:
             print("\033[34m**** Fähigkeiten: ****\033[0m")
             for fähigkeit in self.fähigkeiten:
                 print(f"{zufallsfarbe()}{fähigkeit.name} - Schaden: {fähigkeit.schaden}, Mana-Kosten: {fähigkeit.mana_kosten}\033[0m")
+
+        if self.magische_schriftrollen:
+            print("\033[34m**** Magische Schriftrollen: ****\033[0m")
+            for schriftrolle in self.magische_schriftrollen:
+                print(f"{zufallsfarbe()}{schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}\033[0m")
 
         print("1: Waffen ausrüsten")
         print("2: Rüstungen ausrüsten")
@@ -560,7 +570,7 @@ class Spieler:
 
     def heilen(self) -> None:
         self.lebenspunkte = min(self.lebenspunkte + 30, self.max_lebenspunkte)
-        print(f"{zufallsfarbe()}Als Siegesbonus wurden die Lebenspunkte des Spielers um 30 erhöht and sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.\033[0m")
+        print(f"{zufallsfarbe()}Als Siegesbonus wurden die Lebenspunkte des Spielers um 30 erhöht und sind jetzt {self.lebenspunkte}/{self.max_lebenspunkte}.\033[0m")
 
     def gegenstand_verwenden(self, gegenstand_name: str) -> None:
         gegenstand = next((g for g in self.gegenstände if g.name == gegenstand_name), None)
@@ -594,12 +604,12 @@ class Spieler:
                 elif gegenstand.name == 'Frostbombe':
                     gegner = random.choice(self.spielfeld)  # Beispiel: Zufälliger Gegner wird getroffen
                     gegner.lebenspunkte -= gegenstand.wert
-                    print(f"Du hast {gegenstand.name} verwendet. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte and ist verlangsamt.")
+                    print(f"Du hast {gegenstand.name} verwendet. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte und ist verlangsamt.")
             elif gegenstand.typ == 'Magischer Gegenstand':
                 if gegenstand.name == 'Teleportationsrolle':
                     print(f"Du hast {gegenstand.name} verwendet. Du bist zu einem sicheren Ort teleportiert.")
                 elif gegenstand.name == 'Unsichtbarkeitsumhang':
-                    print(f"Du hast {gegenstand.name} verwendet. Du bist für eine gewisse Zeit unsichtbar.")
+                    print(f"Du hast {gegenstand.name} verwendet. Du bist for eine gewisse Zeit unsichtbar.")
             else:
                 print(f"Der Gegenstand {gegenstand.name} kann not verwendet werden.")
             self.gegenstände.remove(gegenstand)
@@ -616,7 +626,7 @@ class Spieler:
                 self.gegenstände.remove(heiltrank)
                 print(f"Heiltrank verwendet. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}.")
             else:
-                print("Heiltrank nicht verwendet.")
+                print("Heiltrank not verwendet.")
         else:
             print("Keine Heiltränke im Inventar.")
 
@@ -630,7 +640,7 @@ class Spieler:
                 self.gegenstände.remove(mana_trank)
                 print(f"Mana-Trank verwendet. Mana: {self.mana}/{self.max_mana}.")
             else:
-                print("Mana-Trank nicht verwendet.")
+                print("Mana-Trank not verwendet.")
         else:
             print("Keine Mana-Tränke im Inventar.")
 
@@ -640,9 +650,9 @@ class Spieler:
             for _ in range(anzahl_gefandene_heiltränke):
                 heiltrank = Gegenstand('Heiltrank', 'Heiltrank', 20)
                 self.add_gegenstand(heiltrank)
-            print(f"Du hast {anzahl_gefandene_heiltränke} Heiltrank{'e' if anzahl_gefandene_heiltränke > 1 else ''} gefanden and deinem Inventar hinzugefügt.")
+            print(f"Du hast {anzahl_gefandene_heiltränke} Heiltrank{'e' if anzahl_gefandene_heiltränke > 1 else ''} gefunden und deinem Inventar hinzugefügt.")
         else:
-            print(f"{zufallsfarbe()}Keine Heiltränke gefanden.\033[0m")
+            print(f"{zufallsfarbe()}Keine Heiltränke gefunden.\033[0m")
 
     def finde_mana_tränke(self) -> None:
         anzahl_gefandene_mana_tränke = random.randint(0, 2)
@@ -650,9 +660,9 @@ class Spieler:
             for _ in range(anzahl_gefandene_mana_tränke):
                 mana_trank = Gegenstand('Mana-Trank', 'Mana-Trank', 20)
                 self.add_gegenstand(mana_trank)
-            print(f"Du hast {anzahl_gefandene_mana_tränke} Mana-Trank{'e' if anzahl_gefandene_mana_tränke > 1 else ''} gefanden and deinem Inventar hinzugefügt.")
+            print(f"Du hast {anzahl_gefandene_mana_tränke} Mana-Trank{'e' if anzahl_gefandene_mana_tränke > 1 else ''} gefunden und deinem Inventar hinzugefügt.")
         else:
-            print(f"{zufallsfarbe()}Keine Mana-Tränke gefanden.\033[0m")
+            print(f"{zufallsfarbe()}Keine Mana-Tränke gefunden.\033[0m")
 
     def add_gegenstand(self, gegenstand: Gegenstand) -> None:
         if isinstance(gegenstand, Waffe):
@@ -674,6 +684,30 @@ class Spieler:
         else:
             print("Du kannst nur 2 magische Schriftrollen erlernen.")
 
+    def schriftrolle_auswählen(self) -> Optional[MagischeSchriftrolle]:
+        if not self.magische_schriftrollen:
+            print("Keine magischen Schriftrollen verfügbar.")
+            return None
+        print("\033[34m**** Verfügbare magische Schriftrollen: ****\033[0m")
+        for i, schriftrolle in enumerate(self.magische_schriftrollen):
+            print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
+        wahl = int(input("Wähle eine magische Schriftrolle (Nummer eingeben): "))
+        if 1 <= wahl <= len(self.magische_schriftrollen):
+            ausgewählte_schriftrolle = self.magische_schriftrollen[wahl - 1]
+            if self.mana >= ausgewählte_schriftrolle.mana_kosten:
+                return ausgewählte_schriftrolle
+            else:
+                print("not genügend Mana.")
+                return None
+        else:
+            print("Ungültige Wahl.")
+            return None
+
+    def schriftrolle_verwenden(self, schriftrolle: MagischeSchriftrolle, gegner: Gegner) -> None:
+        gegner.lebenspunkte -= schriftrolle.schaden
+        self.mana -= schriftrolle.mana_kosten
+        print(f"Magische Schriftrolle {schriftrolle.name} verwendet und {schriftrolle.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+
     def erfahrung_sammeln(self, punkte: int) -> None:
         self.level_system.erfahrung_sammeln(punkte, self)
         self.quest_fortschritt_aktualisieren('erfahrung', punkte)
@@ -687,7 +721,7 @@ class Spieler:
 
     def tägliche_herausforderung_abschließen(self, herausforderung: Tagesquest) -> None:
         self.add_muenzen(*herausforderung.belohnung)
-        print(f"Tägliche Herausforderung abgeschlossen! Belohnung: {herausforderung.belohnung} Kupfer, Silber and Gold")
+        print(f"Tägliche Herausforderung abgeschlossen! Belohnung: {herausforderung.belohnung} Kupfer, Silber und Gold")
         self.tägliche_herausforderungen.remove(herausforderung)
 
     def add_muenzen(self, kupfer: int, silber: int, gold: int) -> None:
@@ -728,16 +762,15 @@ class Spieler:
             if self.mana >= ausgewählte_fähigkeit.mana_kosten:
                 return ausgewählte_fähigkeit
             else:
-                print("Nicht genügend Mana.")
+                print("not genügend Mana.")
                 return None
         else:
             print("Ungültige Wahl.")
             return None
 
-
     def anwenden_fähigkeit(self, fähigkeit_name: str):
         if isinstance(self.spezialisierung, Heiler):
-           self.spezialisierung.anwenden_fähigkeit(fähigkeit_name, self)
+            self.spezialisierung.anwenden_fähigkeit(fähigkeit_name, self)
         else:
             fähigkeit = next((f for f in self.fähigkeiten if f.name == fähigkeit_name), None)
             if fähigkeit:
@@ -745,14 +778,12 @@ class Spieler:
                     gegner = random.choice([gegner for gegner in self.spielfeld if gegner is not None])
                     gegner.lebenspunkte -= fähigkeit.schaden
                     self.mana -= fähigkeit.mana_kosten
-                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet and hat {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                    print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet und hat {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
                 else:
-                    geheilte_punkte = 30  # Beispielwert für Heilung
+                    geheilte_punkte = 30  # Beispielwert for Heilung
                     self.lebenspunkte = min(self.lebenspunkte + geheilte_punkte, self.max_lebenspunkte)
                     self.mana -= fähigkeit.mana_kosten
                     print(f"Die Fähigkeit {fähigkeit.name} wurde angewendet. {geheilte_punkte} Lebenspunkte geheilt. Lebenspunkte: {self.lebenspunkte}/{self.max_lebenspunkte}")
-
-    
 
     def angriff_verarbeiten(self):
         if self.manaregeneration_aktiv:
@@ -760,31 +791,7 @@ class Spieler:
             self.manaregeneration_zaehler -= 1
             if self.manaregeneration_zaehler <= 0:
                 self.manaregeneration_aktiv = False
-                print("Die Manaregeneration ist nicht mehr aktiv.")
-
-    def schriftrolle_auswählen(self) -> Optional[MagischeSchriftrolle]:
-        if not self.magische_schriftrollen:
-            print("Keine magischen Schriftrollen verfügbar.")
-            return None
-        print("\033[34m**** Verfügbare magische Schriftrollen: ****\033[0m")
-        for i, schriftrolle in enumerate(self.magische_schriftrollen):
-            print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
-        wahl = int(input("Wähle eine magische Schriftrolle (Nummer eingeben): "))
-        if 1 <= wahl <= len(self.magische_schriftrollen):
-            ausgewählte_schriftrolle = self.magische_schriftrollen[wahl - 1]
-            if self.mana >= ausgewählte_schriftrolle.mana_kosten:
-                return ausgewählte_schriftrolle
-            else:
-                print("not genügend Mana.")
-                return None
-        else:
-            print("Ungültige Wahl.")
-            return None
-
-    def schriftrolle_verwenden(self, schriftrolle: MagischeSchriftrolle, gegner: Gegner) -> None:
-        gegner.lebenspunkte -= schriftrolle.schaden
-        self.mana -= schriftrolle.mana_kosten
-        print(f"Magische Schriftrolle {schriftrolle.name} verwendet and {schriftrolle.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.")
+                print("Die Manaregeneration ist not mehr aktiv.")
 
 def speichere_spielerdaten(spieler: Spieler) -> None:
     daten = [
@@ -921,6 +928,7 @@ def kampfeinleitung(gegner: Gegner) -> None:
     print(einleitungen[gegner.typ])
 
   
+# Update the `kampf` function to drop magical scrolls
 def kampf(spieler: Spieler, gegner: Gegner) -> None:
     kampfeinleitung(gegner)
     print("\033[31m******\033[0m")
@@ -946,10 +954,6 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
                 if fähigkeit.schaden > 0:
                     gegner.lebenspunkte -= fähigkeit.schaden
                     print(f"\033[35mFähigkeit {fähigkeit.name} verwendet und {fähigkeit.schaden} Schaden verursacht. {gegner.name} hat noch {gegner.lebenspunkte} Lebenspunkte.\033[0m")
-                elif fähigkeit.name == "Manaregeneration":
-                    geheiltes_mana = 100
-                    spieler.mana = min(spieler.mana + geheiltes_mana, spieler.max_mana)
-                    print(f"\033[35mFähigkeit {fähigkeit.name} verwendet. {geheiltes_mana} Mana regeneriert. Mana: {spieler.mana}/{spieler.max_mana}\033[0m")
                 else:
                     geheilte_punkte = 30  # Beispielwert für Heilung
                     spieler.lebenspunkte = min(spieler.lebenspunkte + geheilte_punkte, spieler.max_lebenspunkte)
@@ -981,8 +985,13 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             if gegner.benutzbare_gegenstände:
                 for gegenstand in gegner.benutzbare_gegenstände:
                     farbe = random.choice(["\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"])
-                    print(f"{farbe}Du hast einen benutzbaren Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert} Kupfer\033[0m")
+                    print(f"{farbe}Du hast einen benutzbaren Gegenstand gefunden: {gegenstand.name} - Wert: {gegenstand.wert if hasattr(gegenstand, 'wert') else 'N/A'} Kupfer\033[0m")
                     spieler.add_gegenstand(gegenstand)
+            # Drop a random magical scroll
+            if random.random() < 0.1:  # 10% Chance, eine magische Schriftrolle zu droppen
+                magische_schriftrolle = random.choice(MAGISCHE_SCHRIFTROLLEN)
+                print(f"\033[35mDu hast eine magische Schriftrolle gefunden: {magische_schriftrolle.name} - Schaden: {magische_schriftrolle.schaden}, Mana-Kosten: {magische_schriftrolle.mana_kosten}\033[0m")
+                spieler.add_magische_schriftrolle(magische_schriftrolle)
             spieler.erfahrung_sammeln(50)
             if spieler.level_system.level > spieler.level:
                 spieler.level = spieler.level_system.level
@@ -1004,6 +1013,7 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             print(f"\033[31m{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.\033[0m")
             spieler.heiltrank_nutzen()
     print("\033[31m******\033[0m")
+
 
 
 
@@ -1037,7 +1047,7 @@ def quests_anzeigen(spieler: Spieler) -> None:
                 spieler.quest_abschließen(ausgewählte_quest.name)
                 return zeige_menü(spieler)
             else:
-                print(f"Die Quest {ausgewählte_quest.name} ist noch nicht abgeschlossen.")
+                print(f"Die Quest {ausgewählte_quest.name} ist noch not abgeschlossen.")
                 return zeige_menü(spieler)
         else:
             print("Zurück zum Hauptmenü.")
@@ -1143,14 +1153,14 @@ def verkaufe_gegenstände(spieler: Spieler) -> None:
         while spieler.silber >= 100:
             spieler.silber -= 100
             spieler.gold += 1
-        print(f"Du hast {ausgewählter_gegenstand.name} für {ausgewählter_gegenstand.wert} Kupfer verkauft.")
+        print(f"Du hast {ausgewählter_gegenstand.name} for {ausgewählter_gegenstand.wert} Kupfer verkauft.")
         return zeige_menü(spieler)
     else:
         print("Abgebrochen.")
         return zeige_menü(spieler)
 
 def spiel_beenden() -> None:
-    print("Das Spiel wird beendet. Danke fürs Spielen!")
+    print("Das Spiel wird beendet. Danke fors Spielen!")
     exit()
 
 def tagesquests_anzeigen(spieler: Spieler) -> None:
@@ -1173,9 +1183,9 @@ def starte_tagesquests(spieler: Spieler) -> None:
 
 def zeige_menü(spieler: Spieler) -> None:
     print("\033[34m**** Hauptmenü ****\033[0m")
-    print("1: Erkanden")
+    print("1: erkunden")
     print("2: Inventar anzeigen")
-    print("3: Magische Schriftrolle wirken")
+    print("3: Magische Schriftrolle verwenden")
     print("4: Quests anzeigen")
     print("5: Tägliche Herausforderung anzeigen")
     print("6: Händler besuchen")
@@ -1187,11 +1197,11 @@ def zeige_menü(spieler: Spieler) -> None:
     choice = input("Wähle eine Option: ")
 
     if choice == '1':
-        erkanden(spieler)
+        erkunden(spieler)
     elif choice == '2':
         spieler.inventar_anzeigen()
     elif choice == '3':
-        zauber_wirken(spieler)
+        magische_schriftrolle_erlernen(spieler)  # Änderung hier
     elif choice == '4':
         quests_anzeigen(spieler)
     elif choice == '5':
@@ -1219,7 +1229,31 @@ def zeige_menü(spieler: Spieler) -> None:
         print("Ungültige Wahl. Bitte versuche es erneut.")
         return zeige_menü(spieler)
 
-def erkanden(spieler: Spieler) -> None:
+def magische_schriftrolle_erlernen(spieler: Spieler) -> None:
+    print("\033[34m**** Verfügbare magische Schriftrollen zum Erlernen: ****\033[0m")
+    for i, schriftrolle in enumerate(spieler.gegenstände):
+        if isinstance(schriftrolle, MagischeSchriftrolle):
+            print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
+    choice = int(input("Wähle eine magische Schriftrolle (Nummer eingeben) oder 0, um zurückzukehren: "))
+    if 1 <= choice <= len(spieler.gegenstände):
+        ausgewählte_schriftrolle = spieler.gegenstände[choice - 1]
+        if isinstance(ausgewählte_schriftrolle, MagischeSchriftrolle):
+            if any(s.name == ausgewählte_schriftrolle.name for s in spieler.magische_schriftrollen):
+                print(f"Du hast die Schriftrolle {ausgewählte_schriftrolle.name} bereits erlernt.")
+            elif len(spieler.magische_schriftrollen) < 2:
+                spieler.magische_schriftrollen.append(ausgewählte_schriftrolle)
+                spieler.gegenstände.remove(ausgewählte_schriftrolle)
+                print(f"Magische Schriftrolle {ausgewählte_schriftrolle.name} wurde erlernt.")
+            else:
+                print("Du kannst nur 2 magische Schriftrollen erlernen.")
+    elif choice == 0:
+        return zeige_menü(spieler)
+    else:
+        print("Ungültige Wahl.")
+    return magische_schriftrolle_erlernen(spieler)
+
+
+def erkunden(spieler: Spieler) -> None:
     position = 0
     while position < SPIELFELD_GROESSE and spieler.lebenspunkte > 0:
         input("\033[33mDrücke Enter, um zu würfeln...\033[0m")
@@ -1249,7 +1283,7 @@ def erkanden(spieler: Spieler) -> None:
     if erneut_spielen.lower() == 'j':
         starte_spiel()
     else:
-        print("Danke fürs Spielen!")
+        print("Danke fors Spielen!")
 
 def starte_spiel() -> None:
     name = input("Gib deinen Spielernamen ein: ")
@@ -1297,7 +1331,7 @@ def erzähle_geschichte() -> None:
     Mit jedem Gegner, den du besiegst, and jedem Rätsel, das du löst, kommst du dem Ziel näher. Aber sei gewarnt:
     Die Elementwächter werden not kampflos aufgeben. Sie werden alles in ihrer Macht Stehende tun, um dich aufzuhalten.
 
-    Am Ende des Weges, wenn du alle Prüfungen bestanden and die Wächter besiegt hast, wartet das 'Herz der Mutigen' auf dich.
+    Am Ende des Weges, if du alle Prüfungen bestanden and die Wächter besiegt hast, wartet das 'Herz der Mutigen' auf dich.
     Mit ihm kannst du die Welt retten and als Held in die Geschichte eingehen. Bist du bereit, dein Schicksal anzunehmen and das größte Abenteuer deines Lebens zu beginnen?
     """
     print(geschichte)
