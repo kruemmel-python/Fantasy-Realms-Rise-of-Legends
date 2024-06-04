@@ -473,6 +473,7 @@ class Gegner:
             magische_schriftrolle = random.choice(MAGISCHE_SCHRIFTROLLEN)
             self.benutzbare_gegenstände.append(magische_schriftrolle)
             print(f"Magische Schriftrolle {magische_schriftrolle.name} von {self.name} gedroppt")
+      
 
 
 @dataclass
@@ -1072,18 +1073,61 @@ def generiere_gegnernamen(typ: str) -> str:
     }
     return random.choice(namen[typ])
 
-def kampfeinleitung(gegner: Gegner) -> None:
+
+import random
+
+
+def kampf_einleitung(gegner: Gegner) -> None:
+    # Allgemeine Warnung
     einleitungen = {
         'schwach': f"\033[31mAchtung! Du bist auf einen {gegner.name} gestoßen. Bereite dich auf einen Kampf vor!\033[0m",
         'mittel': f"\033[31mVorsicht! Ein wilder {gegner.name} kreuzt deinen Weg. Zeige ihm deine Stärke!\033[0m",
         'stark': f"\033[31mEin mächtiger {gegner.name} erscheint! Dies wird eine wahre Herausforderung!\033[0m",
         'boss': f"\033[31mEin epischer Kampf steht bevor! Der {gegner.name} fordert dich heraus!\033[0m"
     }
-    print(einleitungen[gegner.typ])
+
+    # Detaillierte Einführungsgeschichte
+    einleitungen_geschichte = {
+    'schwach': [
+        "Ein kleiner, aber gefährlicher {name} steht dir im Weg. Bereite dich auf den Kampf vor!",
+        "Ein {name} kreuzt deinen Weg und schaut dich feindselig an. Zeit für einen Kampf!",
+        "Ein {name} springt aus dem Gebüsch und greift an. Sei auf der Hut!",
+        "Plötzlich springt ein kleiner, aber gefährlicher {name} aus dem Unterholz und blockiert deinen Weg. Seine Augen glühen rot vor Bosheit. 'Ein kleiner, aber gefährlicher Kobold steht dir im Weg. Bereite dich auf den Kampf vor!', rufst du aus, während du dein Schwert ziehst."
+    ],
+    'mittel': [
+        "Ein bedrohlicher {name} nähert sich. Du spürst die Gefahr in der Luft.",
+        "Ein {name} steht vor dir, bereit für einen Kampf. Zeige, was du kannst!",
+        "Ein {name} erscheint und fordert dich heraus. Zeige deine Stärke!",
+        "Kaum hast du den {name} besiegt, da spürst du eine bedrohlichere Präsenz. Ein riesiger {name} tritt aus dem Schatten, seine Muskeln spielen unter der zerlumpten Rüstung. 'Ein bedrohlicher {name} nähert sich. Du spürst die Gefahr in der Luft.', denkst du, während du dich in Kampfstellung bringst."
+    ],
+    'stark': [
+        "Ein mächtiger {name} erhebt sich vor dir. Dies wird eine echte Herausforderung.",
+        "Ein {name} kommt auf dich zu, seine Augen funkeln vor Kampfeslust. Bereite dich vor!",
+        "Ein {name} stellt sich dir in den Weg. Dies wird kein einfacher Kampf.",
+        "Der {name} fällt mit einem Grollen, doch die Erde bebt weiter. Ein {name}, dessen Schuppen im Mondlicht schimmern, landet vor dir. Sein Brüllen erschüttert die Nacht. 'Ein mächtiger Drache erhebt sich vor dir. Dies wird eine echte Herausforderung.', flüsterst du."
+    ],
+    'boss': [
+        "Ein epischer Kampf steht bevor! Der {name} fordert dich heraus.",
+        "Der {name} erscheint, seine Macht ist überwältigend. Nur die Stärksten überleben diesen Kampf.",
+        "Ein {name} brüllt herausfordernd. Dies ist der Moment, den Helden fürchten.",
+        "Mit einem letzten, kraftvollen Schrei fordert der {name} dich zum ultimativen Kampf heraus. 'Ein epischer Kampf steht bevor! Der mächtige {name} fordert dich heraus.', rufst du, während das Feuer deiner Entschlossenheit in deinen Augen lodert."
+    ]
+}
+
+
+    # Ausgabe der allgemeinen Warnung
+    if gegner.typ in einleitungen:
+        print(einleitungen[gegner.typ])
+
+    # Ausgabe der detaillierten Einführungsgeschichte
+    if gegner.typ in einleitungen_geschichte:
+        einleitung = random.choice(einleitungen_geschichte[gegner.typ]).format(name=gegner.name)
+        print(f"\033[31m{einleitung}\033[0m")
+                                                                                
 
   
 def kampf(spieler: Spieler, gegner: Gegner) -> None:
-    kampfeinleitung(gegner)
+    kampf_einleitung(gegner)
     print("\033[31m******\033[0m")
     while spieler.lebenspunkte > 0 and gegner.lebenspunkte > 0:
         print("\033[34m**** Kampfmenü ****\033[0m")
@@ -1171,6 +1215,8 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             print(f"\033[31m{gegner.name} verursacht {gegner_schaden} Schaden. Nach Verteidigung hat der Spieler noch {spieler.lebenspunkte} Lebenspunkte.\033[0m")
             spieler.heiltrank_nutzen()
     print("\033[31m******\033[0m")
+
+
 
 
 
