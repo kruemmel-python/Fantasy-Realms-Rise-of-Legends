@@ -445,6 +445,8 @@ class Gegner:
     seltene_gegenstände: List[Gegenstand] = field(default_factory=list)
     benutzbare_gegenstände: List[Gegenstand] = field(default_factory=list)
     resourcen_drop: Dict[str, int] = field(default_factory=dict)
+    grandskills: List[Fähigkeit] = field(default_factory=list)
+    hat_angriff_durchgefuehrt: bool = field(default=False, init=False)
 
     def __post_init__(self):
         self.name = generiere_gegnernamen(self.typ)
@@ -454,6 +456,40 @@ class Gegner:
         self.drop_seltene_gegenstände()
         self.drop_benutzbare_gegenstände()
         self.drop_resourcen()
+        self.initialisiere_grandskills()
+
+    def initialisiere_grandskills(self):
+        if self.typ == 'schwach':
+            self.grandskills = [
+                Fähigkeit("Schwacher Angriff", 10, 0),
+                Fähigkeit("Schwache Verteidigung", 0, 0)
+            ]
+        elif self.typ == 'mittel':
+            self.grandskills = [
+                Fähigkeit("Mittlerer Angriff", 20, 0),
+                Fähigkeit("Mittlere Verteidigung", 0, 5)
+            ]
+        elif self.typ == 'stark':
+            self.grandskills = [
+                Fähigkeit("Starker Angriff", 40, 0),
+                Fähigkeit("Starke Verteidigung", 0, 10)
+            ]
+        elif self.typ == 'boss':
+            self.grandskills = [
+                Fähigkeit("Boss Angriff", 70, 0),
+                Fähigkeit("Boss Verteidigung", 0, 20)
+            ]
+
+    def anwenden_grandskill(self, spieler: 'Spieler'):
+        if not self.hat_angriff_durchgefuehrt and self.grandskills:
+            fähigkeit = random.choice(self.grandskills)
+            if fähigkeit.schaden > 0:  # Angriffsfähigkeit
+                spieler.lebenspunkte -= fähigkeit.schaden
+                print(f"{self.name} hat {fähigkeit.name} angewendet und {fähigkeit.schaden} Schaden verursacht.")
+            elif fähigkeit.kosten > 0:  # Verteidigungsfähigkeit
+                spieler.lebenspunkte = max(spieler.lebenspunkte - fähigkeit.kosten, 0)
+                print(f"{self.name} hat {fähigkeit.name} angewendet und seine Verteidigung um {fähigkeit.kosten} erhöht.")
+            self.hat_angriff_durchgefuehrt = True
 
     def drop_resourcen(self) -> None:
         resource_names = ["Holz", "Stein", "Eisen", "Kraut", "Magischer Stein"]
@@ -464,6 +500,7 @@ class Gegner:
 
     def angreifen(self) -> int:
         return random.randint(1, self.max_schaden)
+
 
     def drop_seltene_gegenstände(self) -> None:
         if random.random() < SELTENE_DROP_RATE:
@@ -1179,6 +1216,9 @@ def kampf(spieler: Spieler, gegner: Gegner) -> None:
             return zeige_menü(spieler)
         else:
             print("Ungültige Wahl. Bitte wähle eine Option aus dem Menü.")
+        # Gegner führt einmal pro Kampf einen Angriff durch
+        if not gegner.hat_angriff_durchgefuehrt:
+            gegner.anwenden_grandskill(spieler)
 
         if gegner.lebenspunkte <= 0:
             print(f"\033[32m{gegner.name} wurde besiegt!\033[0m")
@@ -1667,6 +1707,7 @@ def starte_spiel() -> None:
         spieler = Spieler(name, klasse, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
         
     else:
+        klasse = spieler.klasse  # Hier die Klasse aus dem geladenen Spieler übernehmen
         spieler.lebenspunkte = spieler.max_lebenspunkte
         print(f"Willkommen zurück, {spieler.name}! Level: {spieler.level_system.level}, Erfahrungspunkte: {spieler.level_system.erfahrung}, Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
 
@@ -1675,6 +1716,7 @@ def starte_spiel() -> None:
 
     while True:
         zeige_menü(spieler)
+
 
 
 def erzähle_geschichte() -> None:
