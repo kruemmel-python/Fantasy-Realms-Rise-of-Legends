@@ -260,8 +260,8 @@ class LevelSystem:
     def level_up(self, spieler: 'Spieler') -> None:
         self.erfahrung -= self.level * 100
         self.level += 1
-        spieler.max_lebenspunkte += 10
-        spieler.max_mana += 20
+        spieler.max_lebenspunkte += 50
+        spieler.max_mana += 100
         spieler.lebenspunkte = spieler.max_lebenspunkte
         spieler.mana = spieler.max_mana
         print(f"{spieler.name} ist jetzt Level {self.level}!")
@@ -269,11 +269,11 @@ class LevelSystem:
         # Erhöhe Leben und Schaden der Gegner um 10%
         for gegner in spieler.spielfeld:
             if gegner is not None:
-                gegner.multiplikator *= 1.1
+                gegner.multiplikator *= 1.40
                 gegner.lebenspunkte = int(LEBENSPUNKTE[gegner.typ] * gegner.multiplikator)
                 gegner.max_schaden = int(MAX_SCHADEN[gegner.typ] * gegner.multiplikator)
 
-        if self.level == 10:
+        if self.level == 30:
             spieler.waehle_spezialisierung()
 
 
@@ -290,7 +290,7 @@ class Skill:
             if spieler.gold >= self.gold_cost:
                 spieler.gold -= self.gold_cost
                 self.level += 1
-                self.grundschaden = int(self.grundschaden * 1.1)  # 10% Erhöhung des grundschadens
+                self.grundschaden = int(self.grundschaden * 1.3)  # 30% Erhöhung des grundschadens
                 fähigkeit.schaden_erhoehen(10)  # Erhöht den Schaden der Fähigkeit um 10%
                 print(f"{self.name} hat Level {self.level} erreicht! Neuer grundschaden: {self.grundschaden}")
             else:
