@@ -17,7 +17,7 @@ def zufallsfarbe():
 # Konstanten
 LEBENSPUNKTE = {'schwach': 50, 'mittel': 70, 'stark': 90, 'boss': 200}
 MAX_SCHADEN = {'schwach': 30, 'mittel': 40, 'stark': 50, 'boss': 75}
-GOLD_BELOHNUNG = {'schwach': (0, 0, 10), 'mittel': (0, 0, 20), 'stark': (0, 0, 30), 'boss': (0, 0, 100)}
+GOLD_BELOHNUNG = {'schwach': (0, 0, 1), 'mittel': (0, 0, 3), 'stark': (0, 0, 5), 'boss': (0, 0, 10)}
 SPIELFELD_GROESSE = 1000
 GEGNER_TYPEN = ['schwach', 'mittel', 'stark']
 BOSS_TYPEN = ['boss']
@@ -101,38 +101,37 @@ BENUTZBARE_GEGENSTAENDE = [
     Waffe(name="Engelschwert", typ="Waffe", wert=180, schaden=54),
     Waffe(name="Phantomklinge", typ="Waffe", wert=140, schaden=42),
     Waffe(name="Dunkelheitslanze", typ="Waffe", wert=200, schaden=63),
-
-    # Rüstungen
-    Rüstung(name="Eisenhelm", typ="Helm", wert=80, verteidigung=100),
-    Rüstung(name="Plattenpanzer", typ="Rüstung", wert=150, verteidigung=65),
-    Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=48),
-    Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=65),
-    Rüstung(name="Mythrilpanzer", typ="Rüstung", wert=250, verteidigung=80),
-    Rüstung(name="Dunkelheitsrobe", typ="Robe", wert=100, verteidigung=30),
-    Rüstung(name="Feuerhelm", typ="Helm", wert=90, verteidigung=70),
-    Rüstung(name="Schattenschleier", typ="Mantel", wert=120, verteidigung=50),
-    Rüstung(name="Himmelsstiefel", typ="Stiefel", wert=110, verteidigung=55),
-    Rüstung(name="Erdenschuhe", typ="Schuhe", wert=85, verteidigung=40),
-    Rüstung(name="Lichtbringer-Schild", typ="Schild", wert=200, verteidigung=90),
-    Rüstung(name="Todesmantel", typ="Mantel", wert=150, verteidigung=60),
-    Rüstung(name="Eisbrustplatte", typ="Rüstung", wert=160, verteidigung=75),
-    Rüstung(name="Naturamulett", typ="Amulett", wert=50, verteidigung=20),
-    Rüstung(name="Sonnenhelm", typ="Helm", wert=100, verteidigung=65),
-    Rüstung(name="Knochenrüstung", typ="Rüstung", wert=170, verteidigung=85),
-    Rüstung(name="Kristallschild", typ="Schild", wert=190, verteidigung=95),
-    Rüstung(name="Windcape", typ="Cape", wert=80, verteidigung=35),
-    Rüstung(name="Höllenstiefel", typ="Stiefel", wert=120, verteidigung=60),
-    Rüstung(name="Mondhandschuhe", typ="Handschuhe", wert=90, verteidigung=50),
-    Rüstung(name="Dämonenhelm", typ="Helm", wert=110, verteidigung=72),
-    Rüstung(name="Lichtpanzer", typ="Rüstung", wert=180, verteidigung=78),
-    Rüstung(name="Feuerstiefel", typ="Stiefel", wert=100, verteidigung=60),
-    Rüstung(name="Eisrobe", typ="Robe", wert=130, verteidigung=45),
-    Rüstung(name="Drachenhautmantel", typ="Mantel", wert=140, verteidigung=68),
-    Rüstung(name="Phantomhelm", typ="Helm", wert=160, verteidigung=85),
-    Rüstung(name="Erdenrüstung", typ="Rüstung", wert=150, verteidigung=77),
-    Rüstung(name="Engelsflügel", typ="Cape", wert=120, verteidigung=52),
-    Rüstung(name="Nebelstiefel", typ="Stiefel", wert=90, verteidigung=48),
-    Rüstung(name="Schattenhandschuhe", typ="Handschuhe", wert=70, verteidigung=55)
+ 
+    Rüstung(name="Bronzehelm", typ="Helm", wert=30, verteidigung=10),
+    Rüstung(name="Leinenrobe", typ="Robe", wert=25, verteidigung=5),
+    Rüstung(name="Wollhandschuhe", typ="Handschuhe", wert=20, verteidigung=3),
+    Rüstung(name="Baumwollmantel", typ="Mantel", wert=35, verteidigung=7),
+    Rüstung(name="Strohhelm", typ="Helm", wert=10, verteidigung=2),
+    Rüstung(name="Seidenstiefel", typ="Stiefel", wert=45, verteidigung=12),
+    Rüstung(name="Leichtes Schild", typ="Schild", wert=50, verteidigung=15),
+    Rüstung(name="Holzbrustpanzer", typ="Rüstung", wert=40, verteidigung=8),
+    Rüstung(name="Ledergürtel", typ="Gürtel", wert=15, verteidigung=6),
+    Rüstung(name="Samtcape", typ="Cape", wert=25, verteidigung=5),
+    Rüstung(name="Plattenpanzer", typ="Rüstung", wert=100, verteidigung=50),
+    Rüstung(name="Goldene Krone", typ="Helm", wert=75, verteidigung=20),
+    Rüstung(name="Diamanthandschuhe", typ="Handschuhe", wert=90, verteidigung=25),
+    Rüstung(name="Drachenrobe", typ="Robe", wert=85, verteidigung=30),
+    Rüstung(name="Geistercape", typ="Cape", wert=60, verteidigung=18),
+    Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=22),
+    Rüstung(name="Mithrilschild", typ="Schild", wert=120, verteidigung=30),
+    Rüstung(name="Kristallbrustpanzer", typ="Rüstung", wert=130, verteidigung=35),
+    Rüstung(name="Eisengürtel", typ="Gürtel", wert=20, verteidigung=8),
+    Rüstung(name="Feuerumhang", typ="Cape", wert=50, verteidigung=12),
+    Rüstung(name="Silberhelm", typ="Helm", wert=55, verteidigung=16),
+    Rüstung(name="Schlangenstiefel", typ="Stiefel", wert=65, verteidigung=19),
+    Rüstung(name="Dunkelelfenrobe", typ="Robe", wert=80, verteidigung=25),
+    Rüstung(name="Magierhut", typ="Helm", wert=40, verteidigung=10),
+    Rüstung(name="Trollhandschuhe", typ="Handschuhe", wert=35, verteidigung=8),
+    Rüstung(name="Dämonenmantel", typ="Mantel", wert=95, verteidigung=35),
+    Rüstung(name="Zwergenrüstung", typ="Rüstung", wert=110, verteidigung=28),
+    Rüstung(name="Schwarzstahlbrustpanzer", typ="Rüstung", wert=140, verteidigung=20),
+    Rüstung(name="Titanhandschuhe", typ="Handschuhe", wert=85, verteidigung=28),
+    Rüstung(name="Phantomrobe", typ="Robe", wert=75, verteidigung=22),
 ]
 
 
@@ -256,15 +255,24 @@ class LevelSystem:
         spieler.lebenspunkte = spieler.max_lebenspunkte
         spieler.mana = spieler.max_mana
         print(f"{spieler.name} ist jetzt Level {self.level}!")
+    
+        # Erhöhe Leben und Schaden der Gegner um 10%
+        for gegner in spieler.spielfeld:
+            if gegner is not None:
+                gegner.multiplikator *= 1.1
+                gegner.lebenspunkte = int(LEBENSPUNKTE[gegner.typ] * gegner.multiplikator)
+                gegner.max_schaden = int(MAX_SCHADEN[gegner.typ] * gegner.multiplikator)
+
         if self.level == 10:
             spieler.waehle_spezialisierung()
 
+
 class Skill:
-    def __init__(self, name, level=1, max_level=10, grandschaden=0, gold_cost=1):
+    def __init__(self, name, level=1, max_level=10, grundschaden=0, gold_cost=1):
         self.name = name
         self.level = level
         self.max_level = max_level
-        self.grandschaden = grandschaden
+        self.grundschaden = grundschaden
         self.gold_cost = gold_cost
 
     def level_up(self, spieler, fähigkeit: Fähigkeit):
@@ -272,16 +280,16 @@ class Skill:
             if spieler.gold >= self.gold_cost:
                 spieler.gold -= self.gold_cost
                 self.level += 1
-                self.grandschaden = int(self.grandschaden * 1.1)  # 10% Erhöhung des Grandschadens
+                self.grundschaden = int(self.grundschaden * 1.1)  # 10% Erhöhung des grundschadens
                 fähigkeit.schaden_erhoehen(10)  # Erhöht den Schaden der Fähigkeit um 10%
-                print(f"{self.name} hat Level {self.level} erreicht! Neuer Grandschaden: {self.grandschaden}")
+                print(f"{self.name} hat Level {self.level} erreicht! Neuer grundschaden: {self.grundschaden}")
             else:
                 raise ValueError("not genügend Gold")
         else:
             raise ValueError("Maximales Level erreicht")
 
     def berechne_schaden(self):
-        return self.grandschaden + (self.level * 5)  # Beispiel: 5 Schaden pro Level
+        return self.grundschaden + (self.level * 5)  # Beispiel: 5 Schaden pro Level
 
     def __repr__(self):
         return f"{self.name} (Level {self.level}/{self.max_level}, Gold-Kosten: {self.gold_cost})"
@@ -312,38 +320,38 @@ class Skillsystem:
 class KriegerSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Schwertkampf", gold_cost=10))
-        self.add_skill(Skill("Schildnutzung", gold_cost=10))
-        self.add_skill(Skill("Berserker-Rage", gold_cost=20))
-        self.add_skill(Skill("Kampfgeschick", gold_cost=12))
-        self.add_skill(Skill("Kriegerstärke", gold_cost=18))
+        self.add_skill(Skill("Schwertkampf", gold_cost=100))
+        self.add_skill(Skill("Schildnutzung", gold_cost=100))
+        self.add_skill(Skill("Berserker-Rage", gold_cost=100))                                                       
+        self.add_skill(Skill("Kampfgeschick", gold_cost=100))
+        self.add_skill(Skill("Kriegerstärke", gold_cost=100))
 
 class MagierSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Feuerball", gold_cost=15))
-        self.add_skill(Skill("Eislanze", gold_cost=12))
-        self.add_skill(Skill("Blitzschlag", gold_cost=18))
-        self.add_skill(Skill("Magische Barriere", gold_cost=10))
-        self.add_skill(Skill("Arkane Macht", gold_cost=20))
+        self.add_skill(Skill("Feuerball", gold_cost=100))
+        self.add_skill(Skill("Eislanze", gold_cost=100))
+        self.add_skill(Skill("Blitzschlag", gold_cost=100))
+        self.add_skill(Skill("Magische Barriere", gold_cost=100))
+        self.add_skill(Skill("Arkane Macht", gold_cost=100))
 
 class SchurkeSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Schleichangriff", gold_cost=14))
-        self.add_skill(Skill("Vergiften", gold_cost=10))
-        self.add_skill(Skill("Doppelschlag", gold_cost=15))
-        self.add_skill(Skill("Diebeskunst", gold_cost=8))
-        self.add_skill(Skill("Meuchelmord", gold_cost=20))
+        self.add_skill(Skill("Schleichangriff", gold_cost=100))
+        self.add_skill(Skill("Vergiften", gold_cost=100))
+        self.add_skill(Skill("Doppelschlag", gold_cost=100))
+        self.add_skill(Skill("Diebeskunst", gold_cost=100))
+        self.add_skill(Skill("Meuchelmord", gold_cost=100))
 
 class HeilerSkillsystem(Skillsystem):
     def __init__(self):
         super().__init__()
-        self.add_skill(Skill("Heilung", gold_cost=10))
-        self.add_skill(Skill("Heiliger Blitz", gold_cost=12))
-        self.add_skill(Skill("Manaregeneration", gold_cost=15))
-        self.add_skill(Skill("Heiliger Segen", gold_cost=8))
-        self.add_skill(Skill("Göttliche Gnade", gold_cost=20))
+        self.add_skill(Skill("Heilung", gold_cost=100))
+        self.add_skill(Skill("Heiliger Blitz", gold_cost=100))
+        self.add_skill(Skill("Manaregeneration", gold_cost=100))
+        self.add_skill(Skill("Heiliger Segen", gold_cost=100))
+        self.add_skill(Skill("Göttliche Gnade", gold_cost=100))
 
 # Spezialisierungen hinzufügen
 class Krieger:
@@ -1450,9 +1458,9 @@ def herstellen(spieler: Spieler):
     gegenstand = random.choice(BENUTZBARE_GEGENSTAENDE)
 
     if isinstance(gegenstand, Waffe):
-        gegenstand.schaden += random.randint(0, 80)  # Beispielwert
+        gegenstand.schaden += random.randint(0, 10)  # Beispielwert
     elif isinstance(gegenstand, Rüstung):
-        gegenstand.verteidigung += random.randint(0, 55)  # Beispielwert
+        gegenstand.verteidigung += random.randint(0, 5)  # Beispielwert
 
     if name in SPEZIELLE_EFFEKTE:
         effekte = SPEZIELLE_EFFEKTE[name]
