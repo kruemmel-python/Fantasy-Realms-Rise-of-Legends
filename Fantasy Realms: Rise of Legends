@@ -69,13 +69,72 @@ GEGENSTAND_NAMEN = [
 
 # Liste der Gegenstände, die ein Spieler benutzen kann
 BENUTZBARE_GEGENSTAENDE = [
+    # Waffen
     Waffe(name="Dämonenklinge", typ="Waffe", wert=100, schaden=45),
     Waffe(name="Kriegsbeil", typ="Waffe", wert=120, schaden=30),
+    Waffe(name="Drachenschwert", typ="Waffe", wert=200, schaden=60),
+    Waffe(name="Elfenbogen", typ="Waffe", wert=150, schaden=50),
+    Waffe(name="Flammenaxt", typ="Waffe", wert=180, schaden=55),
+    Waffe(name="Frostspeer", typ="Waffe", wert=140, schaden=40),
+    Waffe(name="Blitzdolch", typ="Waffe", wert=160, schaden=45),
+    Waffe(name="Sturmbrecher", typ="Waffe", wert=220, schaden=65),
+    Waffe(name="Windklinge", typ="Waffe", wert=170, schaden=48),
+    Waffe(name="Nachtstab", typ="Waffe", wert=130, schaden=35),
+    Waffe(name="Höllenzepter", typ="Waffe", wert=190, schaden=58),
+    Waffe(name="Vergeltungshammer", typ="Waffe", wert=210, schaden=70),
+    Waffe(name="Giftpfeil", typ="Waffe", wert=140, schaden=38),
+    Waffe(name="Schattenschwert", typ="Waffe", wert=180, schaden=52),
+    Waffe(name="Blutklinge", typ="Waffe", wert=200, schaden=60),
+    Waffe(name="Wellenbrecher", typ="Waffe", wert=150, schaden=45),
+    Waffe(name="Donnerschlag", typ="Waffe", wert=220, schaden=70),
+    Waffe(name="Schattenpike", typ="Waffe", wert=130, schaden=42),
+    Waffe(name="Sonnenschwert", typ="Waffe", wert=170, schaden=48),
+    Waffe(name="Nebellanze", typ="Waffe", wert=140, schaden=39),
+    Waffe(name="Feuerklinge", typ="Waffe", wert=160, schaden=50),
+    Waffe(name="Eisdolch", typ="Waffe", wert=130, schaden=34),
+    Waffe(name="Erdbebenhammer", typ="Waffe", wert=180, schaden=56),
+    Waffe(name="Lichtbogen", typ="Waffe", wert=190, schaden=60),
+    Waffe(name="Sternenstab", typ="Waffe", wert=150, schaden=45),
+    Waffe(name="Todesstachel", typ="Waffe", wert=200, schaden=65),
+    Waffe(name="Nebelkrieger", typ="Waffe", wert=170, schaden=49),
+    Waffe(name="Dämonenfaust", typ="Waffe", wert=210, schaden=68),
+    Waffe(name="Engelschwert", typ="Waffe", wert=180, schaden=54),
+    Waffe(name="Phantomklinge", typ="Waffe", wert=140, schaden=42),
+    Waffe(name="Dunkelheitslanze", typ="Waffe", wert=200, schaden=63),
+
+    # Rüstungen
     Rüstung(name="Eisenhelm", typ="Helm", wert=80, verteidigung=100),
     Rüstung(name="Plattenpanzer", typ="Rüstung", wert=150, verteidigung=65),
     Rüstung(name="Schattenstiefel", typ="Stiefel", wert=70, verteidigung=48),
-    Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=65)
+    Rüstung(name="Lederhandschuhe", typ="Handschuhe", wert=60, verteidigung=65),
+    Rüstung(name="Mythrilpanzer", typ="Rüstung", wert=250, verteidigung=80),
+    Rüstung(name="Dunkelheitsrobe", typ="Robe", wert=100, verteidigung=30),
+    Rüstung(name="Feuerhelm", typ="Helm", wert=90, verteidigung=70),
+    Rüstung(name="Schattenschleier", typ="Mantel", wert=120, verteidigung=50),
+    Rüstung(name="Himmelsstiefel", typ="Stiefel", wert=110, verteidigung=55),
+    Rüstung(name="Erdenschuhe", typ="Schuhe", wert=85, verteidigung=40),
+    Rüstung(name="Lichtbringer-Schild", typ="Schild", wert=200, verteidigung=90),
+    Rüstung(name="Todesmantel", typ="Mantel", wert=150, verteidigung=60),
+    Rüstung(name="Eisbrustplatte", typ="Rüstung", wert=160, verteidigung=75),
+    Rüstung(name="Naturamulett", typ="Amulett", wert=50, verteidigung=20),
+    Rüstung(name="Sonnenhelm", typ="Helm", wert=100, verteidigung=65),
+    Rüstung(name="Knochenrüstung", typ="Rüstung", wert=170, verteidigung=85),
+    Rüstung(name="Kristallschild", typ="Schild", wert=190, verteidigung=95),
+    Rüstung(name="Windcape", typ="Cape", wert=80, verteidigung=35),
+    Rüstung(name="Höllenstiefel", typ="Stiefel", wert=120, verteidigung=60),
+    Rüstung(name="Mondhandschuhe", typ="Handschuhe", wert=90, verteidigung=50),
+    Rüstung(name="Dämonenhelm", typ="Helm", wert=110, verteidigung=72),
+    Rüstung(name="Lichtpanzer", typ="Rüstung", wert=180, verteidigung=78),
+    Rüstung(name="Feuerstiefel", typ="Stiefel", wert=100, verteidigung=60),
+    Rüstung(name="Eisrobe", typ="Robe", wert=130, verteidigung=45),
+    Rüstung(name="Drachenhautmantel", typ="Mantel", wert=140, verteidigung=68),
+    Rüstung(name="Phantomhelm", typ="Helm", wert=160, verteidigung=85),
+    Rüstung(name="Erdenrüstung", typ="Rüstung", wert=150, verteidigung=77),
+    Rüstung(name="Engelsflügel", typ="Cape", wert=120, verteidigung=52),
+    Rüstung(name="Nebelstiefel", typ="Stiefel", wert=90, verteidigung=48),
+    Rüstung(name="Schattenhandschuhe", typ="Handschuhe", wert=70, verteidigung=55)
 ]
+
 
 # Zuordnung von Namen zu speziellen Effekten
 SPEZIELLE_EFFEKTE = {
@@ -99,7 +158,46 @@ class MagischeSchriftrolle(Gegenstand):
 MAGISCHE_SCHRIFTROLLEN = [
     MagischeSchriftrolle(name="Feuerball-Schriftrolle", typ="Schriftrolle", wert=100, schaden=50, kosten=100, mana_kosten=30, zauberart="Feuer"),
     MagischeSchriftrolle(name="Blitz-Schriftrolle", typ="Schriftrolle", wert=120, schaden=60, kosten=120, mana_kosten=40, zauberart="Blitz"),
-    MagischeSchriftrolle(name="Eislanzen-Schriftrolle", typ="Schriftrolle", wert=80, schaden=40, kosten=80, mana_kosten=20, zauberart="Eis")
+    MagischeSchriftrolle(name="Eislanzen-Schriftrolle", typ="Schriftrolle", wert=80, schaden=40, kosten=80, mana_kosten=20, zauberart="Eis"),
+    MagischeSchriftrolle(name="Feuersturm-Schriftrolle", typ="Schriftrolle", wert=150, schaden=70, kosten=150, mana_kosten=35, zauberart="Feuer"),
+    MagischeSchriftrolle(name="Erdbeben-Schriftrolle", typ="Schriftrolle", wert=130, schaden=65, kosten=130, mana_kosten=45, zauberart="Erde"),
+    MagischeSchriftrolle(name="Windstoß-Schriftrolle", typ="Schriftrolle", wert=90, schaden=50, kosten=90, mana_kosten=25, zauberart="Luft"),
+    MagischeSchriftrolle(name="Wasserflut-Schriftrolle", typ="Schriftrolle", wert=110, schaden=55, kosten=110, mana_kosten=30, zauberart="Wasser"),
+    MagischeSchriftrolle(name="Lichtstrahl-Schriftrolle", typ="Schriftrolle", wert=140, schaden=60, kosten=140, mana_kosten=40, zauberart="Licht"),
+    MagischeSchriftrolle(name="Schattenklinge-Schriftrolle", typ="Schriftrolle", wert=160, schaden=70, kosten=160, mana_kosten=35, zauberart="Schatten"),
+    MagischeSchriftrolle(name="Feuerschild-Schriftrolle", typ="Schriftrolle", wert=110, schaden=30, kosten=110, mana_kosten=25, zauberart="Feuer"),
+    MagischeSchriftrolle(name="Blitznetz-Schriftrolle", typ="Schriftrolle", wert=130, schaden=50, kosten=130, mana_kosten=40, zauberart="Blitz"),
+    MagischeSchriftrolle(name="Eiswand-Schriftrolle", typ="Schriftrolle", wert=100, schaden=20, kosten=100, mana_kosten=20, zauberart="Eis"),
+    MagischeSchriftrolle(name="Erdfestung-Schriftrolle", typ="Schriftrolle", wert=120, schaden=40, kosten=120, mana_kosten=30, zauberart="Erde"),
+    MagischeSchriftrolle(name="Luftstoß-Schriftrolle", typ="Schriftrolle", wert=80, schaden=30, kosten=80, mana_kosten=15, zauberart="Luft"),
+    MagischeSchriftrolle(name="Wasserbarriere-Schriftrolle", typ="Schriftrolle", wert=90, schaden=35, kosten=90, mana_kosten=25, zauberart="Wasser"),
+    MagischeSchriftrolle(name="Lichtblitz-Schriftrolle", typ="Schriftrolle", wert=130, schaden=50, kosten=130, mana_kosten=35, zauberart="Licht"),
+    MagischeSchriftrolle(name="Schattenhieb-Schriftrolle", typ="Schriftrolle", wert=150, schaden=60, kosten=150, mana_kosten=40, zauberart="Schatten"),
+    MagischeSchriftrolle(name="Feuerpfeil-Schriftrolle", typ="Schriftrolle", wert=100, schaden=40, kosten=100, mana_kosten=20, zauberart="Feuer"),
+    MagischeSchriftrolle(name="Blitzsturm-Schriftrolle", typ="Schriftrolle", wert=160, schaden=70, kosten=160, mana_kosten=50, zauberart="Blitz"),
+    MagischeSchriftrolle(name="Eishauch-Schriftrolle", typ="Schriftrolle", wert=90, schaden=35, kosten=90, mana_kosten=25, zauberart="Eis"),
+    MagischeSchriftrolle(name="Erdbeben-Schriftrolle", typ="Schriftrolle", wert=140, schaden=65, kosten=140, mana_kosten=45, zauberart="Erde"),
+    MagischeSchriftrolle(name="Windfaust-Schriftrolle", typ="Schriftrolle", wert=110, schaden=50, kosten=110, mana_kosten=30, zauberart="Luft"),
+    MagischeSchriftrolle(name="Wasserspeer-Schriftrolle", typ="Schriftrolle", wert=120, schaden=55, kosten=120, mana_kosten=35, zauberart="Wasser"),
+    MagischeSchriftrolle(name="Lichtschild-Schriftrolle", typ="Schriftrolle", wert=130, schaden=30, kosten=130, mana_kosten=25, zauberart="Licht"),
+    MagischeSchriftrolle(name="Schattenfessel-Schriftrolle", typ="Schriftrolle", wert=150, schaden=40, kosten=150, mana_kosten=30, zauberart="Schatten"),
+    MagischeSchriftrolle(name="Feuerkugel-Schriftrolle", typ="Schriftrolle", wert=110, schaden=60, kosten=110, mana_kosten=35, zauberart="Feuer"),
+    MagischeSchriftrolle(name="Blitzkette-Schriftrolle", typ="Schriftrolle", wert=130, schaden=70, kosten=130, mana_kosten=50, zauberart="Blitz"),
+    MagischeSchriftrolle(name="Eisstrahl-Schriftrolle", typ="Schriftrolle", wert=100, schaden=45, kosten=100, mana_kosten=30, zauberart="Eis"),
+    MagischeSchriftrolle(name="Erdschock-Schriftrolle", typ="Schriftrolle", wert=120, schaden=50, kosten=120, mana_kosten=35, zauberart="Erde"),
+    MagischeSchriftrolle(name="Luftwirbel-Schriftrolle", typ="Schriftrolle", wert=80, schaden=40, kosten=80, mana_kosten=20, zauberart="Luft"),
+    MagischeSchriftrolle(name="Wasserpeitsche-Schriftrolle", typ="Schriftrolle", wert=90, schaden=45, kosten=90, mana_kosten=30, zauberart="Wasser"),
+    MagischeSchriftrolle(name="Lichtstrahl-Schriftrolle", typ="Schriftrolle", wert=140, schaden=60, kosten=140, mana_kosten=40, zauberart="Licht"),
+    MagischeSchriftrolle(name="Schattenflamme-Schriftrolle", typ="Schriftrolle", wert=160, schaden=70, kosten=160, mana_kosten=50, zauberart="Schatten"),
+    MagischeSchriftrolle(name="Feuerpeitsche-Schriftrolle", typ="Schriftrolle", wert=110, schaden=50, kosten=110, mana_kosten=25, zauberart="Feuer"),
+    MagischeSchriftrolle(name="Blitzsprung-Schriftrolle", typ="Schriftrolle", wert=130, schaden=60, kosten=130, mana_kosten=40, zauberart="Blitz"),
+    MagischeSchriftrolle(name="Eisschild-Schriftrolle", typ="Schriftrolle", wert=100, schaden=20, kosten=100, mana_kosten=15, zauberart="Eis"),
+    MagischeSchriftrolle(name="Erdriss-Schriftrolle", typ="Schriftrolle", wert=120, schaden=55, kosten=120, mana_kosten=35, zauberart="Erde"),
+    MagischeSchriftrolle(name="Luftschnitt-Schriftrolle", typ="Schriftrolle", wert=80, schaden=35, kosten=80, mana_kosten=20, zauberart="Luft"),
+    MagischeSchriftrolle(name="Wasserstoß-Schriftrolle", typ="Schriftrolle", wert=90, schaden=40, kosten=90, mana_kosten=25, zauberart="Wasser"),
+    MagischeSchriftrolle(name="Lichtbann-Schriftrolle", typ="Schriftrolle", wert=130, schaden=50, kosten=130, mana_kosten=30, zauberart="Licht"),
+    MagischeSchriftrolle(name="Schattenblitz-Schriftrolle", typ="Schriftrolle", wert=150, schaden=65, kosten=150, mana_kosten=40, zauberart="Schatten"),
+    MagischeSchriftrolle(name="Feuersturm-Schriftrolle", typ="Schriftrolle", wert=160, schaden=75, kosten=160, mana_kosten=50, zauberart="Feuer"),
 ]
 
 @dataclass
@@ -749,6 +847,16 @@ class Spieler:
             print(f"Magische Schriftrolle {schriftrolle.name} wurde erlernt.")
         else:
             print("Du kannst nur 2 magische Schriftrollen erlernen.")
+
+    def quest_abschließen(self, quest_name: str) -> None:
+        for quest in self.quests:
+            if quest.name == quest_name and quest.abgeschlossen:
+                self.add_muenzen(*quest.belohnung)
+                print(f"Quest {quest.name} abgeschlossen! Belohnung: {quest.belohnung[0]} Kupfer, {quest.belohnung[1]} Silber, {quest.belohnung[2]} Gold")
+                self.quests.remove(quest)
+                return
+        print(f"Quest {quest_name} konnte nicht abgeschlossen werden, entweder existiert sie nicht oder ist noch nicht abgeschlossen.")
+
 
     def schriftrolle_auswählen(self) -> Optional[MagischeSchriftrolle]:
         if not self.magische_schriftrollen:
