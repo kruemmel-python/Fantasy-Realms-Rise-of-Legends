@@ -34,6 +34,16 @@ START_GOLD = (0, 0, 1)  # (Kupfer, Silber, Gold)
 SELTENE_DROP_RATE = 0.15  # 15%
 SEHR_SELTENE_DROP_RATE = 0.01  # 1%
 
+class Farben:
+    ROT = '\033[91m'
+    GRUEN = '\033[92m'
+    GELB = '\033[93m'
+    BLAU = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WEISS = '\033[97m'
+    ENDE = '\033[0m'
+
 # Definieren der Ressourcenklasse
 @dataclass
 class Resource:
@@ -1596,6 +1606,34 @@ def erkunden(spieler: Spieler) -> None:
         starte_spiel()
     else:
         print("Danke fors Spielen!")
+# Funktion, um die Geschichte basierend auf der Klasse auszugeben
+def erzaehle_geschichte(klasse):
+    if klasse == "Krieger":
+        print(f"{Farben.ROT}Du bist nun Krieger und das ist die Geschichte deiner Spezialfähigkeiten:{Farben.ENDE}\n"
+      f"{Farben.GRUEN}    - Schwertkampf:{Farben.ENDE} Die ersten Krieger waren einfache Dorfbewohner, die ihre Heimat vor wilden Tieren und feindlichen Stämmen schützen mussten. Sie lernten den Schwertkampf, um sich zu verteidigen. Eines Tages fand ein alter Krieger ein uraltes Schwert in einer Höhle. Als er es berührte, spürte er die Kraft des Schwertes in seinen Adern. Von diesem Moment an wurde der Schwertkampf zu einer Kunst, die von Generation zu Generation weitergegeben wurde.\n"
+      f"{Farben.BLAU}    - Schildnutzung:{Farben.ENDE} Ein tapferer Krieger namens Galdor rettete einst ein Dorf vor einer Horde Orks. Er benutzte einen Schild, um die Dorfbewohner zu schützen. Die Dorfbewohner waren so beeindruckt von seiner Tapferkeit, dass sie begannen, die Kunst der Schildnutzung zu erlernen.\n"
+      f"{Farben.MAGENTA}    - Berserker-Rage:{Farben.ENDE} In den eisigen Bergen lebte ein Krieger namens Ragnar. Er war bekannt für seine unbändige Wut im Kampf. Eines Tages wurde er von einem Bären angegriffen und überlebte nur knapp. Seitdem kanalisiert er seine Wut, um übermenschliche Kraft und Geschwindigkeit zu erlangen.\n"
+      f"{Farben.CYAN}    - Kampfgeschick:{Farben.ENDE} Der legendäre Krieger Aric wurde von einem alten Meister in den Wäldern ausgebildet. Dieser Meister lehrte ihn, die Bewegungen der Gegner zu antizipieren und ihre Schwächen auszunutzen. Aric wurde zum Meister des Kampfgeschicks.\n"
+      f"{Farben.GELB}    - Kriegerstärke:{Farben.ENDE} Ein Krieger namens Thrain trainierte sein ganzes Leben lang, um die stärksten Waffen tragen zu können. Er trank einen Trank aus dem Herz eines Drachen und erlangte dadurch übermenschliche Stärke.")
+    elif klasse == "Magier":
+        print(f"{Farben.ROT}Du bist nun Magier und das ist die Geschichte deiner Spezialfähigkeiten:{Farben.ENDE}\n"
+      f"{Farben.GRUEN}    - Feuerball:{Farben.ENDE} Der Magier Elowen studierte die alten Schriften und entdeckte ein uraltes Ritual, das es ihm ermöglichte, Feuerbälle zu erschaffen. Er fand einen versteckten Tempel und vollzog das Ritual, um die Macht des Feuers zu beherrschen.\n"
+      f"{Farben.BLAU}    - Eislanze:{Farben.ENDE} Die Magierin Isolde lebte in einem eisigen Reich. Sie beobachtete die eisigen Stürme und lernte, ihre Magie zu nutzen, um tödliche Eislanzen zu formen. Diese Fähigkeit wurde von den Magiern weiterentwickelt und verfeinert.\n"
+      f"{Farben.MAGENTA}    - Blitzschlag:{Farben.ENDE} Ein Magier namens Thalos wurde von einem Blitz getroffen und überlebte. Er erkannte, dass der Blitz eine mächtige Energiequelle war. Er studierte die Naturgewalten und lernte, den Blitz zu kontrollieren.\n"
+      f"{Farben.CYAN}    - Magische Barriere:{Farben.ENDE} Die Magierin Selene lebte in einer Stadt, die von feindlichen Armeen belagert wurde. Sie erschuf eine magische Barriere, die die Stadt vor Angriffen schützte. Diese Fähigkeit wurde von den Magiern weiterentwickelt, um ganze Städte zu schützen.\n"
+      f"{Farben.GELB}    - Arkane Macht:{Farben.ENDE} Ein alter Magier namens Alaric entdeckte eine uralte Bibliothek, die verbotene Schriften über die Arkane Macht enthielt. Er studierte diese Schriften und wurde zu einem der mächtigsten Magier aller Zeiten.")
+    elif klasse == "Schurke":
+        print(f"{Farben.ROT}Du bist nun Schurke und das ist die Geschichte deiner Spezialfähigkeiten:{Farben.ENDE}\n"
+      f"{Farben.GRUEN}    - Schleichangriff:{Farben.ENDE} Der Dieb Corwin war ein Meister des Schleichens. Er konnte sich lautlos an seine Opfer heranschleichen und tödliche Angriffe ausführen. Seine Fähigkeiten wurden von den Schurken weiterentwickelt, um in den Schatten zu agieren.\n"
+      f"{Farben.BLAU}    - Vergiften:{Farben.ENDE} Die Assassine Lyra war berüchtigt für ihre vergifteten Dolche. Sie sammelte seltene Kräuter und mischte tödliche Gifte. Ihre Kunst wurde von den Schurken weitergegeben.\n"
+      f"{Farben.MAGENTA}    - Doppelschlag:{Farben.ENDE} Ein Schurke namens Raven war ein Meister des schnellen Angriffs. Er konnte seine Dolche so geschickt führen, dass es schien, als hätte er zwei Paar Hände. Eines Nachts, während er in den Schatten einer alten Eiche lauerte, wurde er von einem mysteriösen Fremden angesprochen. Dieser Fremde, ein alter Dieb namens Silas, enthüllte ihm das Geheimnis des Doppelschlags. Silas hatte einst einen Pakt mit einem uralten Geist geschlossen, der ihm die Fähigkeit verlieh, blitzschnell zuzuschlagen. Raven lernte von Silas und wurde zu einem legendären Schurken, der seine Gegner mit einem Doppelschlag überraschte.")
+    elif klasse == "Heiler":
+        print(f"{Farben.ROT}Du bist nun Heiler und das ist die Geschichte deiner Spezialfähigkeiten:{Farben.ENDE}\n"
+      f"{Farben.GRUEN}    - Heilung:{Farben.ENDE} Die Heilerin Elara lebte in einem abgelegenen Tempel. Eines Tages fand sie eine uralte Schriftrolle, die die Kunst der Heilung beschrieb. Sie lernte die geheimen Gebete und Rituale, um Wunden zu heilen und Krankheiten zu lindern. Elara wurde zur Hüterin des Lebens.\n"
+      f"{Farben.BLAU}    - Heiliger Blitz:{Farben.ENDE} Ein junger Heiler namens Caelan wurde von einem Blitz getroffen, als er versuchte, einen verletzten Reisenden zu retten. Anstatt zu sterben, spürte er die Energie des Blitzes in sich. Er konnte nun heilende Blitze beschwören, um seine Verbündeten zu stärken und Feinde zu schwächen.\n"
+      f"{Farben.MAGENTA}    - Manaregeneration:{Farben.ENDE} Die weise Heilerin Lysandra meditierte jahrelang in den Bergen. Sie entdeckte einen verborgenen Wasserfall, der von einer Quelle gespeist wurde, die Mana enthielt. Lysandra trank von diesem Wasser und erlangte die Fähigkeit, ihre magische Energie schneller zu regenerieren.\n"
+      f"{Farben.CYAN}    - Heiliger Segen:{Farben.ENDE} Ein alter Priester namens Eamon wurde von den Göttern auserwählt. Er konnte heilige Symbole auf die Stirn seiner Schützlinge zeichnen und ihnen göttlichen Schutz verleihen. Sein Segen heilte nicht nur den Körper, sondern auch die Seele.\n"
+      f"{Farben.GELB}    - Göttliche Gnade:{Farben.ENDE} Die Heilerin Seraphina hatte eine Vision von einer strahlenden Göttin. Diese Göttin lehrte sie, wie man die göttliche Energie kanalisiert, um Wunder zu vollbringen. Seraphina konnte Wunden schließen, Krankheiten heilen und sogar Tote wiederbeleben.")
 
 def starte_spiel() -> None:
     name = input("Gib deinen Spielernamen ein: ")
@@ -1627,11 +1665,13 @@ def starte_spiel() -> None:
         elif wahl == 4:
             klasse = "Heiler"
         spieler = Spieler(name, klasse, SPIELER_START_LEBENSPUNKTE, SPIELER_START_LEBENSPUNKTE, 0, 1, [], [])
+        
     else:
         spieler.lebenspunkte = spieler.max_lebenspunkte
         print(f"Willkommen zurück, {spieler.name}! Level: {spieler.level_system.level}, Erfahrungspunkte: {spieler.level_system.erfahrung}, Lebenspunkte: {spieler.lebenspunkte}/{spieler.max_lebenspunkte}")
 
     starte_tagesquests(spieler)
+    erzaehle_geschichte(klasse)
 
     while True:
         zeige_menü(spieler)
