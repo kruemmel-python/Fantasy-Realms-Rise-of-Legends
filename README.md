@@ -1,5 +1,5 @@
 ### Entdecke die Welt von "Fantasy Realms: Rise of Legends"
-" Ausführbares SPiel für Windows = Fantasy-Realms-Rise-of-Legends.exe "
+" Ausführbares Spiel für Windows = Fantasy-Realms-Rise-of-Legends.exe "
 
 Willkommen zu **"Fantasy Realms: Rise of Legends"**, dem ultimativen textbasierten Rollenspiel, das Sie in eine atemberaubende Fantasy-Welt entführt. Erleben Sie packende Abenteuer, herausfordernde Kämpfe und eine epische Geschichte, die Sie nicht mehr loslassen wird. Machen Sie sich bereit, zum Helden zu werden, den diese Welt dringend braucht!
 
