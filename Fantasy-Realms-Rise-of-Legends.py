@@ -461,24 +461,103 @@ class Gegner:
     def initialisiere_grandskills(self):
         if self.typ == 'schwach':
             self.grandskills = [
-                Fähigkeit("Schwacher Angriff", 10, 0),
-                Fähigkeit("Schwache Verteidigung", 0, 0)
+                Fähigkeit("Beinschnitt", 10, 0),
+                Fähigkeit("Ducken", 0, 5),
+                Fähigkeit("Kratzen", 8, 0),
+                Fähigkeit("Ausweichen", 0, 5),
+                Fähigkeit("Leichter Tritt", 7, 0),
+                Fähigkeit("Schwacher Schlag", 9, 0),
+                Fähigkeit("Hinterhalt", 12, 0),
+                Fähigkeit("Tarnung", 0, 3),
+                Fähigkeit("Schneller Schlag", 6, 0),
+                Fähigkeit("Verstecken", 0, 4),
+                Fähigkeit("Fintenangriff", 11, 0),
+                Fähigkeit("Schattenhieb", 10, 0),
+                Fähigkeit("Schleichangriff", 13, 0),
+                Fähigkeit("Verwirrung", 0, 6),
+                Fähigkeit("Kleiner Hieb", 5, 0),
+                Fähigkeit("Klingenwirbel", 9, 0),
+                Fähigkeit("Rückzug", 0, 2),
+                Fähigkeit("Fehltritt", 8, 0),
+                Fähigkeit("Täuschung", 0, 4),
+                Fähigkeit("Knieschlag", 7, 0),
+                Fähigkeit("Abwehrhaltung", 0, 5)
             ]
         elif self.typ == 'mittel':
             self.grandskills = [
-                Fähigkeit("Mittlerer Angriff", 20, 0),
-                Fähigkeit("Mittlere Verteidigung", 0, 5)
+                Fähigkeit("Bruststich", 20, 0),
+                Fähigkeit("Schwertverteidigung", 0, 10),
+                Fähigkeit("Schmetterschlag", 18, 0),
+                Fähigkeit("Parieren", 0, 7),
+                Fähigkeit("Hieb", 22, 0),
+                Fähigkeit("Block", 0, 8),
+                Fähigkeit("Starker Tritt", 15, 0),
+                Fähigkeit("Deckung", 0, 9),
+                Fähigkeit("Seitenschlag", 19, 0),
+                Fähigkeit("Ausweichrolle", 0, 6),
+                Fähigkeit("Kraftstoß", 25, 0),
+                Fähigkeit("Sturmangriff", 23, 0),
+                Fähigkeit("Verteidigungshaltung", 0, 12),
+                Fähigkeit("Schildstoß", 20, 0),
+                Fähigkeit("Kampfkunst", 0, 8),
+                Fähigkeit("Hieb und Stich", 21, 0),
+                Fähigkeit("Abwehrschlag", 0, 11),
+                Fähigkeit("Schulterwurf", 18, 0),
+                Fähigkeit("Taktischer Rückzug", 0, 10),
+                Fähigkeit("Schwertwirbel", 24, 0),
+                Fähigkeit("Abwehrmanöver", 0, 9)
             ]
         elif self.typ == 'stark':
             self.grandskills = [
-                Fähigkeit("Starker Angriff", 40, 0),
-                Fähigkeit("Starke Verteidigung", 0, 10)
+                Fähigkeit("Doppelstich", 40, 0),
+                Fähigkeit("Schild", 0, 15),
+                Fähigkeit("Mächtiger Hieb", 35, 0),
+                Fähigkeit("Rüstungsschutz", 0, 12),
+                Fähigkeit("Schmetterschlag", 38, 0),
+                Fähigkeit("Verteidigungsposition", 0, 14),
+                Fähigkeit("Klingensturm", 45, 0),
+                Fähigkeit("Schildwall", 0, 16),
+                Fähigkeit("Raserei", 50, 0),
+                Fähigkeit("Unverwundbarkeit", 0, 18),
+                Fähigkeit("Erderschütterer", 42, 0),
+                Fähigkeit("Steinhaut", 0, 17),
+                Fähigkeit("Kampfeswut", 47, 0),
+                Fähigkeit("Magischer Schutz", 0, 20),
+                Fähigkeit("Übermacht", 48, 0),
+                Fähigkeit("Gegenangriff", 0, 15),
+                Fähigkeit("Zertrümmerer", 46, 0),
+                Fähigkeit("Eiserner Wille", 0, 16),
+                Fähigkeit("Sturmschlag", 44, 0),
+                Fähigkeit("Standhaftigkeit", 0, 19),
+                Fähigkeit("Tödlicher Stoß", 49, 0),
+                Fähigkeit("Schild des Glaubens", 0, 18)
             ]
         elif self.typ == 'boss':
             self.grandskills = [
-                Fähigkeit("Boss Angriff", 70, 0),
-                Fähigkeit("Boss Verteidigung", 0, 20)
+                Fähigkeit("Spezial Hieb Schlechter", 70, 0),
+                Fähigkeit("Riesenschild", 0, 25),
+                Fähigkeit("Wutangriff", 60, 0),
+                Fähigkeit("Unbezwingbar", 0, 20),
+                Fähigkeit("Feueratem", 80, 0),
+                Fähigkeit("Mächtige Barriere", 0, 30),
+                Fähigkeit("Todeshieb", 75, 0),
+                Fähigkeit("Unverwundbar", 0, 35),
+                Fähigkeit("Drachenklauen", 65, 0),
+                Fähigkeit("Magieschild", 0, 28),
+                Fähigkeit("Klingenwirbel", 85, 0),
+                Fähigkeit("Titanenhaut", 0, 40),
+                Fähigkeit("Donnerschlag", 90, 0),
+                Fähigkeit("Götterschutz", 0, 45),
+                Fähigkeit("Höllenfeuer", 95, 0),
+                Fähigkeit("Unzerstörbar", 0, 50),
+                Fähigkeit("Schattenhieb", 88, 0),
+                Fähigkeit("Aegis", 0, 38),
+                Fähigkeit("Blutsturm", 92, 0),
+                Fähigkeit("Felsblock", 0, 32),
+                Fähigkeit("Weltenspalter", 100, 0),
+                Fähigkeit("Lichtmauer", 0, 42)
             ]
+
 
     def anwenden_grandskill(self, spieler: 'Spieler'):
         if not self.hat_angriff_durchgefuehrt and self.grandskills:
