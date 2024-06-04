@@ -1,4 +1,4 @@
-# Beitrag zu Herz der Mutigen: Das Schicksal des Königreichs
+# Beitrag zu "Fantasy Realms: Rise of Legends"
 
 Ich freue mich über Beiträge von der Community und bin dankbar für jede Hilfe, die ich bekommen kann. Hier sind einige Richtlinien, die du befolgen solltest, wenn du zum Projekt beitragen möchtest.
 
