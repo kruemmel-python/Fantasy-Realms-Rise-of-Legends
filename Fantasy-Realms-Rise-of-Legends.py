@@ -1281,13 +1281,21 @@ def erstelle_spielfeld(multiplikator: float = 1.0) -> List[Optional[Gegner]]:
 
     for typ in GEGNER_TYPEN:
         for _ in range(ANZAHL_GEGNER_PRO_TYP):
-            position = random.choice(verfügbare_positionen)
-            verfügbare_positionen.remove(position)
+            if not verfügbare_positionen:
+                position = 1
+            else:
+                position = random.choice(verfügbare_positionen)
+            if position in verfügbare_positionen:
+                verfügbare_positionen.remove(position)
             spielfeld[position] = Gegner(typ, multiplikator)
 
     for _ in range(ANZAHL_BOSSE):
-        position = random.choice(verfügbare_positionen)
-        verfügbare_positionen.remove(position)
+        if not verfügbare_positionen:
+            position = 1
+        else:
+            position = random.choice(verfügbare_positionen)
+        if position in verfügbare_positionen:
+            verfügbare_positionen.remove(position)
         spielfeld[position] = Gegner('boss', multiplikator)
 
     return spielfeld
@@ -1894,4 +1902,3 @@ def erzähle_geschichte() -> None:
     print(geschichte)
 
 starte_spiel()
-
