@@ -269,7 +269,7 @@ class LevelSystem:
         # Erhöhe Leben und Schaden der Gegner um 10%
         for gegner in spieler.spielfeld:
             if gegner is not None:
-                gegner.multiplikator *= 1.40
+                gegner.multiplikator *= 1.60
                 gegner.lebenspunkte = int(LEBENSPUNKTE[gegner.typ] * gegner.multiplikator)
                 gegner.max_schaden = int(MAX_SCHADEN[gegner.typ] * gegner.multiplikator)
 
@@ -290,7 +290,7 @@ class Skill:
             if spieler.gold >= self.gold_cost:
                 spieler.gold -= self.gold_cost
                 self.level += 1
-                self.grundschaden = int(self.grundschaden * 1.3)  # 30% Erhöhung des grundschadens
+                self.grundschaden = int(self.grundschaden * 1.4)  #40% Erhöhung des grundschadens
                 fähigkeit.schaden_erhoehen(10)  # Erhöht den Schaden der Fähigkeit um 10%
                 print(f"{self.name} hat Level {self.level} erreicht! Neuer grundschaden: {self.grundschaden}")
             else:
@@ -299,7 +299,7 @@ class Skill:
             raise ValueError("Maximales Level erreicht")
 
     def berechne_schaden(self):
-        return self.grundschaden + (self.level * 5)  # Beispiel: 5 Schaden pro Level
+        return self.grundschaden + (self.level * 10)  # Beispiel: 5 Schaden pro Level
 
     def __repr__(self):
         return f"{self.name} (Level {self.level}/{self.max_level}, Gold-Kosten: {self.gold_cost})"
@@ -461,9 +461,9 @@ class Gegner:
     def initialisiere_grandskills(self):
         if self.typ == 'schwach':
             self.grandskills = [
-                Fähigkeit("Beinschnitt", 10, 0),
+                Fähigkeit("Beinschnitt", 50, 0),
                 Fähigkeit("Ducken", 0, 5),
-                Fähigkeit("Kratzen", 8, 0),
+                Fähigkeit("Kratzen", 20, 0),
                 Fähigkeit("Ausweichen", 0, 5),
                 Fähigkeit("Leichter Tritt", 7, 0),
                 Fähigkeit("Schwacher Schlag", 9, 0),
@@ -801,6 +801,23 @@ class Spieler:
             print("\033[34m**** Rüstungen im Inventar: ****\033[0m")
             for i, rüstung in enumerate(self.rüstungsinventar, 1):
                 print(f"{zufallsfarbe()}{i}: {rüstung.name} - Verteidigung: {rüstung.verteidigung}, Wert: {rüstung.wert} Kupfer\033[0m")
+        # Anzeigen des Waffeninventars
+        if self.waffeninventar:
+            print("\033[34m**** Waffen im Inventar: ****\033[0m")
+            for i, waffe in enumerate(self.waffeninventar, 1):
+                print(f"{zufallsfarbe()}{i}: {waffe.name} - Schaden: {waffe.schaden}, Wert: {waffe.wert} Kupfer\033[0m")
+        # Zeigen der ausgerüsteten Waffen und Rüstungen
+        print("\033[34m**** Ausgerüstete Waffen und Rüstungen: ****\033[0m")
+        if self.waffe:
+            print(f"{zufallsfarbe()}Waffe: {self.waffe.name} - Schaden: {self.waffe.schaden}, Wert: {self.waffe.wert} Kupfer\033[0m")
+        if self.rüstung:
+            print(f"{zufallsfarbe()}Rüstung: {self.rüstung.name} - Verteidigung: {self.rüstung.verteidigung}, Wert: {self.rüstung.wert} Kupfer\033[0m")
+        if self.handschuhe:
+            print(f"{zufallsfarbe()}Handschuhe: {self.handschuhe.name} - Verteidigung: {self.handschuhe.verteidigung}, Wert: {self.handschuhe.wert} Kupfer\033[0m")
+        if self.stiefel:
+            print(f"{zufallsfarbe()}Stiefel: {self.stiefel.name} - Verteidigung: {self.stiefel.verteidigung}, Wert: {self.stiefel.wert} Kupfer\033[0m")
+        if self.helm:
+            print(f"{zufallsfarbe()}Helm: {self.helm.name} - Verteidigung: {self.helm.verteidigung}, Wert: {self.helm.wert} Kupfer\033[0m")
 
         if self.fähigkeiten:
             print("\033[34m**** Fähigkeiten: ****\033[0m")
@@ -824,36 +841,48 @@ class Spieler:
     def waffe_ausrüsten(self):
         if not self.waffeninventar:
             print("Keine Waffen im Inventar.")
-            return zeige_menü
+            return
         print("\033[34m**** Wähle eine Waffe zum Ausrüsten: ****\033[0m")
         for i, waffe in enumerate(self.waffeninventar, 1):
             print(f"{i}: {waffe.name} - Schaden: {waffe.schaden}, Wert: {waffe.wert} Kupfer")
         choice = int(input("Wähle eine Waffe (Nummer eingeben): "))
         if 1 <= choice <= len(self.waffeninventar):
-            self.waffe = self.waffeninventar[choice - 1]
+            neue_waffe = self.waffeninventar.pop(choice - 1)
+            if self.waffe:
+                self.waffeninventar.append(self.waffe)
+            self.waffe = neue_waffe
             print(f"Waffe {self.waffe.name} ausgerüstet.")
-            return zeige_menü
+
 
     def rüstung_ausrüsten(self):
         if not self.rüstungsinventar:
             print("Keine Rüstungen im Inventar.")
-            return zeige_menü
+            return
         print("\033[34m**** Wähle eine Rüstung zum Ausrüsten: ****\033[0m")
         for i, rüstung in enumerate(self.rüstungsinventar, 1):
             print(f"{i}: {rüstung.name} - Verteidigung: {rüstung.verteidigung}, Wert: {rüstung.wert} Kupfer")
         choice = int(input("Wähle eine Rüstung (Nummer eingeben): "))
         if 1 <= choice <= len(self.rüstungsinventar):
-            ausgewählte_rüstung = self.rüstungsinventar[choice - 1]
+            ausgewählte_rüstung = self.rüstungsinventar.pop(choice - 1)
             if ausgewählte_rüstung.typ == 'Rüstung':
+                if self.rüstung:
+                    self.rüstungsinventar.append(self.rüstung)
                 self.rüstung = ausgewählte_rüstung
             elif ausgewählte_rüstung.typ == 'Handschuhe':
+                if self.handschuhe:
+                    self.rüstungsinventar.append(self.handschuhe)
                 self.handschuhe = ausgewählte_rüstung
             elif ausgewählte_rüstung.typ == 'Stiefel':
+                if self.stiefel:
+                    self.rüstungsinventar.append(self.stiefel)
                 self.stiefel = ausgewählte_rüstung
             elif ausgewählte_rüstung.typ == 'Helm':
+                if self.helm:
+                    self.rüstungsinventar.append(self.helm)
                 self.helm = ausgewählte_rüstung
             print(f"Rüstung {ausgewählte_rüstung.name} ausgerüstet.")
-            return zeige_menü
+
+
 
     def angreifen(self) -> int:
         waffen_schaden = getattr(self.waffe, 'schaden', 0) if isinstance(self.waffe, Waffe) else 0
@@ -1205,8 +1234,6 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
         json.dump(spieler_data, file)
     print("Das Spiel wurde gespeichert!")
 
-   
-
 def lade_spielerdaten(name: str) -> Optional[Spieler]:
     try:
         with open(f"{name}_data.json", "r") as file:
@@ -1234,7 +1261,7 @@ def lade_spielerdaten(name: str) -> Optional[Spieler]:
         spieler.fähigkeiten = [Fähigkeit(name=f[0], schaden=f[1], mana_kosten=f[2], kosten=f[3]) for f in spieler_data["fähigkeiten"]]
         spieler.magische_schriftrollen = [MagischeSchriftrolle(name=ms[0], schaden=ms[1], mana_kosten=ms[2], typ=ms[3], wert=ms[4], kosten=ms[5], zauberart=ms[6]) for ms in spieler_data["magische_schriftrollen"]]
         spieler.ressourceninventar = spieler_data["ressourceninventar"]
-        spieler.quests = [Quest(name=q[0], beschreibung=q[1], belohnung=q[2], ziel_typ=q[3], ziel_menge=q[4]) for q in spieler_data["quests"]]  # Include ziel_typ and ziel_menge for Quest
+        spieler.quests = [Quest(name=q[0], beschreibung=q[1], belohnung=q[2], ziel_typ=q[3], ziel_menge=q[4]) for q in spieler_data["quests"]]
         spieler.tägliche_herausforderungen = [Tagesquest(name=tq[0], beschreibung=tq[1], belohnung=tq[2], ziel_typ=tq[3], ziel_menge=tq[4]) for tq in spieler_data["tägliche_herausforderungen"]]
         spieler.position = spieler_data["position"] 
         print(f"{spieler.name} wurde geladen.")
