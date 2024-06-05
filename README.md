@@ -1,5 +1,6 @@
 ### Entdecke die Welt von "Fantasy Realms: Rise of Legends"
 " Ausführbares Spiel für Windows = Fantasy-Realms-Rise-of-Legends.exe "
+![Fantasy-Realms-Rise-of-Legends](https://github.com/kruemmel-python/Fantasy-Realms-Rise-of-Legends/assets/169469747/f7416355-5ad4-4ade-be54-4b6243cc03ed)
 
 Willkommen zu **"Fantasy Realms: Rise of Legends"**, dem ultimativen textbasierten Rollenspiel, das Sie in eine atemberaubende Fantasy-Welt entführt. Erleben Sie packende Abenteuer, herausfordernde Kämpfe und eine epische Geschichte, die Sie nicht mehr loslassen wird. Machen Sie sich bereit, zum Helden zu werden, den diese Welt dringend braucht!
 
