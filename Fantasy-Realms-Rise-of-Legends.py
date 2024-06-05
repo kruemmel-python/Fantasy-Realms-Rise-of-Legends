@@ -641,6 +641,7 @@ class Spieler:
         "Kraut": 12,
         "Magischer Stein": 3
     })
+    position: int = 0  # Hinzufügen des position-Attributs
 
     def __post_init__(self):
         self.level_system = LevelSystem(self.erfahrung, self.level)
