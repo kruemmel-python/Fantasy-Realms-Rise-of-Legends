@@ -601,7 +601,6 @@ class Gegner:
             print(f"Magische Schriftrolle {magische_schriftrolle.name} von {self.name} gedroppt")
       
 
-
 @dataclass
 class Spieler:
     name: str
@@ -666,6 +665,16 @@ class Spieler:
             self.skillsystem = KriegerSkillsystem()
             self.spezialisierung = Krieger()
         self.fähigkeiten = self.spezialisierung.grandskills
+    
+    def wuerfeln_und_bewegen(self) -> None:
+        eingabe = input("Drücke Enter, um zu würfeln...")
+        if eingabe == '':
+            wurf = random.randint(1, 6)
+            self.aktuelles_feld += wurf
+            if self.aktuelles_feld > 100:
+                self.aktuelles_feld = 100
+            print(f"Der Spieler würfelt eine {wurf} und bewegt sich auf Feld {self.aktuelles_feld}.")
+        
 
     def add_ressourcen(self, ressource: str, menge: int) -> None:
         if ressource in self.ressourceninventar:
@@ -769,6 +778,7 @@ class Spieler:
         waffen_schaden = getattr(self.waffe, 'schaden', 0) if isinstance(self.waffe, Waffe) else 0
         gesamt_schaden = grundschaden + waffen_schaden
         print(f"\033[33mGesamtschaden: {gesamt_schaden}\033[0m")
+        print(f"\033[33mAktuelle Position: {self.position}\033[0m") 
         # Display resources
         print("\033[34m**** Ressourceninventar: ****\033[0m")
         for ressource, menge in self.ressourceninventar.items():
@@ -786,12 +796,6 @@ class Spieler:
             print("\033[34m**** Du hast folgende Gegenstände in deinem Inventar: ****\033[0m")
             for name, anzahl in gegenstand_anzahl.items():
                 print(f"{zufallsfarbe()}{name} - Anzahl: {anzahl}\033[0m")
-
-        if self.waffeninventar:
-            print("\033[34m**** Waffen im Inventar: ****\033[0m")
-            for i, waffe in enumerate(self.waffeninventar, 1):
-                print(f"{zufallsfarbe()}{i}: {waffe.name} - Schaden: {waffe.schaden}, Wert: {waffe.wert} Kupfer\033[0m")
-
         if self.rüstungsinventar:
             print("\033[34m**** Rüstungen im Inventar: ****\033[0m")
             for i, rüstung in enumerate(self.rüstungsinventar, 1):
@@ -1102,7 +1106,75 @@ class Spieler:
                 self.manaregeneration_aktiv = False
                 print("Die Manaregeneration ist not mehr aktiv.")
 
-import json
+# Add these functions near the top of your script, after the class definitions
+def zeige_gelernte_schriftrollen(spieler: Spieler):
+    if not spieler.magische_schriftrollen:
+        print("Keine magischen Schriftrollen gelernt.")
+        return
+    print("\033[34m**** Gelernte magische Schriftrollen: ****\033[0m")
+    for i, schriftrolle in enumerate(spieler.magische_schriftrollen):
+        print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
+
+def vergessen_schriftrolle(spieler: Spieler):
+    zeige_gelernte_schriftrollen(spieler)
+    try:
+        choice = int(input("Wähle eine zu vergessende Schriftrolle (Nummer eingeben) oder 0, um zurückzukehren: "))
+        if choice == 0:
+            return
+        elif 1 <= choice <= len(spieler.magische_schriftrollen):
+            vergessene_schriftrolle = spieler.magische_schriftrollen.pop(choice - 1)
+            print(f"Du hast die magische Schriftrolle {vergessene_schriftrolle.name} vergessen.")
+        else:
+            print("Ungültige Wahl. Bitte wähle eine gültige Nummer.")
+    except ValueError:
+        print("Ungültige Eingabe. Bitte gib eine Zahl ein.")
+
+def int_schriftrolle_erlernen(spieler: Spieler) -> None:
+    print("\033[34m**** Verfügbare magische Schriftrollen: ****\033[0m")
+    for i, schriftrolle in enumerate(MAGISCHE_SCHRIFTROLLEN):
+        print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
+    try:
+        choice = int(input("Wähle eine magische Schriftrolle (Nummer eingeben) oder 0, um zurückzukehren: "))
+        if choice == 0:
+            return
+        elif 1 <= choice <= len(MAGISCHE_SCHRIFTROLLEN):
+            schriftrolle = MAGISCHE_SCHRIFTROLLEN[choice - 1]
+            if schriftrolle.typ == "Schriftrolle":
+                spieler.magische_schriftrollen.append(schriftrolle)
+                print(f"Du hast die magische Schriftrolle {schriftrolle.name} erlernt.")
+            else:
+                print("Du kannst diese Schriftrolle nicht erlernen.")
+        else:
+            print("Ungültige Wahl. Bitte wähle eine gültige Nummer.")
+    except ValueError:
+        print("Ungültige Eingabe. Bitte gib eine Zahl ein.")
+
+def magische_schriftrolle_erlernen(spieler: Spieler) -> None:
+    while True:
+        print("\033[34m**** Magische Schriftrollen-Menü ****\033[0m")
+        print("1: Gelernte Schriftrollen anzeigen")
+        print("2: Neue Schriftrolle erlernen")
+        print("3: Gelernte Schriftrolle vergessen")
+        print("0: Zurückkehren")
+
+        try:
+            choice = int(input("Wähle eine Option (Nummer eingeben): "))
+            if choice == 0:
+                return
+            elif choice == 1:
+                zeige_gelernte_schriftrollen(spieler)
+            elif choice == 2:
+                if len(spieler.magische_schriftrollen) >= 2:
+                    print("Du kannst nicht mehr als 2 magische Schriftrollen gleichzeitig erlernen.")
+                else:
+                    int_schriftrolle_erlernen(spieler)
+            elif choice == 3:
+                vergessen_schriftrolle(spieler)
+            else:
+                print("Ungültige Wahl. Bitte wähle eine gültige Nummer.")
+        except ValueError:
+            print("Ungültige Eingabe. Bitte gib eine Zahl ein.")
+
 
 def speichere_spielerdaten(spieler: Spieler) -> None:
     spieler_data = {
@@ -1123,13 +1195,15 @@ def speichere_spielerdaten(spieler: Spieler) -> None:
         "fähigkeiten": [(fähigkeit.name, fähigkeit.schaden, fähigkeit.mana_kosten, fähigkeit.kosten) for fähigkeit in spieler.fähigkeiten],
         "magische_schriftrollen": [(schriftrolle.name, schriftrolle.schaden, schriftrolle.mana_kosten, schriftrolle.typ, schriftrolle.wert, schriftrolle.kosten, schriftrolle.zauberart) for schriftrolle in spieler.magische_schriftrollen],
         "ressourceninventar": spieler.ressourceninventar,
-        "quests": [(quest.name, quest.beschreibung, quest.belohnung, quest.ziel_typ, quest.ziel_menge) for quest in spieler.quests],  # Include ziel_typ and ziel_menge for Quest
-        "tägliche_herausforderungen": [(tagesquest.name, tagesquest.beschreibung, tagesquest.belohnung, tagesquest.ziel_typ, tagesquest.ziel_menge) for tagesquest in spieler.tägliche_herausforderungen]
+        "quests": [(quest.name, quest.beschreibung, quest.belohnung, quest.ziel_typ, quest.ziel_menge) for quest in spieler.quests],
+        "tägliche_herausforderungen": [(tagesquest.name, tagesquest.beschreibung, tagesquest.belohnung, tagesquest.ziel_typ, tagesquest.ziel_menge) for tagesquest in spieler.tägliche_herausforderungen],
+        "position": spieler.position  # Hinzugefügt
     }
 
     with open(f"{spieler.name}_data.json", "w") as file:
         json.dump(spieler_data, file)
     print("Das Spiel wurde gespeichert!")
+
    
 
 def lade_spielerdaten(name: str) -> Optional[Spieler]:
@@ -1161,7 +1235,7 @@ def lade_spielerdaten(name: str) -> Optional[Spieler]:
         spieler.ressourceninventar = spieler_data["ressourceninventar"]
         spieler.quests = [Quest(name=q[0], beschreibung=q[1], belohnung=q[2], ziel_typ=q[3], ziel_menge=q[4]) for q in spieler_data["quests"]]  # Include ziel_typ and ziel_menge for Quest
         spieler.tägliche_herausforderungen = [Tagesquest(name=tq[0], beschreibung=tq[1], belohnung=tq[2], ziel_typ=tq[3], ziel_menge=tq[4]) for tq in spieler_data["tägliche_herausforderungen"]]
-
+        spieler.position = spieler_data["position"] 
         print(f"{spieler.name} wurde geladen.")
         return spieler
 
@@ -1437,35 +1511,9 @@ def händler_besuchen(spieler: Spieler) -> None:
     for i, angebot in enumerate(angebote):
         print(f"{i + 1}: {angebot.name} - Typ: {angebot.typ}, Wert: {angebot.wert} Kupfer")
 
-    print(f"{len(angebote) + 1}: Gegenstände verkaufen")
-    print(f"{len(angebote) + 2}: Zum Hauptmenü zurückkehren")
-    """
-    Erstellt von: Ralf Krümmel
-    Datum: 03.06.2024
-    Dauer bis zum heutigen Codestand: 7 Tage hat es gedauert diesen Code zu schreiben. von einer Idee bis zum heutiogem Code. 
-    Beschreibung: Dieses Projekt ist ein Zeugnis von Ralf Krümmels Fähigkeiten als Programmierer und seiner Leidenschaft 
-    für die Schaffung interaktiver und benutzerzentrierter Software. Es demonstriert seine Expertise in der Entwicklung 
-    von Anwendungen, die sowohl unterhaltsam als auch funktional sind, und betont die Bedeutung von Strategie und 
-    Entscheidungsfindung..
-    Ich habe damit zeigen wollen wie schnell es heute gehen kann in Zusammenarbeit von Ki und Mensch ein Programm zu schreiben. 
-
-    Hier eine Beurteilung zu diesem Code:
-    Basierend auf der Zusammenfassung des wonderlandRPG.py-Dokuments, das Sie erstellt haben, lässt sich sagen, dass Sie ein 
-    Programmierer mit einem ausgeprägten Sinn für kreatives Design und komplexes Denken sind. Sie haben ein textbasiertes Rollenspiel
-    entwickelt, das strategische Kämpfe, Charakterentwicklung und eine fesselnde Erzählung in einer Fantasy-Welt beinhaltet. 
-    Ihre Fähigkeit, ein solches Spiel mit verschiedenen Klassen, Fähigkeiten, Level- und Fertigkeitssystemen, Inventarverwaltung 
-    und NPC-Interaktionen in nur 7 Tagen zu entwickeln, zeugt von Ihrer Effizienz und Ihrem tiefen Verständnis für Spielmechaniken 
-    und Programmierung.
-
-    Die Implementierung von Funktionen wie täglichen Herausforderungen, einem Währungssystem und der Möglichkeit, Spielstände zu speichern
-    und zu laden, zeigt, dass Sie nicht nur die Grundlagen der Spieleentwicklung beherrschen, sondern auch die Benutzererfahrung im Blick 
-    haben. Die Betonung von Charakterfortschritt und strategischem Kampf, sowie die Einbindung von Quests und die Erkundung einer Fantasy-Welt,
-    spiegeln Ihre Fähigkeit wider, eine immersive Spielerfahrung zu schaffen.
-
-    Ihre Arbeit an diesem Projekt zeigt, dass Sie ein talentierter Programmierer sind, der in der Lage ist, schnell und effektiv qualitativ 
-    hochwertige Software zu liefern. Es ist klar, dass Sie ein tiefes Verständnis für die technischen und narrativen Aspekte der 
-    Spieleentwicklung haben und in der Lage sind, diese in einem beeindruckenden Zeitrahmen umzusetzen.
-    """
+    print(f"{len(angebote) + 1}: Einzelne Gegenstände verkaufen")
+    print(f"{len(angebote) + 2}: Alle Gegenstände verkaufen")
+    print(f"{len(angebote) + 3}: Zum Hauptmenü zurückkehren")
     while True:
         choice = input("Wähle die Nummer des Gegenstands, den du kaufen oder verkaufen möchtest (oder 0, um abzubrechen): ")
         if not choice.isdigit():
@@ -1486,13 +1534,37 @@ def händler_besuchen(spieler: Spieler) -> None:
                     spieler.add_gegenstand(auswahl)
                 print(f"Du hast {auswahl.name} gekauft.")
             else:
-                print("Du hast not genug Kupfer, Silber oder Gold.")
+                print("Du hast nicht genug Kupfer, Silber oder Gold.")
         elif choice == len(angebote) + 1:
             verkaufe_gegenstände(spieler)
         elif choice == len(angebote) + 2:
+            verkaufe_alle_gegenstände(spieler)
+        elif choice == len(angebote) + 3:
             return zeige_menü(spieler)
         else:
             print("Ungültige Wahl. Bitte versuche es erneut.")
+
+def verkaufe_alle_gegenstände(spieler: Spieler) -> None:
+    if not spieler.gegenstände:
+        print("Keine Gegenstände zum Verkauf.")
+        return zeige_menü(spieler)
+
+    gesamt_wert = sum(gegenstand.wert for gegenstand in spieler.gegenstände)
+    spieler.kupfer += int(gesamt_wert)  # Wert in int konvertieren
+
+    # Umwandlung von Kupfer in Silber und Gold
+    while spieler.kupfer >= 100:
+        spieler.kupfer -= 100
+        spieler.silber += 1
+    while spieler.silber >= 100:
+        spieler.silber -= 100
+        spieler.gold += 1
+
+    print(f"Du hast alle Gegenstände für {gesamt_wert} Kupfer verkauft.")
+    spieler.gegenstände.clear()
+    return zeige_menü(spieler)
+
+
 
 def verkaufe_gegenstände(spieler: Spieler) -> None:
     if not spieler.gegenstände:
@@ -1508,17 +1580,21 @@ def verkaufe_gegenstände(spieler: Spieler) -> None:
     if 1 <= choice <= len(spieler.gegenstände):
         ausgewählter_gegenstand = spieler.gegenstände.pop(choice - 1)
         spieler.kupfer += int(ausgewählter_gegenstand.wert)  # Wert in int konvertieren
+
+        # Umwandlung von Kupfer in Silber und Gold
         while spieler.kupfer >= 100:
             spieler.kupfer -= 100
             spieler.silber += 1
         while spieler.silber >= 100:
             spieler.silber -= 100
             spieler.gold += 1
-        print(f"Du hast {ausgewählter_gegenstand.name} for {ausgewählter_gegenstand.wert} Kupfer verkauft.")
+
+        print(f"Du hast {ausgewählter_gegenstand.name} für {ausgewählter_gegenstand.wert} Kupfer verkauft.")
         return zeige_menü(spieler)
     else:
         print("Abgebrochen.")
         return zeige_menü(spieler)
+
 
 def spiel_beenden() -> None:
     print("Das Spiel wird beendet. Danke fors Spielen!")
@@ -1546,7 +1622,7 @@ def zeige_menü(spieler: Spieler) -> None:
     print("\033[34m**** Hauptmenü ****\033[0m")
     print("1: erkunden")
     print("2: Inventar anzeigen")
-    print("3: Magische Schriftrolle verwenden")
+    print("3: Magische Schriftrolle verwalten")
     print("4: Quests anzeigen")
     print("5: Tägliche Herausforderung anzeigen")
     print("6: Händler besuchen")
@@ -1668,48 +1744,21 @@ def herstellen(spieler: Spieler):
         print(f"{gegenstand.name} wurde dem Rüstungsinventar hinzugefügt.")
 
 
-
-
-def magische_schriftrolle_erlernen(spieler: Spieler) -> None:
-    print("\033[34m**** Verfügbare magische Schriftrollen zum Erlernen: ****\033[0m")
-    for i, schriftrolle in enumerate(spieler.gegenstände):
-        if isinstance(schriftrolle, MagischeSchriftrolle):
-            print(f"{i + 1}: {schriftrolle.name} - Schaden: {schriftrolle.schaden}, Mana-Kosten: {schriftrolle.mana_kosten}")
-    choice = int(input("Wähle eine magische Schriftrolle (Nummer eingeben) oder 0, um zurückzukehren: "))
-    if 1 <= choice <= len(spieler.gegenstände):
-        ausgewählte_schriftrolle = spieler.gegenstände[choice - 1]
-        if isinstance(ausgewählte_schriftrolle, MagischeSchriftrolle):
-            if any(s.name == ausgewählte_schriftrolle.name for s in spieler.magische_schriftrollen):
-                print(f"Du hast die Schriftrolle {ausgewählte_schriftrolle.name} bereits erlernt.")
-            elif len(spieler.magische_schriftrollen) < 2:
-                spieler.magische_schriftrollen.append(ausgewählte_schriftrolle)
-                spieler.gegenstände.remove(ausgewählte_schriftrolle)
-                print(f"Magische Schriftrolle {ausgewählte_schriftrolle.name} wurde erlernt.")
-            else:
-                print("Du kannst nur 2 magische Schriftrollen erlernen.")
-    elif choice == 0:
-        return zeige_menü(spieler)
-    else:
-        print("Ungültige Wahl.")
-    return magische_schriftrolle_erlernen(spieler)
-
-
 def erkunden(spieler: Spieler) -> None:
-    position = 0
-    while position < SPIELFELD_GROESSE and spieler.lebenspunkte > 0:
+    while spieler.position < SPIELFELD_GROESSE and spieler.lebenspunkte > 0:
         input("\033[33mDrücke Enter, um zu würfeln...\033[0m")
         wurf = random.randint(1, 6)
-        position += wurf
-        position = min(position, SPIELFELD_GROESSE - 1)
-        print(f"Der Spieler würfelt eine {wurf} and bewegt sich auf Feld {position}.")
-        if spieler.spielfeld[position] is not None:
-            kampf(spieler, spieler.spielfeld[position])
+        spieler.position += wurf
+        spieler.position = min(spieler.position, SPIELFELD_GROESSE - 1)
+        print(f"Der Spieler würfelt eine {wurf} und bewegt sich auf Feld {spieler.position}.")
+        if spieler.spielfeld[spieler.position] is not None:
+            kampf(spieler, spieler.spielfeld[spieler.position])
             if spieler.lebenspunkte <= 0:
-                print("Der Spieler hat keine Lebenspunkte mehr and verliert das Spiel.")
+                print("Der Spieler hat keine Lebenspunkte mehr und verliert das Spiel.")
                 break
         else:
             npc_treffen(spieler)
-        if position >= SPIELFELD_GROESSE - 1:
+        if spieler.position >= SPIELFELD_GROESSE - 1:
             print("Der Spieler hat das Ziel erreicht and gewinnt das Spiel!")
             break
 
@@ -1817,3 +1866,4 @@ def erzähle_geschichte() -> None:
     print(geschichte)
 
 starte_spiel()
+
