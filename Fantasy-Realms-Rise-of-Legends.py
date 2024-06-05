@@ -15,18 +15,18 @@ def zufallsfarbe():
     return random.choice(farben)
 
 # Konstanten
-LEBENSPUNKTE = {'schwach': 50, 'mittel': 70, 'stark': 90, 'boss': 200}
-MAX_SCHADEN = {'schwach': 30, 'mittel': 40, 'stark': 50, 'boss': 75}
+LEBENSPUNKTE = {'schwach': 150, 'mittel': 170, 'stark': 190, 'boss': 200}
+MAX_SCHADEN = {'schwach': 60, 'mittel': 80, 'stark': 90, 'boss': 110}
 GOLD_BELOHNUNG = {'schwach': (0, 0, 1), 'mittel': (0, 0, 3), 'stark': (0, 0, 5), 'boss': (0, 0, 10)}
-SPIELFELD_GROESSE = 1000
+SPIELFELD_GROESSE = 10000
 GEGNER_TYPEN = ['schwach', 'mittel', 'stark']
 BOSS_TYPEN = ['boss']
-ANZAHL_GEGNER_PRO_TYP = 100
-ANZAHL_BOSSE = 50
-SPIELER_START_LEBENSPUNKTE = 200
+ANZAHL_GEGNER_PRO_TYP = 6000
+ANZAHL_BOSSE = 3000
+SPIELER_START_LEBENSPUNKTE = 300
 SPIELER_MAX_SCHADEN = 55
-SPIELER_START_MANA = 100
-SPIELER_MAX_MANA = 100
+SPIELER_START_MANA = 200
+SPIELER_MAX_MANA = 300
 CSV_DATEI = 'spielerdaten.csv'
 START_GOLD = (0, 0, 1)  # (Kupfer, Silber, Gold)
 
@@ -590,7 +590,7 @@ class Gegner:
             print(f"Sehr seltenes Artefakt von {self.name} gedroppt")
 
     def drop_benutzbare_gegenstände(self) -> None:
-        if random.random() < 0.40:  # 40% Chance, einen benutzbaren Gegenstand zu droppen
+        if random.random() < 0.10:  # 10% Chance, einen benutzbaren Gegenstand zu droppen
             benutzbarer_gegenstand = random.choice(BENUTZBARE_GEGENSTAENDE)
             self.benutzbare_gegenstände.append(benutzbarer_gegenstand)
             print(f"Benutzbarer Gegenstand {benutzbarer_gegenstand.name} von {self.name} gedroppt")
@@ -1501,7 +1501,7 @@ def tägliche_herausforderung_abschließen(spieler: Spieler) -> None:
         return zeige_menü(spieler)
 
 def npc_treffen(spieler: Spieler) -> None:
-    if random.random() < 0.2:  # 20% Chance, einen NPC zu treffen
+    if random.random() < 0.1:  # 20% Chance, einen NPC zu treffen
         npc_name = random.choice(["Gandalf", "Aragorn", "Legolas", "Gimli"])
         quest_name = f"{npc_name}s Quest"
         quest_beschreibung = f"Hilf {npc_name}, die Dunkelheit zu vertreiben."
